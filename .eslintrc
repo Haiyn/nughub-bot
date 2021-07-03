@@ -3,10 +3,25 @@
   "parser": "@typescript-eslint/parser",
   "plugins": [
     "@typescript-eslint"
+
   ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended"
-  ]
+  ],
+  "rules": {
+    "object-curly-spacing": [ "warn", "always", { "arraysInObjects": false, "objectsInObjects": false }],
+    "array-bracket-spacing": [ "warn", "always", { "singleValue": false }],
+    "comma-spacing": [ "warn", { "before": false, "after": true }],
+    "semi-spacing": [ "warn", { "before": false, "after":  true }],
+    "spaced-comment": [ "warn", "always", { "block": {"balanced": true }}],
+    "space-in-parens": [ "warn", "never" ],
+    "no-trailing-spaces": "warn",
+    "semi": [ "warn", "always" ],
+    "accessor-pairs": "error",
+    "quotes": [ "warn", "double", { "allowTemplateLiterals": true}],
+    "brace-style": [ "warn", "1tbs", { "allowSingleLine": true }],
+    "curly": [ "warn", "multi-line" ]
+  }
 }

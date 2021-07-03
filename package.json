@@ -9,7 +9,7 @@
     "resolve": "tsc -p tsconfig.json --traceResolution",
     "watch": "tsc -p tsconfig.json -w",
     "test": "mocha -r ts-node/register \"tests/**/*.spec.ts\"",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint --fix . --ext .ts"
   },
   "repository": {
     "type": "git",
