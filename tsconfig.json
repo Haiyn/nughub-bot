@@ -18,8 +18,10 @@
     "outDir": "dist",
     "baseUrl": "./src",
     "paths": {
+      "@src/*": ["./*"],
       "@services/*": ["services/*"],
-      "@commands/*": ["commands/*"]
+      "@commands/*": ["commands/*"],
+      "@models/*": ["models/*"]
     },
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
