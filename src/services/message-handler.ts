@@ -1,11 +1,10 @@
 import { Message } from "discord.js";
-import {inject, injectable} from "inversify";
+import { inject, injectable } from "inversify";
 import { TYPES } from "@src/types";
 import { PrefixFinder, BotFinder, PermissionHandler } from "@services/index";
 import { CommandContext } from "@models/command-context";
 import { Command, Ping } from "@src/commands";
-import container from "@src/inversify.config";
-import {Logger} from "tslog";
+import { Logger } from "tslog";
 
 @injectable()
 export class MessageHandler {
@@ -60,11 +59,11 @@ export class MessageHandler {
         await matchedCommand.run(commandContext)
             .then(() => {
                 this.logger.debug(`Message ID ${message.id}: Successfully ran command: ${matchedCommand.names[0]}`);
-                //reactor.success(message);
+                // reactor.success(message);
             })
             .catch((error) => {
                 this.logger.error(`Message ID ${message.id}: Could not run command: ${matchedCommand.names[0]}`, error);
-                //reactor.failure(message);
+                // reactor.failure(message);
             });
 
         return Promise.resolve();

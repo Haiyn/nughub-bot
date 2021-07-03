@@ -1,7 +1,7 @@
-import {inject, injectable} from "inversify";
+import { inject, injectable } from "inversify";
 import { TYPES } from "@src/types";
-import {Logger} from "tslog";
-import {Message} from "discord.js";
+import { Logger } from "tslog";
+import { Message } from "discord.js";
 
 @injectable()
 export class PrefixFinder {
@@ -17,8 +17,8 @@ export class PrefixFinder {
     }
 
     public isPrefixed(message: Message): boolean {
-        let isPrefixed = message.content.startsWith(this.prefix);
-        this.logger.debug(`Message ID ${message.id}: is ${isPrefixed ? "" : "not"} prefixed.`)
+        const isPrefixed = message.content.startsWith(this.prefix);
+        this.logger.debug(`Message ID ${message.id}: is ${isPrefixed ? "" : "not"} prefixed.`);
         return isPrefixed;
     }
 }
