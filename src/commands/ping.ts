@@ -1,12 +1,10 @@
 import { Command } from "@commands/command";
 import { CommandContext } from "@models/command-context";
-import {TYPES} from "@src/types";
-import {Client} from "discord.js";
-import {inject, injectable} from "inversify";
+import {injectable} from "inversify";
 
 @injectable()
 export class Ping extends Command {
-    names = ["ping", "p"];
+    names = [ "ping", "p" ];
     description = "Pings the bot.";
     usageHint = process.env.PREFIX + "ping";
 

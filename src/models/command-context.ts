@@ -1,4 +1,4 @@
-import {Message, User} from "discord.js";
+import { Message, User } from "discord.js";
 
 export class CommandContext {
     readonly parsedCommandName: string;
@@ -15,7 +15,7 @@ export class CommandContext {
             .split(/ +/g);
 
         this.author = message.author;
-        this.parsedCommandName = splitMessage.shift()!.toLowerCase();
+        this.parsedCommandName = splitMessage.shift()?.toLowerCase();
         this.args = splitMessage;
         this.originalMessage = message;
     }

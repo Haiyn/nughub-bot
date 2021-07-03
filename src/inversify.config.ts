@@ -4,10 +4,10 @@ import { Container } from "inversify";
 import { MessageHandler, PrefixFinder, BotFinder, PermissionHandler } from "@services/index";
 import { TYPES } from "@src/types";
 import { Server } from "@src/server";
-import {Logger, TLogLevelName} from "tslog";
-import {Command, Ping} from "@src/commands";
+import { Logger, TLogLevelName } from "tslog";
+import { Command, Ping } from "@src/commands";
 
-let container = new Container();
+const container = new Container();
 
 // Environment
 container.bind<string>(TYPES.Token).toConstantValue(process.env.TOKEN);

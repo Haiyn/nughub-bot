@@ -1,8 +1,8 @@
-import {inject, injectable, unmanaged} from "inversify";
+import { inject, injectable, unmanaged } from "inversify";
 import { TYPES } from "@src/types";
-import {CommandContext} from "@models/command-context";
-import {Command} from "@src/commands";
-import {Logger} from "tslog";
+import { CommandContext } from "@models/command-context";
+import { Command } from "@src/commands";
+import { Logger } from "tslog";
 
 @injectable()
 export class PermissionHandler {

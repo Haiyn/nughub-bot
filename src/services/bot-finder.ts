@@ -1,7 +1,7 @@
-import {inject, injectable} from "inversify";
-import {Message} from "discord.js";
-import {Logger} from "tslog";
-import {TYPES} from "@src/types";
+import { inject, injectable } from "inversify";
+import { Message } from "discord.js";
+import { Logger } from "tslog";
+import { TYPES } from "@src/types";
 
 @injectable()
 export class BotFinder {
@@ -14,7 +14,7 @@ export class BotFinder {
     }
 
     public isBot(message: Message): boolean {
-        let isBot = message.author.bot;
+        const isBot = message.author.bot;
         isBot ? this.logger.debug(`Message ID ${message.id}: is a bot message.`) : "";
         return isBot;
     }
