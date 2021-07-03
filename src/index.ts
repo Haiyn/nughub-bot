@@ -2,10 +2,12 @@ require('dotenv').config();
 import container from "./inversify.config";
 import { TYPES } from "@src/types";
 import { Server } from "@src/server";
+import {Logger} from "tslog";
 
-let bot = container.get<Server>(TYPES.Server);
-bot.listen().then(() => {
-    console.log('Logged in!')
+let logger = container.get<Logger>(TYPES.BaseLogger);
+let server = container.get<Server>(TYPES.Server);
+server.listen().then(() => {
+    logger.info('Server started and connected.');
 }).catch((error) => {
-    console.log('Oh no! ', error)
+    logger.fatal('Could not start server.', logger.prettyError(error));
 });

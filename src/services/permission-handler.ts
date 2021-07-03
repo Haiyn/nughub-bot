@@ -1,16 +1,21 @@
-import {inject, injectable} from "inversify";
+import {inject, injectable, unmanaged} from "inversify";
 import { TYPES } from "@src/types";
 import {CommandContext} from "@models/command-context";
 import {Command} from "@src/commands";
+import {Logger} from "tslog";
 
 @injectable()
 export class PermissionHandler {
     private readonly prefix: string;
+    private readonly logger: Logger;
 
     constructor(
-        @inject(TYPES.Prefix) prefix: string
+        @unmanaged() props,
+        @inject(TYPES.Prefix) prefix: string,
+        @inject(TYPES.ServiceLogger) logger: Logger,
     ) {
         this.prefix = prefix;
+        this.logger = logger;
     }
 
     public hasPermission(context: CommandContext, command: Command): boolean {
