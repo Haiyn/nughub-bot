@@ -1,7 +1,10 @@
 import { CommandContext } from "@models/command-context";
-import {rejects} from "assert";
+import {TYPES} from "@src/types";
+import {Logger} from "tslog";
+import {inject, injectable} from "inversify";
 
-export abstract class Command {
+@injectable()
+export class Command {
     readonly names: string[]
     readonly description: string;
     readonly usageHint: string;
@@ -10,6 +13,7 @@ export abstract class Command {
     getHelpMessage(): string {
         return this.description + "\n" + "Usage: '" + this.usageHint + "'"
     }
+
     run(context: CommandContext): Promise<void> {
         return Promise.reject();
     }
