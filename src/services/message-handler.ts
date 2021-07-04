@@ -5,6 +5,7 @@ import { PrefixFinder, BotFinder, PermissionHandler } from "@services/index";
 import { CommandContext } from "@models/command-context";
 import { Command, Ping } from "@src/commands";
 import { Logger } from "tslog";
+import { ServiceResult } from "@models/service-result";
 
 @injectable()
 export class MessageHandler {
@@ -33,10 +34,10 @@ export class MessageHandler {
         this.commandList = commandClasses.map((CommandClass) => new CommandClass());
     }
 
-    async handleMessage(message: Message): Promise<void> {
+    async handleMessage(message: Message): Promise<ServiceResult> {
         if (this.botFinder.isBot(message) || !this.prefixFinder.isPrefixed(message)) {
             this.logger.debug(`Message ID ${message.id}: Skipping.`);
-            return await Promise.resolve();
+            return new ServiceResult(true, "Skipped message");
         }
 
         const commandContext = new CommandContext(message);
@@ -57,15 +58,18 @@ export class MessageHandler {
         }
 
         await matchedCommand.run(commandContext)
-            .then(() => {
-                this.logger.debug(`Message ID ${message.id}: Successfully ran command: ${matchedCommand.names[0]}`);
+            .then((result) => {
+                result.success ?
+                    this.logger.info(`Message ID ${message.id}: Successfully ran command "${result.command.names[0]}": ${result.message}`) :
+                    this.logger.info(`Message ID ${message.id}: Did not run command "${result.command.names[0]}": ${result.message}`);
                 // reactor.success(message);
             })
-            .catch((error) => {
-                this.logger.error(`Message ID ${message.id}: Could not run command: ${matchedCommand.names[0]}`, error);
+            .catch((result) => {
+                this.logger.error(`Message ID ${message.id}: Could not run command "${result.command.names[0]}": ${result.message}`,
+                    this.logger.prettyError(result.error));
                 // reactor.failure(message);
             });
 
-        return Promise.resolve();
+        return Promise.resolve(new ServiceResult(true, "Handled message"));
     }
 }

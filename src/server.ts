@@ -25,11 +25,13 @@ export class Server {
 
     public listen(): Promise<string> {
         this.client.on("message", async (message: Message) => {
-            this.logger.debug(`Message ID: ${message.id}: received\nAuthor ID: ${message.author.id}\nContent length: ${message.content.length}\nContent: ${message.content.substr(0, 100)}`);
+            this.logger.debug(`Message ID ${message.id}: received\nAuthor ID: ${message.author.id}\nContent length: ${message.content.length}\nContent: ${message.content.substr(0, 100)}`);
             await this.messageHandler.handleMessage(message)
-                .catch(error => {
-                    this.logger.error("Could not handle message: " + error);
-                    this.logger.prettyError(error);
+                .then((result) => {
+                    this.logger.debug(`Message ID ${message.id}: ${result.message}`);
+                })
+                .catch((result) => {
+                    this.logger.error(`Message ID ${message.id}: ${result.message}`, this.logger.prettyError(result.error));
                 });
         });
 
