@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 
 @injectable()
-export class ServiceResult {
+export class ControllerResult {
     private readonly _success: boolean;
     private readonly _message: string;
     private readonly _error?: Error;

@@ -1,11 +1,10 @@
 import { inject, injectable, unmanaged } from "inversify";
 import { TYPES } from "@src/types";
-import { CommandContext } from "@models/command-context";
-import { Command } from "@src/commands";
 import { Logger } from "tslog";
+import { GuildMemberRoleManager } from "discord.js";
 
 @injectable()
-export class PermissionHandler {
+export class PermissionService {
     private readonly prefix: string;
     private readonly logger: Logger;
 
@@ -18,7 +17,7 @@ export class PermissionHandler {
         this.logger = logger;
     }
 
-    public hasPermission(context: CommandContext, command: Command): boolean {
+    public hasPermission(roles: GuildMemberRoleManager, permissionLevel: number): boolean {
         // TODO: get permission level for context.author.id OR context.author.role == Moderator
         return true;
     }

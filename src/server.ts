@@ -1,20 +1,20 @@
 import { Client, Message } from "discord.js";
 import { inject, injectable } from "inversify";
-import { TYPES } from "./types";
-import { MessageHandler } from "@services/message-handler";
+import { TYPES } from "@src/types";
+import { MessageController } from "@controllers/index";
 import { Logger } from "tslog";
 
 @injectable()
 export class Server {
     private client: Client;
     private readonly token: string;
-    private readonly messageHandler: MessageHandler;
+    private readonly messageHandler: MessageController;
     private readonly logger: Logger;
 
     constructor(
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.Token) token: string,
-        @inject(TYPES.MessageHandler) messageHandler: MessageHandler,
+        @inject(TYPES.MessageController) messageHandler: MessageController,
         @inject(TYPES.BaseLogger) logger: Logger
     ) {
         this.client = client;

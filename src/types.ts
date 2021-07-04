@@ -6,10 +6,10 @@ export const TYPES = {
     Prefix: Symbol("Prefix"),
 
     // Services
-    MessageHandler: Symbol("MessageHandler"),
-    PrefixFinder: Symbol("PrefixFinder"),
-    BotFinder: Symbol("BotFinder"),
-    PermissionHandler: Symbol("PermissionHandler"),
+    MessageController: Symbol("MessageController"),
+    MessageService: Symbol("MessageService"),
+    PermissionService: Symbol("PermissionService"),
+    CommandService: Symbol("CommandService"),
 
     // Commands
     Ping: Symbol("Ping"),

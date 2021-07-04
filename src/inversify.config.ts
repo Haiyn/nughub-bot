@@ -1,7 +1,8 @@
 import "reflect-metadata";
 import { Client } from "discord.js";
 import { Container } from "inversify";
-import { MessageHandler, PrefixFinder, BotFinder, PermissionHandler } from "@services/index";
+import { PermissionService, CommandService, MessageService } from "@services/index";
+import { MessageController } from "@controllers/index";
 import { TYPES } from "@src/types";
 import { Server } from "@src/server";
 import { Logger, TLogLevelName } from "tslog";
@@ -35,10 +36,10 @@ container.bind<Logger>(TYPES.CommandLogger).toConstantValue(container.get<Logger
 
 // Services
 container.bind<Server>(TYPES.Server).to(Server).inSingletonScope();
-container.bind<MessageHandler>(TYPES.MessageHandler).to(MessageHandler).inSingletonScope();
-container.bind<PrefixFinder>(TYPES.PrefixFinder).to(PrefixFinder).inSingletonScope();
-container.bind<BotFinder>(TYPES.BotFinder).to(BotFinder).inSingletonScope();
-container.bind<PermissionHandler>(TYPES.PermissionHandler).to(PermissionHandler).inSingletonScope();
+container.bind<MessageController>(TYPES.MessageController).to(MessageController).inSingletonScope();
+container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();
+container.bind<PermissionService>(TYPES.PermissionService).to(PermissionService).inSingletonScope();
+container.bind<CommandService>(TYPES.CommandService).to(CommandService).inSingletonScope();
 
 // Commands
 container.bind<Ping>(TYPES.Ping).to(Command).inRequestScope();

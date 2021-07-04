@@ -1,22 +1,18 @@
-import { Message, User } from "discord.js";
+import { Message } from "discord.js";
+import { Command } from "@src/commands";
 
 export class CommandContext {
-    readonly parsedCommandName: string;
+    readonly command: Command;
     readonly args: string[];
     readonly originalMessage: Message;
-    readonly author: User;
 
     constructor(
-        message: Message
+        command: Command,
+        message: Message,
+        args: string[]
     ) {
-        const splitMessage = message.content
-            .slice(process.env.PREFIX.length)
-            .trim()
-            .split(/ +/g);
-
-        this.author = message.author;
-        this.parsedCommandName = splitMessage.shift()?.toLowerCase();
-        this.args = splitMessage;
+        this.command = command;
+        this.args = args;
         this.originalMessage = message;
     }
 }
