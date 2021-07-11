@@ -3,8 +3,8 @@ import "mocha";
 import { expect } from "chai";
 import { instance, mock } from "ts-mockito";
 import { Message, User } from "discord.js";
-import { MessageService } from "../../src/services";
 import { Logger } from "tslog";
+import { MessageService } from "@src/services";
 
 describe("MessageService", () => {
     let mockedServiceLoggerClass: Logger;
