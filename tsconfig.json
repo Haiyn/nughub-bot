@@ -20,6 +20,7 @@
     "paths": {
       "@src/*": ["./*"],
       "@services/*": ["services/*"],
+      "@controllers/*": ["controllers/*"],
       "@commands/*": ["commands/*"],
       "@models/*": ["models/*"]
     },

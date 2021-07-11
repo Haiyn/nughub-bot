@@ -1,5 +1,6 @@
 import { CommandContext } from "@models/command-context";
 import { injectable } from "inversify";
+import { CommandResult } from "@models/command-result";
 
 @injectable()
 export class Command {
@@ -12,7 +13,7 @@ export class Command {
         return this.description + "\n" + "Usage: '" + this.usageHint + "'";
     }
 
-    run(context: CommandContext): Promise<void> {
-        return Promise.reject();
+    run(context: CommandContext): Promise<CommandResult> {
+        return Promise.resolve(new CommandResult(this, context, false, "not implemented."));
     }
 }

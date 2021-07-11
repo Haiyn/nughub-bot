@@ -1,4 +1,4 @@
-export * from "@services/message-handler";
-export * from "@services/permission-handler";
-export * from "@services/prefix-finder";
-export * from "@services/bot-finder";
+
+export * from "@services/permission-service";
+export * from "@services/message-service";
+export * from "@services/command-service";
