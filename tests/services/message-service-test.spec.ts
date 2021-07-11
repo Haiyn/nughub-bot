@@ -2,10 +2,9 @@ import "reflect-metadata";
 import "mocha";
 import { expect } from "chai";
 import { instance, mock } from "ts-mockito";
-import {Message, User} from "discord.js";
+import { Message, User } from "discord.js";
 import { MessageService } from "../../src/services";
 import { Logger } from "tslog";
-import { TYPES } from "../../src/types";
 
 describe("MessageService", () => {
     let mockedServiceLoggerClass: Logger;
@@ -13,7 +12,6 @@ describe("MessageService", () => {
     let mockedMessageClass: Message;
     let mockedMessageInstance: Message;
     let mockedMessageUser: User;
-    let mockedMessageUserInstance: User;
     let service: MessageService;
     let result: boolean;
 
@@ -23,7 +21,6 @@ describe("MessageService", () => {
         mockedMessageClass = mock(Message);
         mockedMessageInstance = instance(mockedMessageClass);
         mockedMessageUser = mock(User);
-        mockedMessageUserInstance = instance(mockedMessageUser);
         mockedMessageInstance.content = "Bot message";
         mockedMessageInstance.author = mockedMessageUser;
 

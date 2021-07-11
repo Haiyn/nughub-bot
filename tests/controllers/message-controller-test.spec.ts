@@ -2,14 +2,16 @@ import "reflect-metadata";
 import "mocha";
 import { expect } from "chai";
 import { instance, mock, when } from "ts-mockito";
-import { GuildMemberRoleManager, Message } from "discord.js";
-import { MessageController } from "../../src/controllers/message-controller";
-import { CommandService, MessageService, PermissionService } from "../../src/services";
+import { GuildMember, GuildMemberRoleManager, Message, User } from "discord.js";
 import { Logger } from "tslog";
-import { MessageControllerResult } from "../../src/models/message-controller-result";
-import { CommandContext } from "../../src/models/command-context";
 
-describe("MessageHandler", () => {
+import { MessageController } from "@controllers/message-controller";
+import { CommandService, MessageService, PermissionService } from "@src/services";
+import { MessageControllerResult } from "@models/message-controller-result";
+import { CommandContext } from "@models/command-context";
+import { Command } from "@src/commands";
+
+describe("Message Controller", () => {
     let mockedMessageService: MessageService;
     let mockedMessageServiceInstance: MessageService;
     let mockedPermissionHandlerClass: PermissionService;
@@ -18,6 +20,7 @@ describe("MessageHandler", () => {
     let mockedCommandServiceInstance: CommandService;
     let mockedServiceLoggerClass: Logger;
     let mockedServiceLoggerInstance: Logger;
+
 
     let mockedMessageClass: Message;
     let mockedMessageInstance: Message;
@@ -44,8 +47,9 @@ describe("MessageHandler", () => {
         mockedCommandServiceInstance = instance(mockedCommandService);
         mockedGuildMemberRoleManager = mock(GuildMemberRoleManager);
         mockedGuildMemberRoleManagerInstance = instance(mockedGuildMemberRoleManager);
-        mockedMessageInstance.content = "Test";
-        mockedGuildMemberRoleManagerInstance.member.roles
+
+        mockMessage();
+        mockCommandContext();
 
 
         service = new MessageController(
@@ -107,6 +111,17 @@ describe("MessageHandler", () => {
         expect(result.commandExecuted).true;
         expect(result.error).undefined;
     });
+
+    function mockMessage() {
+        mockedMessageInstance.content = "Test";
+        when(mockedMessageClass.member).thenReturn(mock(GuildMember));
+        when(mockedMessageClass.author).thenReturn(mock(User));
+    }
+
+    function mockCommandContext() {
+        when(mockedCommandContextClass.command).thenReturn(mock(Command));
+        when(mockedCommandContextClass.originalMessage).thenReturn(mockedMessageInstance);
+    }
 
     function whenIsBotMessageReturns(result: boolean) {
         when(mockedMessageService.isBotMessage(mockedMessageInstance)).thenReturn(result);
