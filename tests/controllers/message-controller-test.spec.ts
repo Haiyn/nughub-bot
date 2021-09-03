@@ -9,7 +9,8 @@ import { MessageController } from "@controllers/message-controller";
 import { CommandService, MessageService, PermissionService } from "@src/services";
 import { MessageControllerResult } from "@models/message-controller-result";
 import { CommandContext } from "@models/command-context";
-import { Command } from "@src/commands";
+import {Command, Ping} from "@src/commands";
+import {CommandResult} from "../../src/models/command-result";
 
 describe("Message Controller", () => {
     let mockedMessageService: MessageService;
@@ -119,8 +120,9 @@ describe("Message Controller", () => {
     }
 
     function mockCommandContext() {
-        when(mockedCommandContextClass.command).thenReturn(mock(Command));
+        when(mockedCommandContextClass.command).thenReturn(mock(Ping));
         when(mockedCommandContextClass.originalMessage).thenReturn(mockedMessageInstance);
+        when(mockedCommandContextClass.command).thenReturn(new Ping());
     }
 
     function whenIsBotMessageReturns(result: boolean) {
@@ -137,5 +139,9 @@ describe("Message Controller", () => {
 
     function whenGetCommandContextReturns(result: CommandContext|null) {
         when(mockedCommandService.getCommandContextFromMessage(mockedMessageInstance)).thenReturn(result);
+    }
+
+    function whenCommandRun(result: CommandResult) {
+        when(mockedCommandContextInstance.command.run(mockedCommandContextInstance)).thenResolve(result);
     }
 });

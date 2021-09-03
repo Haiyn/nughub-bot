@@ -44,7 +44,7 @@ describe("MessageService", () => {
     });
 
     it("isPrefixed should return true", async () => {
-        mockedMessageInstance.content = process.env.PREFIX + "test";
+        mockedMessageInstance.content = "!start";
 
         result = await service.isPrefixedMessage(mockedMessageInstance);
 
