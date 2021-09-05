@@ -1,0 +1,37 @@
+version: '3.9'
+services:
+  nhb-mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/data/mongodb
+      - ./orchestration/mongodb/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASS}
+      MONGO_INITDB_DATABASE: admin
+      MONGO_USERNAME: ${MONGODB_USER}
+      MONGO_PASSWORD: ${MONGODB_PASS}
+      MONGO_DATABASE: ${MONGODB_NAME}
+    networks:
+      nhb-network:
+
+  nhb-bot:
+    container_name: bot
+    image: "nhb-bot:${BOT_VERSION}"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      -  8089:8089
+    networks:
+      nhb-network:
+
+networks:
+  nhb-network:
+    driver: bridge
+
+volumes:
+  mongodb:
