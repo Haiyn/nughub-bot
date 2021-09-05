@@ -10,5 +10,6 @@ const server = container.get<Server>(TYPES.Server);
 server.listen().then(() => {
     logger.info("Server started and connected.");
 }).catch((error) => {
+    logger.info(process.env.TOKEN);
     logger.fatal("Could not start server.", logger.prettyError(error));
 });
