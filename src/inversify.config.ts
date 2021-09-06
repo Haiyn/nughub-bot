@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Client } from "discord.js";
+import {Client, Intents} from "discord.js";
 import { Container } from "inversify";
 import { PermissionService, CommandService, MessageService } from "@services/index";
 import { MessageController } from "@controllers/index";
@@ -19,7 +19,13 @@ container.bind<string>(TYPES.CommandLogLevel).toConstantValue(process.env.COMMAN
 container.bind<string>(TYPES.IgnoreStackLevels).toConstantValue(process.env.IGNORE_STACK_LEVELS);
 
 // Constants
-container.bind<Client>(TYPES.Client).toConstantValue(new Client());
+container.bind<Client>(TYPES.Client).toConstantValue(new Client({ intents: [
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MESSAGE_TYPING,
+        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+        Intents.FLAGS.GUILD_MEMBERS
+    ]}
+));
 container.bind<Logger>(TYPES.BaseLogger).toConstantValue(new Logger({
     name: "Base Logger",
     minLevel: container.get<string>(TYPES.BaseLogLevel) as TLogLevelName,
