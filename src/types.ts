@@ -10,6 +10,7 @@ export const TYPES = {
     MessageService: Symbol("MessageService"),
     PermissionService: Symbol("PermissionService"),
     CommandService: Symbol("CommandService"),
+    DatabaseService: Symbol("DatabaseService"),
 
     // Commands
     Ping: Symbol("Ping"),
