@@ -13,7 +13,8 @@ export const TYPES = {
     DatabaseService: Symbol("DatabaseService"),
 
     // Commands
-    Ping: Symbol("Ping"),
+    Ping: Symbol("ping"),
+    SessionStart: Symbol("start"),
 
     // Logging
     BaseLogLevel: Symbol("BaseLogLevel"),

@@ -6,7 +6,7 @@ import { MessageController } from "@controllers/index";
 import { TYPES } from "@src/types";
 import { Server } from "@src/server";
 import { Logger, TLogLevelName } from "tslog";
-import { Command, Ping } from "@src/commands";
+import { Ping, SessionStart } from "@src/commands";
 
 const container = new Container();
 
@@ -50,7 +50,8 @@ container.bind<CommandService>(TYPES.CommandService).to(CommandService).inSingle
 container.bind<DatabaseService>(TYPES.DatabaseService).to(DatabaseService).inSingletonScope();
 
 // Commands
-container.bind<Ping>(TYPES.Ping).to(Command).inRequestScope();
+container.bind<Ping>(TYPES.Ping).to(Ping).inRequestScope();
+container.bind<SessionStart>(TYPES.SessionStart).to(SessionStart).inRequestScope();
 
 
 export default container;

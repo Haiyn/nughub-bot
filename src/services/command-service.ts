@@ -1,25 +1,24 @@
 import { inject, injectable } from "inversify";
-import { Command, Ping } from "@src/commands";
 import { TYPES } from "@src/types";
 import { CommandContext } from "@models/command-context";
 import { Message } from "discord.js";
+import container from "@src/inversify.config";
+import { Command } from "@src/commands";
 
 
 @injectable()
 export class CommandService {
     private prefix: string;
-    private commandList: Command[];
 
     constructor(
         @inject(TYPES.Prefix) prefix: string,
     ) {
         this.prefix = prefix;
-        // TODO: This is ugly as shit, jesus christ, make it dynamic
-        const commandClasses = [
-            Ping
-        ];
+    }
 
-        this.commandList = commandClasses.map((CommandClass) => new CommandClass());
+    private commandMapping = {
+        "start": TYPES.SessionStart,
+        "ping": TYPES.Ping
     }
 
     public getCommandContextFromMessage(message: Message): CommandContext {
@@ -28,10 +27,7 @@ export class CommandService {
             .trim()
             .split(/ +/g);
 
-        const matchedCommand = this.commandList.find((command) =>
-            command.names.includes(splitMessage.shift()?.toLowerCase()),
-        );
-
+        const matchedCommand = container.get(this.commandMapping[splitMessage.shift()?.toLowerCase()]) as Command;
         if(!matchedCommand) return null;
         return new CommandContext(matchedCommand, message, splitMessage);
     }
