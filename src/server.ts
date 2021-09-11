@@ -25,7 +25,7 @@ export class Server {
 
     public listen(): Promise<string> {
         this.client.on("messageCreate", async (message: Message) => {
-            this.logger.debug(`Message ID ${message.id}: received\nAuthor ID: ${message.author.id}\nContent length: ${message.content.length}\nContent: ${message.content.substr(0, 100)}`);
+            this.logger.trace(`Message ID ${message.id}: received\nAuthor ID: ${message.author.id}\nContent length: ${message.content.length}\nContent: ${message.content.substr(0, 100)}`);
             await this.messageHandler.handleMessage(message);
         });
 
