@@ -35,10 +35,13 @@ container.bind<Logger>(TYPES.BaseLogger).toConstantValue(new Logger({
 container.bind<Logger>(TYPES.ServiceLogger).toConstantValue(container.get<Logger>(TYPES.BaseLogger).getChildLogger({
     name: "Service Logger",
     minLevel: container.get<string>(TYPES.ServiceLogLevel) as TLogLevelName,
+    ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
 }));
 container.bind<Logger>(TYPES.CommandLogger).toConstantValue(container.get<Logger>(TYPES.BaseLogger).getChildLogger({
     name: "Command Logger",
     minLevel: container.get<string>(TYPES.CommandLogLevel) as TLogLevelName,
+    ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
+
 }));
 
 // Services
