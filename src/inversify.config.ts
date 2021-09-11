@@ -1,7 +1,15 @@
 import "reflect-metadata";
 import { Client, Intents } from "discord.js";
 import { Container } from "inversify";
-import { PermissionService, CommandService, MessageService, DatabaseService } from "@services/index";
+import {
+    PermissionService,
+    CommandService,
+    MessageService,
+    DatabaseService,
+    HelperService,
+    UserService,
+    ChannelService
+} from "@services/index";
 import { MessageController } from "@controllers/index";
 import { TYPES } from "@src/types";
 import { Server } from "@src/server";
@@ -51,6 +59,9 @@ container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingle
 container.bind<PermissionService>(TYPES.PermissionService).to(PermissionService).inSingletonScope();
 container.bind<CommandService>(TYPES.CommandService).to(CommandService).inSingletonScope();
 container.bind<DatabaseService>(TYPES.DatabaseService).to(DatabaseService).inSingletonScope();
+container.bind<HelperService>(TYPES.HelperService).to(HelperService).inSingletonScope();
+container.bind<UserService>(TYPES.UserService).to(UserService).inSingletonScope();
+container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingletonScope();
 
 // Commands
 container.bind<Ping>(TYPES.Ping).to(Ping).inRequestScope();

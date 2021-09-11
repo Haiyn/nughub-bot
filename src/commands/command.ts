@@ -1,8 +1,10 @@
-import { CommandContext } from "@models/command-context";
 import { inject, injectable } from "inversify";
-import { CommandResult } from "@models/command-result";
+import { Client } from "discord.js";
 import { Logger } from "tslog";
 import { TYPES } from "@src/types";
+import { CommandContext } from "@models/command-context";
+import { CommandResult } from "@models/command-result";
+import { ChannelService, UserService } from "@services/index";
 
 export interface ICommand {
     readonly names: string[]
@@ -23,11 +25,20 @@ export class Command implements ICommand {
     readonly permissionLevel: number = 0;
 
     readonly logger: Logger;
+    readonly client: Client;
+    readonly channelService: ChannelService;
+    readonly userService: UserService;
 
     constructor(
-        @inject(TYPES.CommandLogger) logger: Logger
+        @inject(TYPES.CommandLogger) logger: Logger,
+        @inject(TYPES.Client) client: Client,
+        @inject(TYPES.ChannelService) channelService: ChannelService,
+        @inject(TYPES.UserService) userService: UserService
     ) {
         this.logger = logger;
+        this.client = client;
+        this.channelService = channelService;
+        this.userService = userService;
     }
 
     public getHelpMessage(): string {
@@ -38,7 +49,9 @@ export class Command implements ICommand {
         return Promise.resolve(new CommandResult(this, context, false, "not implemented."));
     }
 
-    public validateArguments(args: string[]): boolean {
-        return args.length == 0;
+    public validateArguments(args: string[]): Record<string, unknown> {
+        return {
+            "length": args.length
+        };
     }
 }
