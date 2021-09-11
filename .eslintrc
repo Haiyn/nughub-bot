@@ -2,8 +2,8 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": [
-    "@typescript-eslint"
-
+    "@typescript-eslint",
+    "unused-imports"
   ],
   "extends": [
     "eslint:recommended",
@@ -22,6 +22,14 @@
     "accessor-pairs": "error",
     "quotes": [ "warn", "double", { "allowTemplateLiterals": true}],
     "brace-style": [ "warn", "1tbs", { "allowSingleLine": true }],
-    "curly": [ "warn", "multi-line" ]
+    "curly": [ "warn", "multi-line" ],
+    "no-useless-escape": "off",
+    // replace unused-vars rule with unused-imports rule for imports
+    "no-unused-vars": "off",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
+    ]
   }
 }
