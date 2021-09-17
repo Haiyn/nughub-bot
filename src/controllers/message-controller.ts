@@ -55,14 +55,9 @@ export class MessageController {
                 return new MessageControllerResult(true);
             })
             .catch((result) => {
-                if(result !== null && result !== undefined) {
-                    this.logger.error(`Message ID ${message.id}: Could not run command "${result.command.names[0]}": ${result.message}`,
-                        this.logger.prettyError(result.error));
-                    return new MessageControllerResult(false, result.error);
-                } else {
-                    this.logger.error(`Unhandled Exception in CommandClass ${commandContext.command}!`);
-                    return new MessageControllerResult(false, new Error("Uncaught Exception in Command Class"));
-                }
+                this.logger.error(`Message ID ${message.id}: Could not run command "${commandContext.command.names[0]}": ${result.message}`,
+                    result.error ? this.logger.prettyError(result.error): null);
+                return new MessageControllerResult(false, result.error ? result.error : null);
             });
     }
 }
