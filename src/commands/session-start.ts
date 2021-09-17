@@ -1,9 +1,9 @@
 import { injectable } from "inversify";
-import { Channel } from "discord.js";
+import { Channel, User } from "discord.js";
 import { Command } from "@commands/command";
 import { CommandContext } from "@models/command-context";
 import { CommandResult } from "@models/command-result";
-// import { SessionModel } from "@models/session";
+import { SessionModel } from "@models/session";
 
 @injectable()
 export class SessionStart extends Command {
@@ -21,13 +21,13 @@ export class SessionStart extends Command {
         }
         this.logger.trace(`Parsed Arguments: ${JSON.stringify(parsedArguments)}`);
 
-/*        this.logger.debug("Saving Session to database...");
-        if(!this.saveSessionToDatabase(parsedArguments)) {
+       this.logger.debug("Saving Session to database...");
+        if(!await this.saveSessionToDatabase(parsedArguments)) {
             await context.originalMessage.reply("Uh-oh, something went wrong.");
             return Promise.reject(new CommandResult(this, context, false, "Failed to save to MongoDB."));
         }
 
-        this.logger.debug("Saving Session to discord post...");
+        /* this.logger.debug("Saving Session to discord post...");
         if(!this.saveSessionToDiscordMessage(parsedArguments)) {
             await context.originalMessage.reply("Uh-oh, something went wrong.");
             return Promise.reject(new CommandResult(this, context, false, "Failed to create/edit session post."));
@@ -61,8 +61,26 @@ export class SessionStart extends Command {
         return result;
     }
 
-    private saveSessionToDatabase(data: Record<string, unknown>): boolean {
-        return false;
+    private async saveSessionToDatabase(data: Record<string, unknown>): Promise<boolean> {
+        const channelId = (data["channel"] as Channel).id;
+        const userIds = [];
+        (data["users"] as User[]).forEach(user => userIds.push(user.id));
+        const session = new SessionModel({
+            channel: channelId,
+            order: userIds,
+            currentTurn: userIds[0],
+            active: true
+        });
+        this.logger.trace(session);
+
+        try {
+            const databaseResult = await session.save();
+            this.logger.debug(`Saved one SessionModel to the database (ID: ${databaseResult._id}).`);
+            return true;
+        } catch(error) {
+            this.logger.error("Failed to save SessionModel to database:", this.logger.prettyError(error));
+            return false;
+        }
     }
 
     private saveSessionToDiscordMessage(data: Record<string, unknown>): boolean {
