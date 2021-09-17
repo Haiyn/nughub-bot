@@ -2,18 +2,17 @@ import { inject, injectable } from "inversify";
 import { Message } from "discord.js";
 import { Logger } from "tslog";
 import { TYPES } from "@src/types";
+import container from "@src/inversify.config";
+import { Configuration } from "@models/configuration";
 
 @injectable()
 export class MessageService {
-    private readonly prefix: string;
     private readonly logger: Logger;
 
     constructor(
-        @inject(TYPES.Prefix) prefix: string,
         @inject(TYPES.ServiceLogger) logger: Logger
     ) {
         this.logger = logger;
-        this.prefix = prefix;
     }
 
     public isBotMessage(message: Message): boolean {
@@ -23,7 +22,7 @@ export class MessageService {
     }
 
     public isPrefixedMessage(message: Message): boolean {
-        const isPrefixed = message.content.startsWith(this.prefix);
+        const isPrefixed = message.content.startsWith(container.get<Configuration>(TYPES.Configuration).prefix);
         this.logger.debug(`Message ID ${message.id}: is ${isPrefixed ? "" : "not"} prefixed.`);
         return isPrefixed;
     }

@@ -1,21 +1,14 @@
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import { TYPES } from "@src/types";
 import { CommandContext } from "@models/command-context";
 import { Message } from "discord.js";
 import container from "@src/inversify.config";
 import { Command } from "@src/commands";
+import { Configuration } from "@models/configuration";
 
 
 @injectable()
 export class CommandService {
-    private prefix: string;
-
-    constructor(
-        @inject(TYPES.Prefix) prefix: string,
-    ) {
-        this.prefix = prefix;
-    }
-
     private commandMapping = {
         "start": TYPES.SessionStart,
         "ping": TYPES.Ping
@@ -23,7 +16,7 @@ export class CommandService {
 
     public getCommandContextFromMessage(message: Message): CommandContext {
         const splitMessage = message.content
-            .slice(process.env.PREFIX.length)
+            .slice(container.get<Configuration>(TYPES.Configuration).prefix.length)
             .trim()
             .split(/ +/g);
 

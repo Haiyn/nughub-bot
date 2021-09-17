@@ -20,7 +20,6 @@ const container = new Container();
 
 // Environment
 container.bind<string>(TYPES.Token).toConstantValue(process.env.TOKEN);
-container.bind<string>(TYPES.Prefix).toConstantValue(process.env.PREFIX);
 container.bind<string>(TYPES.BaseLogLevel).toConstantValue(process.env.BASE_LOG_LEVEL);
 container.bind<string>(TYPES.ServiceLogLevel).toConstantValue(process.env.SERVICE_LOG_LEVEL);
 container.bind<string>(TYPES.CommandLogLevel).toConstantValue(process.env.COMMAND_LOG_LEVEL);

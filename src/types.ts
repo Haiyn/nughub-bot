@@ -3,7 +3,7 @@ export const TYPES = {
     Server: Symbol("Server"),
     Client: Symbol("Client"),
     Token: Symbol("Token"),
-    Prefix: Symbol("Prefix"),
+    Configuration: Symbol("Configuration"),
 
     // Services
     MessageController: Symbol("MessageController"),
