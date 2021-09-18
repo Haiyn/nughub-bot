@@ -3,7 +3,7 @@ export const TYPES = {
     Server: Symbol("Server"),
     Client: Symbol("Client"),
     Token: Symbol("Token"),
-    Prefix: Symbol("Prefix"),
+    Configuration: Symbol("Configuration"),
 
     // Services
     MessageController: Symbol("MessageController"),
@@ -11,9 +11,13 @@ export const TYPES = {
     PermissionService: Symbol("PermissionService"),
     CommandService: Symbol("CommandService"),
     DatabaseService: Symbol("DatabaseService"),
+    HelperService: Symbol("HelperService"),
+    UserService: Symbol("UserService"),
+    ChannelService: Symbol("ChannelService"),
 
     // Commands
-    Ping: Symbol("Ping"),
+    Ping: Symbol("ping"),
+    SessionStart: Symbol("start"),
 
     // Logging
     BaseLogLevel: Symbol("BaseLogLevel"),

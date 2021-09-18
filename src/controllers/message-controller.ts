@@ -55,10 +55,9 @@ export class MessageController {
                 return new MessageControllerResult(true);
             })
             .catch((result) => {
-                this.logger.error(`Message ID ${message.id}: Could not run command "${result.command.names[0]}": ${result.message}`,
-                    this.logger.prettyError(result.error));
-                // reactor.failure(message);
-                return new MessageControllerResult(false, result.error);
+                this.logger.error(`Message ID ${message.id}: Could not run command "${commandContext.command.names[0]}": ${result.message}`,
+                    result.error ? this.logger.prettyError(result.error): null);
+                return new MessageControllerResult(false, result.error ? result.error : null);
             });
     }
 }

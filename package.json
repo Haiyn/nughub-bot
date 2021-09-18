@@ -4,7 +4,7 @@
   "description": "A Discord.js bot for The Nug Hub.",
   "main": "index.js",
   "scripts": {
-    "start": "node -r tsconfig-paths/register ./dist/index.js",
+    "start": "npm run build && node -r tsconfig-paths/register ./dist/index.js",
     "build": "rm -rf dist && tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
     "resolve": "tsc -p tsconfig.json --traceResolution",
     "watch": "npm run build && nodemon --watch \"src/**/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec npm run start",
@@ -38,7 +38,9 @@
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "chai": "^4.3.4",
+    "confinode": "^2.1.1",
     "eslint": "^7.30.0",
+    "eslint-plugin-unused-imports": "^1.1.4",
     "mocha": "^9.0.1",
     "nodemon": "^2.0.12",
     "ts-mockito": "^2.6.1",

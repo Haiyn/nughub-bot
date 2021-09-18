@@ -5,15 +5,12 @@ import { GuildMemberRoleManager } from "discord.js";
 
 @injectable()
 export class PermissionService {
-    private readonly prefix: string;
     private readonly logger: Logger;
 
     constructor(
         @unmanaged() props,
-        @inject(TYPES.Prefix) prefix: string,
         @inject(TYPES.ServiceLogger) logger: Logger,
     ) {
-        this.prefix = prefix;
         this.logger = logger;
     }
 
