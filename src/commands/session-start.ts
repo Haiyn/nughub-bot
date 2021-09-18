@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { Message } from "discord.js";
+import {Channel, MessageEmbed, TextChannel} from "discord.js";
 import { Command } from "@commands/command";
 import { Configuration } from "@models/configuration";
 import { CommandContext } from "@models/command-context";
@@ -31,7 +31,7 @@ export class SessionStart extends Command {
         }
 
         this.logger.debug("Saving Session to discord post...");
-        if(!await this.saveSessionToSessionPost(parsedSession)) {
+        if(!await this.saveSessionToSessionChannel(parsedSession)) {
             await context.originalMessage.reply("Uh-oh, something went wrong while updating the current sessions post!");
             return Promise.reject(new CommandResult(this, context, false, "Failed to create/edit session post."));
         }
@@ -86,43 +86,74 @@ export class SessionStart extends Command {
         }
     }
 
-    private async saveSessionToSessionPost(data: Session): Promise<boolean> {
+    private async saveSessionToSessionChannel(data: Session): Promise<boolean> {
         const configuration = container.get<Configuration>(TYPES.Configuration);
-        let sessionPost: Message;
+        const sessionsChannel = this.channelService.getTextChannelByChannelId(configuration.currentSessionsChannelId);
 
-        if(!configuration.sessionPostId) {
-            sessionPost = await this.createSessionPost(configuration.currentSessionsChannelId);
-            if(!sessionPost) return Promise.resolve(false);
-            // TODO: Rework configuration after all, result is immutable. Save to db?
-            // container.get<Configuration>(TYPES.Configuration).sessionPostId = sessionPost.id;
-        }
-
+        // Check if sessions channel is ready for new message
         try {
-            // TODO: Send separate messages for each turn order (send then edit in ids to avoid pings)
-            let newContent = `\n\n<#${data.channel.id}>:\n`;
-            // TODO: How do I map the RP charas to the user???
-            data.order.forEach(user => { newContent += `<@${user.id}>\n`; });
-            await sessionPost.edit(sessionPost.content += newContent);
+            const initialized = await this.checkSessionsChannel(sessionsChannel);
+            if(!initialized) {
+                const success = SessionStart.initializeSessionsChannel(sessionsChannel);
+                if (!success) {
+                    this.logger.debug("Sessions channel could not be initialized.");
+                    return Promise.resolve(false);
+                }
+                this.logger.debug("Sessions channel was initialized.");
+            }
         } catch(error) {
-            this.logger.error(`Could not edit current session post (ID: ${sessionPost.id})`, this.logger.prettyError(error));
+            this.logger.debug("Sessions channel could not be initialized:", this.logger.prettyError(error));
             return Promise.resolve(false);
         }
-        this.logger.debug(`Successfully updated current session post (ID: ${sessionPost.id})`);
-        return Promise.resolve(true);
+
+        // Send new message
+        try {
+            let postContent = `\n\n<#${data.channel.id}>:\n`;
+            // TODO: How do I map the RP charas to the user???
+            data.order.forEach(user => { postContent += `<@${user.id}>\n`; });
+            // Send and edit to the users dont get a ping
+            const result = await sessionsChannel.send("Loading...");
+            await result.edit(postContent);
+            this.logger.debug(`Sent new sessions message (ID: ${result.id})`);
+            return Promise.resolve(true);
+        } catch(error) {
+            this.logger.error("Failed to send new sessions message", this.logger.prettyError(error));
+            return Promise.resolve(false);
+        }
     }
 
-    // TODO: Maybe just use the whole channel instead of a message, then you can clear it in the beginning
-    private async createSessionPost(channelId: string): Promise<Message> {
-        let sessionPost;
-        const currentSessionsChannel = this.channelService.getTextChannelByChannelId(channelId);
-        if(currentSessionsChannel.isText()) {
-            // TODO: Use Embed instead of plaintext message?
-            sessionPost = await currentSessionsChannel.send("**Current ongoing RP Sessions:**");
-            this.logger.debug(`Created new current session post with ID ${sessionPost.id}.`);
-        } else {
-            this.logger.error(`currentSessionsChannelId ${channelId} does not point to a text channel!`);
-            sessionPost = null;
+    private async checkSessionsChannel(sessionsChannel: Channel): Promise<boolean> {
+        if(!sessionsChannel.isText()) {
+            return Promise.reject(new Error(`Channel for session channel ID ${sessionsChannel.id} is not a text channel.`));
         }
-        return Promise.resolve(sessionPost);
+
+        const sessionsChannelMessages = await sessionsChannel.messages.fetch({ limit: 100 });
+        if(sessionsChannelMessages.size != 0) { // Channel has messages in it
+            let isOnlyBotMessages = true;
+            sessionsChannelMessages.each((message) => {
+                if(message.author.id !== this.client.user.id) {
+                    isOnlyBotMessages = false;
+                    return;
+                }
+            });
+            if(!isOnlyBotMessages) {
+                return Promise.reject(new Error(`Session Posts Channel has non-bot messages in it.`));
+            }
+            this.logger.debug(`Session channel is already initialized.`);
+            return Promise.resolve(true);
+        }
+        this.logger.debug(`Session channel is not yet initialized.`);
+        return Promise.resolve(false);
+
+    }
+
+    private static async initializeSessionsChannel(sessionsChannel: TextChannel): Promise<boolean> {
+        // TODO: Make this prettier. Icon?  Color?
+        const embed = new MessageEmbed()
+            .setTitle("Ongoing RP Sessions")
+            .setDescription("You can find all currently running RPs here - including their turn order.");
+        const message = await sessionsChannel.send({ embeds: [embed]});
+        if(!message) Promise.resolve(false);
+        return Promise.resolve(true);
     }
 }
