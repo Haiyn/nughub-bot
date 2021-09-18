@@ -1,13 +1,13 @@
-import { literal, stringItem } from "confinode";
+import { literal, singleOrArray, stringItem } from "confinode";
 
 export interface Configuration {
     prefix: string,
-    sessionPostId: string,
-    currentSessionsChannelId: string
+    currentSessionsChannelId: string,
+    rpChannelIds: string[]
 }
 
 export const description = literal<Configuration>({
     prefix: stringItem,
-    sessionPostId: stringItem,
-    currentSessionsChannelId: stringItem
+    currentSessionsChannelId: stringItem,
+    rpChannelIds: singleOrArray(stringItem())
 });

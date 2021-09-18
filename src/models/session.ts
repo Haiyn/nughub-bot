@@ -1,32 +1,35 @@
 import { model, Schema } from "mongoose";
-import { TextChannel, User } from "discord.js";
+import { Message, TextChannel, User } from "discord.js";
 
 export class Session {
     channel: TextChannel;
-    order: User[];
+    order: Map<User, string>;
     currentTurn: User;
-    active: boolean;
+    sessionPost: Message;
 
-    constructor(channel: TextChannel, order: User[], currentTurn: User, active: boolean) {
+    constructor(channel: TextChannel, order: Map<User, string>, currentTurn: User, sessionPost: Message) {
         this.channel = channel;
         this.order = order;
         this.currentTurn = currentTurn;
-        this.active = active;
+        this.sessionPost = sessionPost;
     }
 }
 
 export interface ISession {
     channel: string;
-    order: string[];
+    order: Map<string, string>;
     currentTurn: string;
-    active: boolean;
+    sessionPost: string;
 }
 
 const schema = new Schema<ISession>({
     channel: { type: String, required: true },
-    order: { type: [String], required: true },
+    order: [{
+        userId: String,
+        name: String
+    }],
     currentTurn: String,
-    active: Boolean
+    sessionPost: { type: String, required: true },
 }, { collection: "Sessions" });
 
 export const SessionModel = model<ISession>("Session", schema);

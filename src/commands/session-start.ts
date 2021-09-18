@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import {Channel, MessageEmbed, TextChannel} from "discord.js";
+import { Channel, Message, MessageEmbed, TextChannel, User } from "discord.js";
 import { Command } from "@commands/command";
 import { Configuration } from "@models/configuration";
 import { CommandContext } from "@models/command-context";
@@ -24,55 +24,69 @@ export class SessionStart extends Command {
         }
         this.logger.trace(`Parsed Arguments: ${JSON.stringify(parsedSession)}`);
 
-       this.logger.debug("Saving Session to database...");
+        this.logger.debug("Saving Session to discord post...");
+        const sessionMessage = await this.saveSessionToSessionChannel(parsedSession);
+        if(!sessionMessage) {
+            await context.originalMessage.reply("Uh-oh, something went wrong while updating the current sessions post!");
+            return Promise.reject(new CommandResult(this, context, false, "Failed to create/edit session post."));
+        }
+        parsedSession.sessionPost = sessionMessage;
+
+        this.logger.debug("Saving Session to database...");
         if(!await this.saveSessionToDatabase(parsedSession)) {
             await context.originalMessage.reply("Uh-oh, something went wrong while saving the session!");
             return Promise.reject(new CommandResult(this, context, false, "Failed to save to MongoDB."));
-        }
-
-        this.logger.debug("Saving Session to discord post...");
-        if(!await this.saveSessionToSessionChannel(parsedSession)) {
-            await context.originalMessage.reply("Uh-oh, something went wrong while updating the current sessions post!");
-            return Promise.reject(new CommandResult(this, context, false, "Failed to create/edit session post."));
         }
 
         await context.originalMessage.reply(`I successfully started a new RP session in <#${parsedSession.channel.id}>!`);
         return Promise.resolve(new CommandResult(this, context, true, "Successfully started new session."));
     }
 
-    public validateArguments(args: string[]): Session|string {
+    public async validateArguments(args: string[]): Promise<Session|string> {
         this.logger.trace(`Arguments for start command: ${JSON.stringify(args)}`);
+        // Form
         if(args.length < 2) {
             return "Please provide all needed arguments!\n" + this.usageHint;
         }
 
-        // TODO: Check if already session ongoing in channel
-        // TODO: Check if given channel is an RP channel (use config for designating valid RP channels)
+        // Channel
         const channel = this.channelService.getTextChannelByChannelId(args[0]);
+        if(!container.get<Configuration>(TYPES.Configuration).rpChannelIds.find(channelId => channelId == channel.id)) return "The channel you've provided is not a channel you can start a session in! Please pick a valid RP channel.";
         if(!channel) return "The channel you've provided is invalid! Does it really exist?";
+        if(await SessionModel.findOne({ "channel": channel.id }).exec()) return "There is already a RP session running in this channel!";
 
-        // TODO: Check if users duplicate
+        // Users & Names
+        const names = [];
         let users = [];
-        args.slice(1, args.length).forEach(arg => { users.push(this.userService.getUserByUserId(arg)); });
-        if(users.length != args.length - 1) {
+        args.slice(1, args.length).forEach((argument, index) => {
+            if(index % 2 == 0) users.push(this.userService.getUserByUserId(argument));
+            else names.push(argument);
+        });
+        if(users.length != (args.length - 1) / 2) {
             this.logger.debug(`Expected to match ${args.length - 1} users from ${JSON.stringify(users)} but matched ${users.length}`);
             users = null;
         }
+        if(names.length != (args.length - 1) / 2 || names.length != users.length) return "Please provide an character name for every person you mentioned!";
         if(!users || users.includes(undefined) || users.includes(null)) return "I couldn't find some of the users you provided. Are you sure they're correct?";
         if(users.length == 1) return "You can't start an RP with just one person!";
+        const order = new Map<User, string>();
+        users.forEach((user, index) => order.set(user, names[index]));
 
-        return new Session(channel, users, users[0], true);
+        return new Session(channel, order, users[0], null);
     }
 
     private async saveSessionToDatabase(data: Session): Promise<boolean> {
         const channelId = data.channel.id;
-        const userIds = [];
-        data.order.forEach(user => userIds.push(user.id));
+        const order = [];
+        data.order.forEach((name, user) => {
+            order.push({ userId: user.id, name: name });
+        });
+
         const session = new SessionModel({
             channel: channelId,
-            order: userIds,
-            currentTurn: userIds[0],
-            active: true
+            order: order,
+            currentTurn: order[0].userId,
+            sessionPost: data.sessionPost.id
         });
         this.logger.trace(session);
 
@@ -86,7 +100,7 @@ export class SessionStart extends Command {
         }
     }
 
-    private async saveSessionToSessionChannel(data: Session): Promise<boolean> {
+    private async saveSessionToSessionChannel(data: Session): Promise<Message> {
         const configuration = container.get<Configuration>(TYPES.Configuration);
         const sessionsChannel = this.channelService.getTextChannelByChannelId(configuration.currentSessionsChannelId);
 
@@ -97,28 +111,27 @@ export class SessionStart extends Command {
                 const success = SessionStart.initializeSessionsChannel(sessionsChannel);
                 if (!success) {
                     this.logger.debug("Sessions channel could not be initialized.");
-                    return Promise.resolve(false);
+                    return Promise.resolve(null);
                 }
                 this.logger.debug("Sessions channel was initialized.");
             }
         } catch(error) {
             this.logger.debug("Sessions channel could not be initialized:", this.logger.prettyError(error));
-            return Promise.resolve(false);
+            return Promise.resolve(null);
         }
 
         // Send new message
         try {
             let postContent = `\n\n<#${data.channel.id}>:\n`;
-            // TODO: How do I map the RP charas to the user???
-            data.order.forEach(user => { postContent += `<@${user.id}>\n`; });
+            data.order.forEach((name, user) => { postContent += `${name} <@${user.id}>\n`; });
             // Send and edit to the users dont get a ping
-            const result = await sessionsChannel.send("Loading...");
-            await result.edit(postContent);
+            const result = await sessionsChannel.send("\`\`\`⋟────────────────────────⋞\`\`\`");
+            await result.edit(postContent += result.content);
             this.logger.debug(`Sent new sessions message (ID: ${result.id})`);
-            return Promise.resolve(true);
+            return Promise.resolve(result);
         } catch(error) {
             this.logger.error("Failed to send new sessions message", this.logger.prettyError(error));
-            return Promise.resolve(false);
+            return Promise.resolve(null);
         }
     }
 
