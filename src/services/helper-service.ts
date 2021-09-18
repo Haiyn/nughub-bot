@@ -16,7 +16,7 @@ export class HelperService {
         const discordIdRegex = /([0-9]{18})/g;
         const foundMatch = dirtyId.match(discordIdRegex);
         if(!foundMatch) {
-            this.logger.debug(`Passed an invalid Discord ID to sanitize: ${dirtyId}`);
+            this.logger.warn(`Passed an invalid Discord ID to sanitize: ${dirtyId}`);
             return null;
         }
         return foundMatch[0];

@@ -1,8 +1,23 @@
-import { model, Schema, Document } from "mongoose";
+import { model, Schema } from "mongoose";
+import { TextChannel, User } from "discord.js";
 
-interface ISession extends Document {
+export class Session {
+    channel: TextChannel;
+    order: User[];
+    currentTurn: User;
+    active: boolean;
+
+    constructor(channel: TextChannel, order: User[], currentTurn: User, active: boolean) {
+        this.channel = channel;
+        this.order = order;
+        this.currentTurn = currentTurn;
+        this.active = active;
+    }
+}
+
+export interface ISession {
     channel: string;
-    order: Array<string>;
+    order: string[];
     currentTurn: string;
     active: boolean;
 }

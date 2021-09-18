@@ -49,9 +49,7 @@ export class Command implements ICommand {
         return Promise.resolve(new CommandResult(this, context, false, "not implemented."));
     }
 
-    public validateArguments(args: string[]): Record<string, unknown> {
-        return {
-            "length": args.length
-        };
+    public validateArguments(args: string[]): unknown|string {
+        return args;
     }
 }

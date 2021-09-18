@@ -1,7 +1,7 @@
 
 
 import { inject, injectable } from "inversify";
-import { Channel, Client } from "discord.js";
+import { Channel, Client, TextChannel } from "discord.js";
 import { Logger } from "tslog";
 import { TYPES } from "@src/types";
 import { HelperService } from "@services/index";
@@ -28,9 +28,25 @@ export class ChannelService {
 
         const matchedChannel = this.client.channels.cache.get(sanitizedChannelId);
         if(!matchedChannel) {
-            this.logger.warn(`Could not match a Discord channel for ID ${sanitizedChannelId}`);
+            this.logger.warn(`Could not match a Discord channel for ID ${sanitizedChannelId}.`);
             return null;
         }
         return matchedChannel;
+    }
+
+    public getTextChannelByChannelId(dirtyId: string): TextChannel {
+        const sanitizedChannelId = this.helperService.sanitizeDiscordId(dirtyId);
+        if(!sanitizedChannelId) return null;
+
+        const matchedChannel = this.client.channels.cache.get(sanitizedChannelId);
+        if(!matchedChannel) {
+            this.logger.warn(`Could not match a Discord channel for ID ${sanitizedChannelId}.`);
+            return null;
+        }
+        if(!matchedChannel.isText()) {
+            this.logger.warn(`Found channel for ID ${sanitizedChannelId} is not a text channel.`);
+            return null;
+        }
+        return matchedChannel as TextChannel;
     }
 }
