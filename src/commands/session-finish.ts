@@ -28,7 +28,7 @@ export class SessionFinish extends Command {
         }
 
         if(!await this.deleteSessionFromSessionsChannel(parsedSession)) {
-            await context.originalMessage.reply(`Uh-oh, something went wrong while I tried to remove the session from <#${parsedSession.channel}>.`);
+            await context.originalMessage.reply(`I couldn't delete the session post from <#${parsedSession.channel}> but the session is still finished! Please check if the session message was removed.`);
             return Promise.resolve(new CommandResult(this, context, false, `Failed to delete session from channel (ID: ${parsedSession.channel})`));
         }
 

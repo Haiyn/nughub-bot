@@ -1,33 +1,41 @@
-import { Message } from "discord.js";
+import { Client, Message, TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@src/types";
-import { PermissionService, CommandService, MessageService } from "@src/services";
+import { PermissionService, CommandService, MessageService, ChannelService } from "@src/services";
 import { Logger } from "tslog";
-import { MessageControllerResult } from "@models/message-controller-result";
+import { SessionModel } from "@models/session";
+import container from "@src/inversify.config";
+import { Configuration } from "@models/configuration";
 
 @injectable()
 export class MessageController {
     private readonly messageService: MessageService;
-    private readonly permissionHandler: PermissionService;
+    private readonly permissionService: PermissionService;
     private readonly commandService: CommandService;
+    private readonly channelService: ChannelService;
     private readonly logger: Logger;
+    private readonly client: Client;
 
     constructor(
         @inject(TYPES.MessageService) messageService: MessageService,
         @inject(TYPES.PermissionService) permissionService: PermissionService,
         @inject(TYPES.CommandService) commandService: CommandService,
+        @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.ServiceLogger) logger: Logger,
+        @inject(TYPES.Client) client: Client
     ) {
         this.messageService = messageService;
-        this.permissionHandler = permissionService;
+        this.permissionService = permissionService;
         this.commandService = commandService;
+        this.channelService = channelService;
         this.logger = logger;
+        this.client = client;
     }
 
-    async handleMessage(message: Message): Promise<MessageControllerResult> {
+    async handleMessage(message: Message): Promise<void> {
         if (this.messageService.isBotMessage(message) || !this.messageService.isPrefixedMessage(message)) {
             this.logger.debug(`Message ID ${message.id}: Skipping.`);
-            return new MessageControllerResult(false);
+            return;
         }
 
         const commandContext = this.commandService.getCommandContextFromMessage(message);
@@ -35,15 +43,15 @@ export class MessageController {
         if (!commandContext) {
             this.logger.debug(`Message ID ${message.id}: Could not match command "${message.content.substr(1, message.content.indexOf(" "))}".`);
             await message.reply("I don't recognize that command. Try !help.");
-            return new MessageControllerResult(false);
+            return;
         }
 
-        if (!this.permissionHandler.hasPermission(commandContext.originalMessage.member.roles, commandContext.command.permissionLevel)) {
+        if (!this.permissionService.hasPermission(commandContext.originalMessage.member.roles, commandContext.command.permissionLevel)) {
             this.logger.debug(`Message ID ${message.id}: User is not authorized for command "${commandContext.command.names[0]}".
                 User ID: ${commandContext.originalMessage.author.id}
                 User roles: ${commandContext.originalMessage.member.roles}`);
             await message.reply("You aren't allowed to use that command. Try !help.");
-            return new MessageControllerResult(false);
+            return;
         }
 
         await commandContext.command.run(commandContext)
@@ -52,12 +60,46 @@ export class MessageController {
                     this.logger.info(`Message ID ${message.id}: Successfully ran command "${result.command.names[0]}": ${result.message}`) :
                     this.logger.info(`Message ID ${message.id}: Did not run command "${result.command.names[0]}": ${result.message}`);
                 // reactor.success(message);
-                return new MessageControllerResult(true);
+                return;
             })
             .catch((result) => {
                 this.logger.error(`Message ID ${message.id}: Could not run command "${commandContext.command.names[0]}": ${result.message}`,
                     result.error ? this.logger.prettyError(result.error): null);
-                return new MessageControllerResult(false, result.error ? result.error : null);
+                return;
             });
+    }
+
+    async handleDeletion(message: Message): Promise<void> {
+        if(message.author.id == this.client.user.id) {
+            const foundSessionPost = await SessionModel.findOne({ sessionPost: message.id }).exec();
+            if(!foundSessionPost) {
+                this.logger.debug("Deleted bot message is not a session post.");
+                return;
+            }
+            try {
+                this.logger.debug("Session message was deleted. Removing session from database...");
+                await SessionModel.findOneAndDelete({ sessionPost: message.id }).exec();
+                const internalChannel: TextChannel = await this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).internalChannelId);
+                await internalChannel.send(`The session post for the session in <#${foundSessionPost.channel}> was deleted. I have finished the session for you.`);
+                this.logger.debug("Removed session from database.");
+                return;
+            } catch(error) {
+                this.logger.error(`Failed to finish deleted session for channel ID ${foundSessionPost.channel}.`);
+                return;
+            }
+        } else {
+            this.logger.debug(`Deleted message is not a bot message from the client (Author ID: ${message.author.id}, Client ID: ${this.client.user.id}).`);
+            return;
+        }
+    }
+
+    async handleCaching(): Promise<void> {
+        const currentSessionsChannel = this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).currentSessionsChannelId);
+        await currentSessionsChannel.messages.fetch().then((fetchedMessages) => {
+            this.logger.debug(`Fetched ${fetchedMessages.size} messages from currentSessionsChannel.`);
+        });
+
+        this.logger.debug("Fetching done.");
+        return;
     }
 }
