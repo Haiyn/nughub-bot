@@ -2,22 +2,14 @@ import { injectable } from "inversify";
 
 @injectable()
 export class MessageControllerResult {
-    private readonly _commandExecuted: boolean;
-    private readonly _error?: Error;
+    public readonly commandExecuted: boolean;
+    public readonly result?: string;
 
     constructor(
         commandExecuted: boolean,
-        error?: Error
+        result?: string,
     ) {
-        this._commandExecuted = commandExecuted;
-        this._error = error;
-    }
-
-    get error(): Error {
-        return this._error;
-    }
-
-    get commandExecuted(): boolean {
-        return this._commandExecuted;
+        this.commandExecuted = commandExecuted;
+        this.result = result;
     }
 }

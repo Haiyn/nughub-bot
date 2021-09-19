@@ -7,7 +7,7 @@ import { CommandResult } from "@models/command-result";
 export class Ping extends Command {
     names = [ "ping", "p" ];
     description = "Pings the bot.";
-    usageHint = process.env.PREFIX + "ping";
+    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]}\``;
 
     async run(context: CommandContext): Promise<CommandResult> {
         try {
