@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "@src/types";
 import { PermissionService, CommandService, MessageService, ChannelService } from "@src/services";
 import { Logger } from "tslog";
-import { SessionModel } from "@models/session";
+import { SessionModel } from "@models/session-schema";
 import container from "@src/inversify.config";
 import { Configuration } from "@models/configuration";
 
@@ -78,13 +78,13 @@ export class MessageController {
             }
             try {
                 this.logger.debug("Session message was deleted. Removing session from database...");
-                await SessionModel.findOneAndDelete({ sessionPost: message.id }).exec();
+                await SessionModel.findOneAndDelete({ sessionPostId: message.id }).exec();
                 const internalChannel: TextChannel = await this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).internalChannelId);
-                await internalChannel.send(`The session post for the session in <#${foundSessionPost.channel}> was deleted. I have finished the session for you.`);
+                await internalChannel.send(`The session post for the session in <#${foundSessionPost.channelId}> was deleted. I have finished the session for you.`);
                 this.logger.debug("Removed session from database.");
                 return;
             } catch(error) {
-                this.logger.error(`Failed to finish deleted session for channel ID ${foundSessionPost.channel}.`);
+                this.logger.error(`Failed to finish deleted session for channel ID ${foundSessionPost.channelId}.`);
                 return;
             }
         } else {

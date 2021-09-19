@@ -4,9 +4,12 @@ import { Command } from "@commands/command";
 import { Configuration } from "@models/configuration";
 import { CommandContext } from "@models/command-context";
 import { CommandResult } from "@models/command-result";
-import { Session, SessionModel } from "@models/session";
+import { Session } from "@models/session";
+import { SessionModel } from "@models/session-schema";
 import container from "@src/inversify.config";
 import { TYPES } from "@src/types";
+import { Character } from "@models/character";
+import { ICharacterSchema } from "@models/character-schema";
 
 @injectable()
 export class SessionStart extends Command {
@@ -35,6 +38,7 @@ export class SessionStart extends Command {
         this.logger.debug("Saving Session to database...");
         if(!await this.saveSessionToDatabase(parsedSession)) {
             await context.originalMessage.reply("Uh-oh, something went wrong while saving the session!");
+            await this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).currentSessionsChannelId).messages.delete(parsedSession.sessionPost);
             return Promise.reject(new CommandResult(this, context, false, "Failed to save to MongoDB."));
         }
 
@@ -57,7 +61,7 @@ export class SessionStart extends Command {
 
         // Users & Names
         const names = [];
-        let users = [];
+        let users: Array<User> = [];
         args.slice(1, args.length).forEach((argument, index) => {
             if(index % 2 == 0) users.push(this.userService.getUserByUserId(argument));
             else names.push(argument);
@@ -69,26 +73,26 @@ export class SessionStart extends Command {
         if(names.length != (args.length - 1) / 2 || names.length != users.length) return "Please provide an character name for every person you mentioned!";
         if(!users || users.includes(undefined) || users.includes(null)) return "I couldn't find some of the users you provided. Are you sure they're correct?";
         if(users.length == 1) return "You can't start an RP with just one person!";
-        const order = new Map<User, string>();
-        users.forEach((user, index) => order.set(user, names[index]));
+        const turnOrder: Array<Character> = [];
+        users.forEach((user, index) => turnOrder.push(new Character(user, names[index])));
 
-        return new Session(channel, order, users[0], null);
+        return new Session(channel, turnOrder, users[0], null);
     }
 
     private async saveSessionToDatabase(data: Session): Promise<boolean> {
-        const channelId = data.channel.id;
-        const order = [];
-        data.order.forEach((name, user) => {
-            order.push({ userId: user.id, name: name });
+        const turnOrder: Array<ICharacterSchema> = [];
+        data.turnOrder.forEach(character => {
+            turnOrder.push({ userId: character.user.id, name: character.name });
         });
 
         const session = new SessionModel({
-            channel: channelId,
-            order: order,
-            currentTurn: order[0].userId,
-            sessionPost: data.sessionPost.id
+            channelId: data.channel.id,
+            turnOrder: turnOrder,
+            currentTurnId: turnOrder[0].userId, // first array element
+            sessionPostId: data.sessionPost.id
         });
-        this.logger.trace(session);
+
+        this.logger.trace(`Saved following session to database: ${session}`);
 
         try {
             const databaseResult = await session.save();
@@ -123,13 +127,13 @@ export class SessionStart extends Command {
         // Send new message
         try {
             let postContent = `\n\n<#${data.channel.id}>:\n`;
-            data.order.forEach((name, user) => { postContent += `${name} <@${user.id}>\n`; });
-            const divider = "\`\`\`⋟────────────────────────⋞\`\`\`"
+            data.turnOrder.forEach((character) => { postContent += `${character.name} <@${character.user.id}>\n`; });
+            const divider = "\`\`\`⋟────────────────────────⋞\`\`\`";
+
             const result = await sessionsChannel.send({
                 content: postContent + divider,
-                options: { "allowedMentions": { "users":[] }}
+                "allowedMentions": { "parse" : []}
             });
-            await result.edit(postContent += result.content);
             this.logger.debug(`Sent new sessions message (ID: ${result.id})`);
             return Promise.resolve(result);
         } catch(error) {
@@ -169,7 +173,7 @@ export class SessionStart extends Command {
             .setTitle("Ongoing RP Sessions")
             .setDescription("You can find all currently running RPs here - including their turn order.");
         const message = await sessionsChannel.send({ embeds: [embed]});
-        if(!message) Promise.resolve(false);
+        if(!message) return Promise.resolve(false);
         return Promise.resolve(true);
     }
 }
