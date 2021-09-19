@@ -12,7 +12,7 @@ import { TYPES } from "@src/types";
 export class SessionStart extends Command {
     names = ["start"];
     description = "Starts an RP session in the given channel with the given turn order.";
-    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + "start #<channel name> @User1 @User2 ...\`";
+    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]} #<channel name> @User1 CharacterName1 @User2 CharacterName2 ...\``;
 
     public async run(context: CommandContext): Promise<CommandResult> {
         this.logger.debug("Parsing arguments for start command...");
