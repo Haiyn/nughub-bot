@@ -124,8 +124,11 @@ export class SessionStart extends Command {
         try {
             let postContent = `\n\n<#${data.channel.id}>:\n`;
             data.order.forEach((name, user) => { postContent += `${name} <@${user.id}>\n`; });
-            // Send and edit to the users dont get a ping
-            const result = await sessionsChannel.send("\`\`\`⋟────────────────────────⋞\`\`\`");
+            const divider = "\`\`\`⋟────────────────────────⋞\`\`\`"
+            const result = await sessionsChannel.send({
+                content: postContent + divider,
+                options: { "allowedMentions": { "users":[] }}
+            });
             await result.edit(postContent += result.content);
             this.logger.debug(`Sent new sessions message (ID: ${result.id})`);
             return Promise.resolve(result);
