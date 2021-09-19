@@ -11,7 +11,8 @@ import { Configuration } from "@models/configuration";
 export class CommandService {
     private commandMapping = {
         "start": TYPES.SessionStart,
-        "ping": TYPES.Ping
+        "ping": TYPES.Ping,
+        "finish": TYPES.SessionFinish
     }
 
     public getCommandContextFromMessage(message: Message): CommandContext {

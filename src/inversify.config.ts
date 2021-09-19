@@ -14,7 +14,7 @@ import { MessageController } from "@controllers/index";
 import { TYPES } from "@src/types";
 import { Server } from "@src/server";
 import { Logger, TLogLevelName } from "tslog";
-import { Ping, SessionStart } from "@src/commands";
+import { Ping, SessionStart, SessionFinish } from "@src/commands";
 
 const container = new Container();
 
@@ -65,6 +65,7 @@ container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingle
 // Commands
 container.bind<Ping>(TYPES.Ping).to(Ping).inRequestScope();
 container.bind<SessionStart>(TYPES.SessionStart).to(SessionStart).inRequestScope();
+container.bind<SessionFinish>(TYPES.SessionFinish).to(SessionFinish).inRequestScope();
 
 
 export default container;
