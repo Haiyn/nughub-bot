@@ -1,9 +1,9 @@
-import { inject, injectable, unmanaged } from "inversify";
+import { inject, injectable } from "inversify";
 import { TYPES } from "@src/types";
 import { Logger } from "tslog";
-import {GuildMember, GuildMemberRoleManager} from "discord.js";
+import { GuildMember, GuildMemberRoleManager } from "discord.js";
 import container from "@src/inversify.config";
-import {Configuration} from "@models/configuration";
+import { Configuration } from "@models/configuration";
 
 @injectable()
 export class PermissionService {

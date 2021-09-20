@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import {Channel, ColorResolvable, Message, MessageEmbed, TextChannel, User} from "discord.js";
+import { Channel, ColorResolvable, Message, MessageEmbed, TextChannel, User } from "discord.js";
 import { Command } from "@commands/command";
 import { Configuration } from "@models/configuration";
 import { CommandContext } from "@models/command-context";
