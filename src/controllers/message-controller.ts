@@ -71,7 +71,7 @@ export class MessageController {
 
     async handleDeletion(message: Message): Promise<void> {
         if(message.author.id == this.client.user.id) {
-            const foundSessionPost = await SessionModel.findOne({ sessionPost: message.id }).exec();
+            const foundSessionPost = await SessionModel.findOne({ sessionPostId: message.id }).exec();
             if(!foundSessionPost) {
                 this.logger.debug("Deleted bot message is not a session post.");
                 return;

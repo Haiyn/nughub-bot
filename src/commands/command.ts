@@ -4,7 +4,7 @@ import { Logger } from "tslog";
 import { TYPES } from "@src/types";
 import { CommandContext } from "@models/command-context";
 import { CommandResult } from "@models/command-result";
-import { ChannelService, UserService } from "@services/index";
+import { ChannelService, HelperService, MessageService, UserService } from "@services/index";
 
 export interface ICommand {
     readonly names: string[]
@@ -27,17 +27,23 @@ export class Command implements ICommand {
     readonly logger: Logger;
     readonly client: Client;
     readonly channelService: ChannelService;
+    readonly helperService: HelperService;
+    readonly messageService: MessageService;
     readonly userService: UserService;
 
     constructor(
         @inject(TYPES.CommandLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.ChannelService) channelService: ChannelService,
+        @inject(TYPES.HelperService) helperService: HelperService,
+        @inject(TYPES.MessageService) messageService: MessageService,
         @inject(TYPES.UserService) userService: UserService
     ) {
         this.logger = logger;
         this.client = client;
         this.channelService = channelService;
+        this.helperService = helperService;
+        this.messageService = messageService;
         this.userService = userService;
     }
 

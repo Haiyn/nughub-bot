@@ -12,21 +12,40 @@ import { ICharacterSchema } from "@models/character-schema";
 @injectable()
 export class SessionNext extends Command {
     names = [ "next", "n" ];
-    description = "Ends your turn on a given RP. Do it either in the RP channel or somewhere else and provide the channel name.";
-    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]} [optional message for next user]\``;
+    description = "Ends your turn on a given RP. Use it in the corresponding RP channel.";
+    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]} [#<channel name>] [optional message for next user]\``;
 
     async run(context: CommandContext): Promise<CommandResult> {
         this.logger.debug("Parsing arguments for next command...");
-        const session: ISessionSchema = await SessionModel.findOne({ channel: context.originalMessage.channel.id }).exec();
+        const session: ISessionSchema = await this.validateArguments(context.args, context);
         if(!session) {
-            await context.originalMessage.reply("There is no ongoing RP in this channel! Please use this command in the RP channel where you want to notify the next user.");
-            return Promise.resolve(new CommandResult(this, context, false, "No valid arguments for next command."));
+            const response = await context.originalMessage.reply("There is no ongoing RP in this channel! Please use this command in the RP channel where you want to notify the next user or pass the channel as an argument.\n" + this.usageHint);
+            if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
+            return Promise.resolve(new CommandResult(this, context, false, "Next command used in an invalid channel."));
+        }
+        if(context.originalMessage.author.id !== session.currentTurnId) {
+            const response = await context.originalMessage.reply({
+                content: `It's currently <@${session.currentTurnId}>'s turn! You can only use this command if it's your turn.`,
+                allowedMentions: { "parse": []}
+            });
+            if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
+            return Promise.resolve(new CommandResult(this, context, false, "Next command used by invalid user."));
         }
 
-        await this.updateTurnAndNotifyNextUser(session, context.args.length !== 0 ? context.args.join(" ") : null);
+        let userMessage = null;
+        if(this.helperService.isDiscordId(context.args[0]) && context.args.length > 1) userMessage = context.args.slice(1).join(" ");
+        else userMessage = context.args.join(" ");
+        await this.updateTurnAndNotifyNextUser(session, userMessage);
 
-        await context.originalMessage.delete();
+        await this.messageService.deleteMessages([context.originalMessage]);
         return Promise.resolve(new CommandResult(this, context, true, `Advanced the session turn for channel ID ${session.channelId}`));
+    }
+
+    public async validateArguments(args: string[], context?: CommandContext): Promise<ISessionSchema> {
+        let channelId = null;
+        if(args.length > 0 && this.helperService.isDiscordId(args[0])) channelId = this.channelService.getTextChannelByChannelId(args[0])?.id;
+        if(!channelId) channelId = context.originalMessage.channel.id;
+        return Promise.resolve(await SessionModel.findOne({ channel: channelId }).exec());
     }
 
     private async updateTurnAndNotifyNextUser(session: ISessionSchema, userMessage?: string): Promise<boolean> {

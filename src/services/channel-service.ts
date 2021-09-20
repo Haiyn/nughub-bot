@@ -5,6 +5,8 @@ import { Channel, Client, TextChannel } from "discord.js";
 import { Logger } from "tslog";
 import { TYPES } from "@src/types";
 import { HelperService } from "@services/index";
+import container from "@src/inversify.config";
+import { Configuration } from "@models/configuration";
 
 @injectable()
 export class ChannelService {
@@ -48,5 +50,10 @@ export class ChannelService {
             return null;
         }
         return matchedChannel as TextChannel;
+    }
+
+    public isRpChannel(channelId: string): boolean {
+        const rpChannelIds = container.get<Configuration>(TYPES.Configuration).rpChannelIds;
+        return rpChannelIds.includes(channelId);
     }
 }

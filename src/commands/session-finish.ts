@@ -11,15 +11,19 @@ import { TYPES } from "@src/types";
 export class SessionFinish extends Command {
     names = ["finish"];
     description = "Finishes an ongoing RP. All users stop receiving notifications and reminders.";
-    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]} #<channel name>\``;
+    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]} [#<channel name>]\``;
 
     async run(context: CommandContext): Promise<CommandResult> {
         this.logger.debug("Parsing arguments for finish command...");
-        const parsedSession: ISessionSchema | string = await this.validateArguments(context.args);
+        let parsedSession: ISessionSchema | string = await this.validateArguments(context.args, context);
         if(typeof parsedSession === "string") {
             this.logger.debug("Arguments are malformed!");
-            await context.originalMessage.reply(parsedSession);
+            const response = await context.originalMessage.reply(parsedSession);
+            if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
             return Promise.resolve(new CommandResult(this, context, false, "Input validation failed."));
+        }
+        if(!parsedSession) {
+            parsedSession = await SessionModel.findOne({ channelId: context.originalMessage.channel.id });
         }
 
         if(!await this.deleteSessionFromDatabase(parsedSession.channelId)) {
@@ -28,19 +32,23 @@ export class SessionFinish extends Command {
         }
 
         if(!await this.deleteSessionFromSessionsChannel(parsedSession)) {
-            await context.originalMessage.reply(`I couldn't delete the session post from <#${parsedSession.channelId}> but the session is still finished! Please check if the session message was removed.`);
+            const response = await context.originalMessage.reply(`I couldn't delete the session post from <#${parsedSession.channelId}> but the session is still finished! Please check if the session message was removed.`);
+            if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
             return Promise.resolve(new CommandResult(this, context, false, `Failed to delete session from channel (ID: ${parsedSession.channelId})`));
         }
 
-        await context.originalMessage.reply(`The session in <#${parsedSession.channelId}> is now finished!`);
+        const response = await context.originalMessage.reply(`The session in <#${parsedSession.channelId}> is now finished!`);
+        if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
+        await this.channelService.getTextChannelByChannelId(parsedSession.channelId).send("\`\`\`\n\`\`\`");
         return Promise.resolve(new CommandResult(this, context, true, `Deleted session for channel ID ${parsedSession.channelId}`));
     }
 
-    public async validateArguments(args: string[]): Promise<ISessionSchema|string> {
-        if(args.length !== 1) return Promise.resolve("Please provide all needed arguments!\n" + this.usageHint);
+    public async validateArguments(args: string[], context?: CommandContext): Promise<ISessionSchema|string> {
+        if(args.length > 1) return Promise.resolve("Please provide all needed arguments!\n" + this.usageHint);
 
-        const channel = this.channelService.getTextChannelByChannelId(args[0]);
-        if(!channel) return Promise.resolve("The channel you've given is not valid! Please make sure to link it with a hashtag (#).");
+        const channelId = args.length == 0 ? context.originalMessage.channel.id : args[0];
+        const channel = this.channelService.getTextChannelByChannelId(channelId);
+        if(!channel) return Promise.resolve("The channel you've given is not valid! Please make sure to either link it with a hashtag (#) or use this command in the RP channel you want to finish.");
         const foundSession: ISessionSchema = await SessionModel.findOne({ channelId: channel.id }).exec();
         if(!foundSession) return Promise.resolve(`There is no ongoing RP session in <#${channel.id}>!`);
         this.logger.trace(foundSession);
