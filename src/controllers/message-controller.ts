@@ -80,6 +80,7 @@ export class MessageController {
                 this.logger.debug("Session message was deleted. Removing session from database...");
                 await SessionModel.findOneAndDelete({ sessionPostId: message.id }).exec();
                 const internalChannel: TextChannel = await this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).internalChannelId);
+                await this.channelService.getTextChannelByChannelId(foundSessionPost.channelId).send("\`\`\`⋟────────────────────────⋞\`\`\`");
                 await internalChannel.send(`The session post for the session in <#${foundSessionPost.channelId}> was deleted. I have finished the session for you.`);
                 this.logger.debug("Removed session from database.");
                 return;
