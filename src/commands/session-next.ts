@@ -6,7 +6,7 @@ import { ISessionSchema, SessionModel } from "@models/session-schema";
 import container from "@src/inversify.config";
 import { Configuration } from "@models/configuration";
 import { TYPES } from "@src/types";
-import { TextChannel } from "discord.js";
+import {Message, TextChannel} from "discord.js";
 import { ICharacterSchema } from "@models/character-schema";
 
 @injectable()
@@ -33,10 +33,22 @@ export class SessionNext extends Command {
             return Promise.resolve(new CommandResult(this, context, false, "Next command used by invalid user."));
         }
 
+        this.logger.debug("Notifying next user...");
         let userMessage = null;
-        if(this.helperService.isDiscordId(context.args[0]) && context.args.length > 1) userMessage = context.args.slice(1).join(" ");
+        if(this.helperService.isDiscordId(context.args[0])) userMessage = context.args.slice(1).join(" ");
         else userMessage = context.args.join(" ");
-        await this.updateTurnAndNotifyNextUser(session, userMessage);
+
+        const newSession = await this.updateTurnAndNotifyNextUser(session, userMessage);
+        if(!newSession) {
+            await context.originalMessage.reply(`Uh-oh, something went wrong while I tried to notify the next user.`);
+            return Promise.resolve(new CommandResult(this, context, false, "Failed to update turn order and notify next user."));
+        }
+
+        this.logger.debug("Updating session post with new current turn...");
+        if(!await this.updateSessionPost(newSession)) {
+            await context.originalMessage.reply(`Uh-oh, something went wrong while I tried to update the session post.`);
+            return Promise.resolve(new CommandResult(this, context, false, "Failed to update session post after turn change."));
+        }
 
         await this.messageService.deleteMessages([context.originalMessage]);
         return Promise.resolve(new CommandResult(this, context, true, `Advanced the session turn for channel ID ${session.channelId}`));
@@ -49,14 +61,13 @@ export class SessionNext extends Command {
         return Promise.resolve(await SessionModel.findOne({ channelId: channelId }).exec());
     }
 
-    private async updateTurnAndNotifyNextUser(session: ISessionSchema, userMessage?: string): Promise<boolean> {
+    private async updateTurnAndNotifyNextUser(session: ISessionSchema, userMessage?: string): Promise<ISessionSchema> {
         // Iterate current turn
-        this.logger.debug(`CurrentTurn: ${session}`);
         const nextTurn: ICharacterSchema = this.iterateTurn(session.turnOrder, session.currentTurnId);
 
         this.logger.trace(`Current session: ${JSON.stringify(session)}\nNext currentTurn will be: ${nextTurn.userId} - ${nextTurn.name}`);
-        const doc: ISessionSchema = await SessionModel.findOneAndUpdate({ channel: session.channelId }, { currentTurnId: nextTurn.userId }, { new: true });
-        this.logger.debug(`Updated next user for session: ${doc.currentTurnId}`);
+        const newSession: ISessionSchema = await SessionModel.findOneAndUpdate({ channel: session.channelId }, { currentTurnId: nextTurn.userId }, { new: true });
+        this.logger.trace(`Updated next user for session: ${newSession.currentTurnId}`);
 
         // Send notification
         let messageContent = `<@${nextTurn.userId}> (${nextTurn.name}) in <#${session.channelId}>`;
@@ -68,7 +79,7 @@ export class SessionNext extends Command {
         });
 
         this.logger.debug(`Notified next user (ID: ${nextTurn.userId}) in notification channel.`);
-        return Promise.resolve(true);
+        return Promise.resolve(newSession);
     }
 
     private iterateTurn(turnOrder: Array<ICharacterSchema>, currentTurnId: string): ICharacterSchema {
@@ -79,11 +90,9 @@ export class SessionNext extends Command {
             if(character.userId === currentTurnId) {
                 if(index == turnOrder.length - 1) {
                     // If current turn is the last element, next turn is the first element
-                    this.logger.debug(`Last item in array (${index+1} with array length ${turnOrder.length}.`);
                     nextTurn = turnOrder[0];
                     return;
                 }
-                this.logger.debug(`Next item in array (${index+1} with array length ${turnOrder.length} is ${turnOrder[index+1]}.`);
                 index++;
                 nextTurn = turnOrder[index];
                 return;
@@ -91,6 +100,27 @@ export class SessionNext extends Command {
             index++;
         });
         return nextTurn;
+    }
+
+    private async updateSessionPost(session: ISessionSchema): Promise<boolean> {
+        try {
+            let postContent = `\n\n<#${session.channelId}>:\n`;
+            session.turnOrder.forEach((character) => {
+                if(character.userId === session.currentTurnId) postContent += ":arrow_right: ";
+                postContent += `${character.name} <@${character.userId}>\n`;
+            });
+            const divider = "\`\`\`⋟────────────────────────⋞\`\`\`";
+
+            const sessionPost: Message = this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).currentSessionsChannelId).messages.cache.get(session.sessionPostId);
+            await sessionPost.edit({
+                content: postContent + divider,
+                allowedMentions: { "parse": []}
+            });
+            return Promise.resolve(true);
+        } catch(error) {
+            this.logger.error("Failed to update session post with new current turn marker: ", this.logger.prettyError(error));
+            return Promise.resolve(false);
+        }
     }
 
 }
