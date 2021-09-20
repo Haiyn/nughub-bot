@@ -8,6 +8,7 @@ export class Ping extends Command {
     names = [ "ping", "p" ];
     description = "Pings the bot.";
     usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]}\``;
+    permissionLevel = 3;
 
     async run(context: CommandContext): Promise<CommandResult> {
         try {

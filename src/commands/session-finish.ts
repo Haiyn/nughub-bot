@@ -11,7 +11,8 @@ import { TYPES } from "@src/types";
 export class SessionFinish extends Command {
     names = ["finish"];
     description = "Finishes an ongoing RP. All users stop receiving notifications and reminders.";
-    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]} [#<channel name>]\``;
+    usageHint = "**Usage Hint:** \`" + `${this.names[0]} [#<channel name>]\``;
+    permissionLevel = 1;
 
     async run(context: CommandContext): Promise<CommandResult> {
         this.logger.debug("Parsing arguments for finish command...");
