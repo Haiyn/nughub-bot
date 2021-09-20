@@ -13,7 +13,8 @@ import { ICharacterSchema } from "@models/character-schema";
 export class SessionNext extends Command {
     names = [ "next", "n" ];
     description = "Ends your turn on a given RP. Use it in the corresponding RP channel.";
-    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]} [#<channel name>] [optional message for next user]\``;
+    usageHint = "**Usage Hint:** \`" + `${this.names[0]} [#<channel name>] [optional message for next user]\``;
+    permissionLevel = 1;
 
     async run(context: CommandContext): Promise<CommandResult> {
         this.logger.debug("Parsing arguments for next command...");
@@ -45,7 +46,7 @@ export class SessionNext extends Command {
         let channelId = null;
         if(args.length > 0 && this.helperService.isDiscordId(args[0])) channelId = this.channelService.getTextChannelByChannelId(args[0])?.id;
         if(!channelId) channelId = context.originalMessage.channel.id;
-        return Promise.resolve(await SessionModel.findOne({ channel: channelId }).exec());
+        return Promise.resolve(await SessionModel.findOne({ channelId: channelId }).exec());
     }
 
     private async updateTurnAndNotifyNextUser(session: ISessionSchema, userMessage?: string): Promise<boolean> {

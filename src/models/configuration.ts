@@ -7,6 +7,11 @@ export interface Configuration {
     notificationChannelId: string,
     rpChannelIds: string[],
     guildColor: string,
+    roleIds: {
+        administrator: string,
+        moderator: string,
+        user: Array<string>
+    }
 }
 
 export const description = literal<Configuration>({
@@ -15,5 +20,10 @@ export const description = literal<Configuration>({
     notificationChannelId: stringItem,
     internalChannelId: stringItem,
     rpChannelIds: singleOrArray(stringItem()),
-    guildColor: stringItem
+    guildColor: stringItem,
+    roleIds: literal({
+        administrator: stringItem,
+        moderator: stringItem,
+        user: singleOrArray(stringItem)
+    })
 });

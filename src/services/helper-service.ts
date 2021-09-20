@@ -24,6 +24,7 @@ export class HelperService {
     }
 
     public isDiscordId(idToCheck: string): boolean {
+        if(idToCheck == null) return false;
         return idToCheck.match(this.discordIdRegex) != null;
     }
 }

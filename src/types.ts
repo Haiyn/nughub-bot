@@ -4,6 +4,7 @@ export const TYPES = {
     Client: Symbol("Client"),
     Token: Symbol("Token"),
     Configuration: Symbol("Configuration"),
+    BotOwnerId: Symbol("BotOwnerId"),
 
     // Services
     MessageController: Symbol("MessageController"),

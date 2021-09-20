@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import {Channel, ColorResolvable, Message, MessageEmbed, TextChannel, User} from "discord.js";
+import { Channel, ColorResolvable, Message, MessageEmbed, TextChannel, User } from "discord.js";
 import { Command } from "@commands/command";
 import { Configuration } from "@models/configuration";
 import { CommandContext } from "@models/command-context";
@@ -15,7 +15,8 @@ import { ICharacterSchema } from "@models/character-schema";
 export class SessionStart extends Command {
     names = ["start"];
     description = "Starts an RP session in the given channel with the given turn order.";
-    usageHint = "**Usage Hint:** \`" + process.env.PREFIX + `${this.names[0]} #<channel name> @User1 CharacterName1 @User2 CharacterName2 ...\``;
+    usageHint = "**Usage Hint:** \`" + `${this.names[0]} #<channel name> @User1 CharacterName1 @User2 CharacterName2 ...\``;
+    permissionLevel = 1;
 
     public async run(context: CommandContext): Promise<CommandResult> {
         this.logger.debug("Parsing arguments for start command...");

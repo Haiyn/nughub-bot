@@ -25,6 +25,7 @@ container.bind<string>(TYPES.BaseLogLevel).toConstantValue(process.env.BASE_LOG_
 container.bind<string>(TYPES.ServiceLogLevel).toConstantValue(process.env.SERVICE_LOG_LEVEL);
 container.bind<string>(TYPES.CommandLogLevel).toConstantValue(process.env.COMMAND_LOG_LEVEL);
 container.bind<string>(TYPES.IgnoreStackLevels).toConstantValue(process.env.IGNORE_STACK_LEVELS);
+container.bind<string>(TYPES.BotOwnerId).toConstantValue(process.env.BOT_OWNER_ID);
 
 // Constants
 container.bind<Client>(TYPES.Client).toConstantValue(new Client({ intents: [

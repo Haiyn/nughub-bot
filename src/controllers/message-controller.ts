@@ -42,15 +42,17 @@ export class MessageController {
 
         if (!commandContext) {
             this.logger.debug(`Message ID ${message.id}: Could not match command "${message.content.substr(1, message.content.indexOf(" "))}".`);
-            await message.reply("I don't recognize that command. Try !help.");
+            const response = await message.reply("I don't recognize that command. Try !help.");
+            if(this.channelService.isRpChannel(message.channel.id)) await this.messageService.deleteMessages([ message, response ], 10000);
             return;
         }
 
-        if (!this.permissionService.hasPermission(commandContext.originalMessage.member.roles, commandContext.command.permissionLevel)) {
+        if (!this.permissionService.hasPermission(commandContext.originalMessage.member, commandContext.command.permissionLevel)) {
             this.logger.debug(`Message ID ${message.id}: User is not authorized for command "${commandContext.command.names[0]}".
                 User ID: ${commandContext.originalMessage.author.id}
                 User roles: ${commandContext.originalMessage.member.roles}`);
-            await message.reply("You aren't allowed to use that command. Try !help.");
+            const response = await message.reply("You aren't allowed to use that command. Try !help.");
+            if(this.channelService.isRpChannel(message.channel.id)) await this.messageService.deleteMessages([ message, response ], 10000);
             return;
         }
 
