@@ -26,4 +26,18 @@ export class MessageService {
         this.logger.debug(`Message ID ${message.id}: is ${isPrefixed ? "" : "not"} prefixed.`);
         return isPrefixed;
     }
+
+    public async deleteMessages(messagesToDelete: Message[], timeout?: number): Promise<boolean> {
+        try {
+            setTimeout(() => {
+                messagesToDelete.forEach(message => {
+                    message.delete();
+                });
+            }, timeout ? timeout : 0);
+            return Promise.resolve(true);
+        } catch(error) {
+            this.logger.error("Failed to delete user prompts: ", this.logger.prettyError(error));
+            return Promise.resolve(false);
+        }
+    }
 }
