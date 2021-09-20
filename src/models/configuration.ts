@@ -5,7 +5,8 @@ export interface Configuration {
     currentSessionsChannelId: string,
     internalChannelId: string,
     notificationChannelId: string,
-    rpChannelIds: string[]
+    rpChannelIds: string[],
+    guildColor: string,
 }
 
 export const description = literal<Configuration>({
@@ -13,5 +14,6 @@ export const description = literal<Configuration>({
     currentSessionsChannelId: stringItem,
     notificationChannelId: stringItem,
     internalChannelId: stringItem,
-    rpChannelIds: singleOrArray(stringItem())
+    rpChannelIds: singleOrArray(stringItem()),
+    guildColor: stringItem
 });

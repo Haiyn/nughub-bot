@@ -22,7 +22,8 @@
       "@services/*": ["services/*"],
       "@controllers/*": ["controllers/*"],
       "@commands/*": ["commands/*"],
-      "@models/*": ["models/*"]
+      "@models/*": ["models/*"],
+      "@resources/*": ["resources/*"]
     },
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

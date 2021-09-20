@@ -39,7 +39,7 @@ export class SessionFinish extends Command {
 
         const response = await context.originalMessage.reply(`The session in <#${parsedSession.channelId}> is now finished!`);
         if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
-        await this.channelService.getTextChannelByChannelId(parsedSession.channelId).send("\`\`\`\n\`\`\`");
+        await this.channelService.getTextChannelByChannelId(parsedSession.channelId).send("\`\`\`⋟────────────────────────⋞\`\`\`");
         return Promise.resolve(new CommandResult(this, context, true, `Deleted session for channel ID ${parsedSession.channelId}`));
     }
 

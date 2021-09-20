@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { Channel, Message, MessageEmbed, TextChannel, User } from "discord.js";
+import {Channel, ColorResolvable, Message, MessageEmbed, TextChannel, User} from "discord.js";
 import { Command } from "@commands/command";
 import { Configuration } from "@models/configuration";
 import { CommandContext } from "@models/command-context";
@@ -168,8 +168,11 @@ export class SessionStart extends Command {
     }
 
     private static async initializeSessionsChannel(sessionsChannel: TextChannel): Promise<boolean> {
-        // TODO: Make this prettier. Icon?  Color?
+        const configuration = container.get<Configuration>(TYPES.Configuration);
         const embed = new MessageEmbed()
+            .setColor(configuration.guildColor as ColorResolvable)
+            .setAuthor(sessionsChannel.guild.name, sessionsChannel.guild.iconURL())
+            .setFooter("(squeaks regally)")
             .setTitle("Ongoing RP Sessions")
             .setDescription("You can find all currently running RPs here - including their turn order.");
         const message = await sessionsChannel.send({ embeds: [embed]});
