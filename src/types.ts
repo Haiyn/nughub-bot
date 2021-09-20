@@ -19,6 +19,7 @@ export const TYPES = {
     Ping: Symbol("ping"),
     SessionStart: Symbol("start"),
     SessionFinish: Symbol("finish"),
+    SessionNext: Symbol("next"),
 
     // Logging
     BaseLogLevel: Symbol("BaseLogLevel"),

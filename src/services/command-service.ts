@@ -12,7 +12,8 @@ export class CommandService {
     private commandMapping = {
         "start": TYPES.SessionStart,
         "ping": TYPES.Ping,
-        "finish": TYPES.SessionFinish
+        "finish": TYPES.SessionFinish,
+        "next": TYPES.SessionNext
     }
 
     public getCommandContextFromMessage(message: Message): CommandContext {
