@@ -128,7 +128,10 @@ export class SessionStart extends Command {
         // Send new message
         try {
             let postContent = `\n\n<#${data.channel.id}>:\n`;
-            data.turnOrder.forEach((character) => { postContent += `${character.name} <@${character.user.id}>\n`; });
+            data.turnOrder.forEach((character) => {
+                if(character.user.id === data.currentTurn.id) postContent += ":arrow_right: ";
+                postContent += `${character.name} <@${character.user.id}>\n`;
+            });
             const divider = "\`\`\`⋟────────────────────────⋞\`\`\`";
 
             const result = await sessionsChannel.send({
