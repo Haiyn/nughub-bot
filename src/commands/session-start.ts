@@ -58,7 +58,7 @@ export class SessionStart extends Command {
         const channel = this.channelService.getTextChannelByChannelId(args[0]);
         if(!container.get<Configuration>(TYPES.Configuration).rpChannelIds.find(channelId => channelId == channel.id)) return "The channel you've provided is not a channel you can start a session in! Please pick a valid RP channel.";
         if(!channel) return "The channel you've provided is invalid! Does it really exist?";
-        if(await SessionModel.findOne({ "channel": channel.id }).exec()) return "There is already a RP session running in this channel!";
+        if(await SessionModel.findOne({ "channelId": channel.id }).exec()) return "There is already a RP session running in this channel!";
 
         // Users & Names
         const names = [];
