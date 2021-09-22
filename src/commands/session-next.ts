@@ -20,13 +20,14 @@ export class SessionNext extends Command {
         this.logger.debug("Parsing arguments for next command...");
         const session: ISessionSchema = await this.validateArguments(context.args, context);
         if(!session) {
+            this.logger.debug(`Message ID ${context.originalMessage.id}: No session was found for `)
             const response = await context.originalMessage.reply("There is no ongoing RP in this channel! Please use this command in the RP channel where you want to notify the next user or pass the channel as an argument.\n" + this.usageHint);
             if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
             return Promise.resolve(new CommandResult(this, context, false, "Next command used in an invalid channel."));
         }
-        if(context.originalMessage.author.id !== session.currentTurnId) {
+        if(context.originalMessage.author.id !== session.currentTurn.userId) {
             const response = await context.originalMessage.reply({
-                content: `It's currently <@${session.currentTurnId}>'s turn! You can only use this command if it's your turn.`,
+                content: `It's currently <@${session.currentTurn.userId}>'s turn! You can only use this command if it's your turn.`,
                 allowedMentions: { "parse": []}
             });
             if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
@@ -57,21 +58,25 @@ export class SessionNext extends Command {
     public async validateArguments(args: string[], context?: CommandContext): Promise<ISessionSchema> {
         let channelId = null;
         if(args.length > 0 && this.helperService.isDiscordId(args[0])) channelId = this.channelService.getTextChannelByChannelId(args[0])?.id;
-        if(!channelId) channelId = context.originalMessage.channel.id;
-        return Promise.resolve(await SessionModel.findOne({ channelId: channelId }).exec());
+        if(!channelId) {
+            channelId = context.originalMessage.channel.id;
+            this.logger.debug(`Message ID ${context.originalMessage.id}: First argument is not a discord ID (${args[0]}, trying channel ID ${channelId}`);
+        }
+        const foundSession = await SessionModel.findOne({ channelId: channelId }).exec();
+        return Promise.resolve(foundSession);
     }
 
     private async updateTurnAndNotifyNextUser(session: ISessionSchema, userMessage?: string): Promise<ISessionSchema> {
         // Iterate current turn
-        const nextTurn: ICharacterSchema = this.iterateTurn(session.turnOrder, session.currentTurnId);
+        const nextTurn: ICharacterSchema = this.iterateTurn(session.turnOrder, session.currentTurn);
 
         this.logger.trace(`Current session: ${JSON.stringify(session)}\nNext currentTurn will be: ${nextTurn.userId} - ${nextTurn.name}`);
-        const newSession: ISessionSchema = await SessionModel.findOneAndUpdate({ channel: session.channelId }, { currentTurnId: nextTurn.userId }, { new: true });
-        this.logger.trace(`Updated next user for session: ${newSession.currentTurnId}`);
+        const newSession: ISessionSchema = await SessionModel.findOneAndUpdate({ channel: session.channelId }, { currentTurn: nextTurn }, { new: true });
+        this.logger.trace(`Updated next user for session: ${JSON.stringify(newSession.currentTurn)}`);
 
         // Send notification
         let messageContent = `<@${nextTurn.userId}> (${nextTurn.name}) in <#${session.channelId}>`;
-        if(userMessage) messageContent += `\n<@${session.currentTurnId}> said: \"${userMessage}\"`;
+        if(userMessage) messageContent += `\n<@${session.currentTurn.userId}> said: \"${userMessage}\"`;
         const notificationChannel: TextChannel = await this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).notificationChannelId);
         await notificationChannel.send({
             content: messageContent,
@@ -82,12 +87,12 @@ export class SessionNext extends Command {
         return Promise.resolve(newSession);
     }
 
-    private iterateTurn(turnOrder: Array<ICharacterSchema>, currentTurnId: string): ICharacterSchema {
+    private iterateTurn(turnOrder: Array<ICharacterSchema>, currentTurn: ICharacterSchema): ICharacterSchema {
         let nextTurn: ICharacterSchema = null;
         let index = 0;
 
         turnOrder.forEach((character) => {
-            if(character.userId === currentTurnId) {
+            if(character.userId === currentTurn.userId && character.name === currentTurn.name) {
                 if(index == turnOrder.length - 1) {
                     // If current turn is the last element, next turn is the first element
                     nextTurn = turnOrder[0];
@@ -106,7 +111,7 @@ export class SessionNext extends Command {
         try {
             let postContent = `\n\n<#${session.channelId}>:\n`;
             session.turnOrder.forEach((character) => {
-                if(character.userId === session.currentTurnId) postContent += ":arrow_right: ";
+                if(character.userId === session.currentTurn.userId && character.name === session.currentTurn.name) postContent += ":arrow_right: ";
                 postContent += `${character.name} <@${character.userId}>\n`;
             });
             const divider = "\`\`\`⋟────────────────────────⋞\`\`\`";

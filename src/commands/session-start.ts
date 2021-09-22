@@ -77,7 +77,7 @@ export class SessionStart extends Command {
         const turnOrder: Array<Character> = [];
         users.forEach((user, index) => turnOrder.push(new Character(user, names[index])));
 
-        return new Session(channel, turnOrder, users[0], null);
+        return new Session(channel, turnOrder, turnOrder[0], null);
     }
 
     private async saveSessionToDatabase(data: Session): Promise<boolean> {
@@ -89,7 +89,7 @@ export class SessionStart extends Command {
         const session = new SessionModel({
             channelId: data.channel.id,
             turnOrder: turnOrder,
-            currentTurnId: turnOrder[0].userId, // first array element
+            currentTurn: turnOrder[0], // first array element
             sessionPostId: data.sessionPost.id
         });
 
@@ -129,7 +129,7 @@ export class SessionStart extends Command {
         try {
             let postContent = `\n\n<#${data.channel.id}>:\n`;
             data.turnOrder.forEach((character) => {
-                if(character.user.id === data.currentTurn.id) postContent += ":arrow_right: ";
+                if(character.user.id === data.currentTurn.user.id && character.name === data.currentTurn.name) postContent += ":arrow_right: ";
                 postContent += `${character.name} <@${character.user.id}>\n`;
             });
             const divider = "\`\`\`⋟────────────────────────⋞\`\`\`";

@@ -4,14 +4,14 @@ import { characterSchema, ICharacterSchema } from "@models/character-schema";
 export interface ISessionSchema {
     channelId: string;
     turnOrder: Array<ICharacterSchema>;
-    currentTurnId: string;
+    currentTurn: ICharacterSchema;
     sessionPostId: string;
 }
 
 const sessionSchema = new Schema<ISessionSchema>({
     channelId: { type: String, required: true },
     turnOrder: { type: [characterSchema], required: true },
-    currentTurnId: String,
+    currentTurn: { type: characterSchema, required: true},
     sessionPostId: { type: String, required: true },
 }, { collection: "Sessions" });
 
