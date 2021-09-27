@@ -1,19 +1,12 @@
-import { inject, injectable } from "inversify";
-import { Logger } from "tslog";
+import { injectable } from "inversify";
 import { TYPES } from "@src/types";
 import { connect } from "mongoose";
+import { Service } from "@services/service";
+import container from "@src/inversify.config";
 
 @injectable()
-export class DatabaseService {
-    private readonly logger: Logger;
-    private readonly connectionString: string;
-
-    constructor(
-        @inject(TYPES.ServiceLogger) logger: Logger,
-    ) {
-        this.logger = logger;
-        this.connectionString = process.env.MONGODB_CONNSTR;
-    }
+export class DatabaseService extends Service {
+    private readonly connectionString: string = container.get<string>(TYPES.MongoDbConnectionString);
 
     public connect(): Promise<void> {
         return connect(this.connectionString)

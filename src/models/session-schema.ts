@@ -11,7 +11,7 @@ export interface ISessionSchema {
 const sessionSchema = new Schema<ISessionSchema>({
     channelId: { type: String, required: true },
     turnOrder: { type: [characterSchema], required: true },
-    currentTurn: { type: characterSchema, required: true},
+    currentTurn: { type: characterSchema, required: true },
     sessionPostId: { type: String, required: true },
 }, { collection: "Sessions" });
 

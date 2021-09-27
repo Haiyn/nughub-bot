@@ -5,6 +5,7 @@ import { TYPES } from "@src/types";
 import { CommandContext } from "@models/command-context";
 import { CommandResult } from "@models/command-result";
 import { ChannelService, HelperService, MessageService, UserService } from "@services/index";
+import { IConfiguration } from "@models/configuration";
 
 export interface ICommand {
     readonly names: string[]
@@ -12,6 +13,7 @@ export interface ICommand {
     readonly usageHint: string;
     readonly permissionLevel: number;
     readonly logger: Logger;
+    readonly configuration: IConfiguration;
 
     getHelpMessage(): string;
     run(context: CommandContext): Promise<CommandResult>;
@@ -26,6 +28,7 @@ export class Command implements ICommand {
 
     readonly logger: Logger;
     readonly client: Client;
+    readonly configuration: IConfiguration;
     readonly channelService: ChannelService;
     readonly helperService: HelperService;
     readonly messageService: MessageService;
@@ -34,6 +37,7 @@ export class Command implements ICommand {
     constructor(
         @inject(TYPES.CommandLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
+        @inject(TYPES.Configuration) configuration: IConfiguration,
         @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.HelperService) helperService: HelperService,
         @inject(TYPES.MessageService) messageService: MessageService,
@@ -41,6 +45,7 @@ export class Command implements ICommand {
     ) {
         this.logger = logger;
         this.client = client;
+        this.configuration = configuration;
         this.channelService = channelService;
         this.helperService = helperService;
         this.messageService = messageService;

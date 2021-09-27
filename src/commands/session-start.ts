@@ -1,13 +1,10 @@
 import { injectable } from "inversify";
 import { Channel, ColorResolvable, Message, MessageEmbed, TextChannel, User } from "discord.js";
 import { Command } from "@commands/command";
-import { Configuration } from "@models/configuration";
 import { CommandContext } from "@models/command-context";
 import { CommandResult } from "@models/command-result";
 import { Session } from "@models/session";
 import { SessionModel } from "@models/session-schema";
-import container from "@src/inversify.config";
-import { TYPES } from "@src/types";
 import { Character } from "@models/character";
 import { ICharacterSchema } from "@models/character-schema";
 
@@ -39,7 +36,7 @@ export class SessionStart extends Command {
         this.logger.debug("Saving Session to database...");
         if(!await this.saveSessionToDatabase(parsedSession)) {
             await context.originalMessage.reply("Uh-oh, something went wrong while saving the session!");
-            await this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).currentSessionsChannelId).messages.delete(parsedSession.sessionPost);
+            await this.channelService.getTextChannelByChannelId(this.configuration.channels.currentSessionsChannelId).messages.delete(parsedSession.sessionPost);
             return Promise.reject(new CommandResult(this, context, false, "Failed to save to MongoDB."));
         }
 
@@ -56,7 +53,7 @@ export class SessionStart extends Command {
 
         // Channel
         const channel = this.channelService.getTextChannelByChannelId(args[0]);
-        if(!container.get<Configuration>(TYPES.Configuration).rpChannelIds.find(channelId => channelId == channel.id)) return "The channel you've provided is not a channel you can start a session in! Please pick a valid RP channel.";
+        if(!this.configuration.channels.rpChannelIds.find(channelId => channelId == channel.id)) return "The channel you've provided is not a channel you can start a session in! Please pick a valid RP channel.";
         if(!channel) return "The channel you've provided is invalid! Does it really exist?";
         if(await SessionModel.findOne({ "channelId": channel.id }).exec()) return "There is already a RP session running in this channel!";
 
@@ -106,14 +103,13 @@ export class SessionStart extends Command {
     }
 
     private async saveSessionToSessionChannel(data: Session): Promise<Message> {
-        const configuration = container.get<Configuration>(TYPES.Configuration);
-        const sessionsChannel = this.channelService.getTextChannelByChannelId(configuration.currentSessionsChannelId);
+        const sessionsChannel = this.channelService.getTextChannelByChannelId(this.configuration.channels.currentSessionsChannelId);
 
         // Check if sessions channel is ready for new message
         try {
             const initialized = await this.checkSessionsChannel(sessionsChannel);
             if(!initialized) {
-                const success = SessionStart.initializeSessionsChannel(sessionsChannel);
+                const success = await this.initializeSessionsChannel(sessionsChannel);
                 if (!success) {
                     this.logger.debug("Sessions channel could not be initialized.");
                     return Promise.resolve(null);
@@ -171,10 +167,9 @@ export class SessionStart extends Command {
 
     }
 
-    private static async initializeSessionsChannel(sessionsChannel: TextChannel): Promise<boolean> {
-        const configuration = container.get<Configuration>(TYPES.Configuration);
+    private async initializeSessionsChannel(sessionsChannel: TextChannel): Promise<boolean> {
         const embed = new MessageEmbed()
-            .setColor(configuration.guildColor as ColorResolvable)
+            .setColor(this.configuration.guild.color as ColorResolvable)
             .setAuthor(sessionsChannel.guild.name, sessionsChannel.guild.iconURL())
             .setFooter("(squeaks regally)")
             .setTitle("Ongoing RP Sessions")
