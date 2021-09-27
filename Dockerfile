@@ -9,7 +9,6 @@ ADD src /usr/nhb/src
 COPY tsconfig.json /usr/nhb
 COPY .eslintignore /usr/nhb
 COPY .eslintrc /usr/nhb
-COPY .env.prod /usr/nhb/.env
 
 RUN npm run lint
 RUN npm run build
