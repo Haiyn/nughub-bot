@@ -1,4 +1,4 @@
-name: ci-docker-push
+name: ci-docker
 
 on:
   pull_request:
@@ -8,6 +8,7 @@ on:
   release:
     types:
       - created
+      - edited
 
 jobs:
   docker:
@@ -21,7 +22,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: haiyn/nhb
+          images: haiyn/nughub-bot
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
