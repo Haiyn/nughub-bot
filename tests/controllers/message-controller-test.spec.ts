@@ -7,7 +7,6 @@ import { Logger } from "tslog";
 
 import { MessageController } from "@controllers/message-controller";
 import { CommandService, MessageService, PermissionService } from "@src/services";
-import { MessageControllerResult } from "@models/message-controller-result";
 import { CommandContext } from "@models/command-context";
 import { Command } from "@src/commands";
 

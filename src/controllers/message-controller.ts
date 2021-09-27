@@ -1,36 +1,10 @@
-import { Client, Message, TextChannel } from "discord.js";
-import { inject, injectable } from "inversify";
-import { TYPES } from "@src/types";
-import { PermissionService, CommandService, MessageService, ChannelService } from "@src/services";
-import { Logger } from "tslog";
+import { Message, TextChannel } from "discord.js";
+import { injectable } from "inversify";
 import { SessionModel } from "@models/session-schema";
-import container from "@src/inversify.config";
-import { Configuration } from "@models/configuration";
+import { Controller } from "@controllers/controller";
 
 @injectable()
-export class MessageController {
-    private readonly messageService: MessageService;
-    private readonly permissionService: PermissionService;
-    private readonly commandService: CommandService;
-    private readonly channelService: ChannelService;
-    private readonly logger: Logger;
-    private readonly client: Client;
-
-    constructor(
-        @inject(TYPES.MessageService) messageService: MessageService,
-        @inject(TYPES.PermissionService) permissionService: PermissionService,
-        @inject(TYPES.CommandService) commandService: CommandService,
-        @inject(TYPES.ChannelService) channelService: ChannelService,
-        @inject(TYPES.ServiceLogger) logger: Logger,
-        @inject(TYPES.Client) client: Client
-    ) {
-        this.messageService = messageService;
-        this.permissionService = permissionService;
-        this.commandService = commandService;
-        this.channelService = channelService;
-        this.logger = logger;
-        this.client = client;
-    }
+export class MessageController extends Controller {
 
     async handleMessage(message: Message): Promise<void> {
         if (this.messageService.isBotMessage(message) || !this.messageService.isPrefixedMessage(message)) {
@@ -81,7 +55,7 @@ export class MessageController {
             try {
                 this.logger.debug("Session message was deleted. Removing session from database...");
                 await SessionModel.findOneAndDelete({ sessionPostId: message.id }).exec();
-                const internalChannel: TextChannel = await this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).internalChannelId);
+                const internalChannel: TextChannel = await this.channelService.getTextChannelByChannelId(this.configuration.channels.internalChannelId);
                 await this.channelService.getTextChannelByChannelId(foundSessionPost.channelId).send("\`\`\`⋟────────────────────────⋞\`\`\`");
                 await internalChannel.send(`The session post for the session in <#${foundSessionPost.channelId}> was deleted. I have finished the session for you.`);
                 this.logger.debug("Removed session from database.");
@@ -97,7 +71,7 @@ export class MessageController {
     }
 
     async handleCaching(): Promise<void> {
-        const currentSessionsChannel = this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).currentSessionsChannelId);
+        const currentSessionsChannel = this.channelService.getTextChannelByChannelId(this.configuration.channels.currentSessionsChannelId);
         await currentSessionsChannel.messages.fetch().then((fetchedMessages) => {
             this.logger.debug(`Fetched ${fetchedMessages.size} messages from currentSessionsChannel.`);
         });

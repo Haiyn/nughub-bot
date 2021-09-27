@@ -3,10 +3,7 @@ import { CommandContext } from "@models/command-context";
 import { injectable } from "inversify";
 import { CommandResult } from "@models/command-result";
 import { ISessionSchema, SessionModel } from "@models/session-schema";
-import container from "@src/inversify.config";
-import { Configuration } from "@models/configuration";
-import { TYPES } from "@src/types";
-import {Message, TextChannel} from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import { ICharacterSchema } from "@models/character-schema";
 
 @injectable()
@@ -20,7 +17,7 @@ export class SessionNext extends Command {
         this.logger.debug("Parsing arguments for next command...");
         const session: ISessionSchema = await this.validateArguments(context.args, context);
         if(!session) {
-            this.logger.debug(`Message ID ${context.originalMessage.id}: No session was found for `)
+            this.logger.debug(`Message ID ${context.originalMessage.id}: No session was found for `);
             const response = await context.originalMessage.reply("There is no ongoing RP in this channel! Please use this command in the RP channel where you want to notify the next user or pass the channel as an argument.\n" + this.usageHint);
             if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
             return Promise.resolve(new CommandResult(this, context, false, "Next command used in an invalid channel."));
@@ -71,13 +68,13 @@ export class SessionNext extends Command {
         const nextTurn: ICharacterSchema = this.iterateTurn(session.turnOrder, session.currentTurn);
 
         this.logger.trace(`Current session: ${JSON.stringify(session)}\nNext currentTurn will be: ${nextTurn.userId} - ${nextTurn.name}`);
-        const newSession: ISessionSchema = await SessionModel.findOneAndUpdate({ channel: session.channelId }, { currentTurn: nextTurn }, { new: true });
+        const newSession: ISessionSchema = await SessionModel.findOneAndUpdate({ channelId: session.channelId }, { currentTurn: nextTurn }, { new: true });
         this.logger.trace(`Updated next user for session: ${JSON.stringify(newSession.currentTurn)}`);
 
         // Send notification
         let messageContent = `<@${nextTurn.userId}> (${nextTurn.name}) in <#${session.channelId}>`;
         if(userMessage) messageContent += `\n<@${session.currentTurn.userId}> said: \"${userMessage}\"`;
-        const notificationChannel: TextChannel = await this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).notificationChannelId);
+        const notificationChannel: TextChannel = await this.channelService.getTextChannelByChannelId(this.configuration.channels.notificationChannelId);
         await notificationChannel.send({
             content: messageContent,
             allowedMentions: { "users":[nextTurn.userId]},
@@ -116,7 +113,7 @@ export class SessionNext extends Command {
             });
             const divider = "\`\`\`⋟────────────────────────⋞\`\`\`";
 
-            const sessionPost: Message = this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).currentSessionsChannelId).messages.cache.get(session.sessionPostId);
+            const sessionPost: Message = this.channelService.getTextChannelByChannelId(this.configuration.channels.currentSessionsChannelId).messages.cache.get(session.sessionPostId);
             await sessionPost.edit({
                 content: postContent + divider,
                 allowedMentions: { "parse": []}

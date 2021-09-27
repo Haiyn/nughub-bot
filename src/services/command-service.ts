@@ -1,16 +1,14 @@
-import {inject, injectable} from "inversify";
+import { injectable } from "inversify";
 import { TYPES } from "@src/types";
 import { CommandContext } from "@models/command-context";
 import { Message } from "discord.js";
 import container from "@src/inversify.config";
 import { Command } from "@src/commands";
-import { Configuration } from "@models/configuration";
-import {Logger} from "tslog";
+import { Service } from "@services/service";
 
 
 @injectable()
-export class CommandService {
-    private readonly logger: Logger;
+export class CommandService extends Service {
     private commandMapping = {
         "start": TYPES.SessionStart,
         "ping": TYPES.Ping,
@@ -18,15 +16,9 @@ export class CommandService {
         "next": TYPES.SessionNext
     }
 
-    constructor(
-        @inject(TYPES.ServiceLogger) logger: Logger
-    ) {
-        this.logger = logger;
-    }
-
     public getCommandContextFromMessage(message: Message): CommandContext {
         const splitMessage = message.content
-            .slice(container.get<Configuration>(TYPES.Configuration).prefix.length)
+            .slice(this.configuration.guild.prefix.length)
             .trim()
             .split(/ +/g);
 

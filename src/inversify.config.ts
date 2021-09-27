@@ -16,6 +16,10 @@ import { Server } from "@src/server";
 import { Logger, TLogLevelName } from "tslog";
 import { Ping, SessionStart, SessionFinish } from "@src/commands";
 import { SessionNext } from "@commands/session-next";
+import { IConfiguration } from "@models/configuration";
+import configLocal from "@config/config-local";
+import configDev from "@config/config-dev";
+import configProd from "@config/config-prod";
 
 const container = new Container();
 
@@ -26,6 +30,23 @@ container.bind<string>(TYPES.ServiceLogLevel).toConstantValue(process.env.SERVIC
 container.bind<string>(TYPES.CommandLogLevel).toConstantValue(process.env.COMMAND_LOG_LEVEL);
 container.bind<string>(TYPES.IgnoreStackLevels).toConstantValue(process.env.IGNORE_STACK_LEVELS);
 container.bind<string>(TYPES.BotOwnerId).toConstantValue(process.env.BOT_OWNER_ID);
+container.bind<string>(TYPES.Environment).toConstantValue(process.env.ENVIRONMENT);
+container.bind<string>(TYPES.MongoDbConnectionString).toConstantValue(process.env.MONGODB_CONNSTR);
+
+// Configuration
+let config;
+switch(process.env.ENVIRONMENT) {
+    case "local":
+        config = configLocal;
+        break;
+    case "dev":
+        config = configDev;
+        break;
+    case "prod":
+        config = configProd;
+        break;
+}
+container.bind<IConfiguration>(TYPES.Configuration).toConstantValue(config);
 
 // Constants
 container.bind<Client>(TYPES.Client).toConstantValue(new Client({ intents: [
@@ -69,6 +90,5 @@ container.bind<Ping>(TYPES.Ping).to(Ping).inRequestScope();
 container.bind<SessionStart>(TYPES.SessionStart).to(SessionStart).inRequestScope();
 container.bind<SessionFinish>(TYPES.SessionFinish).to(SessionFinish).inRequestScope();
 container.bind<SessionNext>(TYPES.SessionNext).to(SessionNext).inRequestScope();
-
 
 export default container;

@@ -5,22 +5,20 @@ import { Channel, Client, TextChannel } from "discord.js";
 import { Logger } from "tslog";
 import { TYPES } from "@src/types";
 import { HelperService } from "@services/index";
-import container from "@src/inversify.config";
-import { Configuration } from "@models/configuration";
+import { IConfiguration } from "@models/configuration";
+import { Service } from "@services/service";
 
 @injectable()
-export class ChannelService {
-    private readonly logger: Logger;
-    private readonly client: Client;
+export class ChannelService extends Service{
     private readonly helperService: HelperService;
 
     constructor(
-        @inject(TYPES.ServiceLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
+        @inject(TYPES.CommandLogger) logger: Logger,
+        @inject(TYPES.Configuration) configuration: IConfiguration,
         @inject(TYPES.HelperService) helperService: HelperService
     ) {
-        this.logger = logger;
-        this.client = client;
+        super(client, logger, configuration);
         this.helperService = helperService;
     }
 
@@ -53,7 +51,7 @@ export class ChannelService {
     }
 
     public isRpChannel(channelId: string): boolean {
-        const rpChannelIds = container.get<Configuration>(TYPES.Configuration).rpChannelIds;
+        const rpChannelIds = this.configuration.channels.rpChannelIds;
         return rpChannelIds.includes(channelId);
     }
 }

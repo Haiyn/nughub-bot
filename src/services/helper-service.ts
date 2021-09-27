@@ -1,18 +1,9 @@
-import { inject, injectable } from "inversify";
-import { Logger } from "tslog";
-import { TYPES } from "@src/types";
+import { injectable } from "inversify";
+import { Service } from "@services/service";
 
 @injectable()
-export class HelperService {
-    private readonly logger: Logger;
-    private readonly discordIdRegex: RegExp;
-
-    constructor(
-        @inject(TYPES.ServiceLogger) logger: Logger
-    ) {
-        this.logger = logger;
-        this.discordIdRegex = /([0-9]{18})/g;
-    }
+export class HelperService extends Service {
+    private readonly discordIdRegex: RegExp = /([0-9]{18})/g;
 
     public sanitizeDiscordId(dirtyId: string): string {
         const foundMatch = dirtyId.match(this.discordIdRegex);

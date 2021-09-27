@@ -3,9 +3,6 @@ import { CommandContext } from "@models/command-context";
 import { injectable } from "inversify";
 import { CommandResult } from "@models/command-result";
 import { SessionModel, ISessionSchema } from "@models/session-schema";
-import container from "@src/inversify.config";
-import { Configuration } from "@models/configuration";
-import { TYPES } from "@src/types";
 
 @injectable()
 export class SessionFinish extends Command {
@@ -70,7 +67,7 @@ export class SessionFinish extends Command {
 
     private async deleteSessionFromSessionsChannel(session: ISessionSchema): Promise<boolean> {
         try {
-            const channel = await this.channelService.getTextChannelByChannelId(container.get<Configuration>(TYPES.Configuration).currentSessionsChannelId);
+            const channel = await this.channelService.getTextChannelByChannelId(this.configuration.channels.currentSessionsChannelId);
             await channel.messages.delete(session.sessionPostId);
             this.logger.debug(`Deleted one message (ID: ${session.sessionPostId}) in session channel.`);
             return Promise.resolve(true);

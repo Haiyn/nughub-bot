@@ -1,19 +1,11 @@
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import { TYPES } from "@src/types";
-import { Logger } from "tslog";
 import { GuildMember, GuildMemberRoleManager } from "discord.js";
 import container from "@src/inversify.config";
-import { Configuration } from "@models/configuration";
+import { Service } from "@services/service";
 
 @injectable()
-export class PermissionService {
-    private readonly logger: Logger;
-
-    constructor(
-        @inject(TYPES.ServiceLogger) logger: Logger,
-    ) {
-        this.logger = logger;
-    }
+export class PermissionService extends Service {
 
     public hasPermission(user: GuildMember, commandPermissionLevel: number): boolean {
         if(container.get<string>(TYPES.BotOwnerId).includes(user.id)) return true;
@@ -26,17 +18,16 @@ export class PermissionService {
 
     private determineUserPermissionLevel(roles: GuildMemberRoleManager): number {
         let userPermission = 0;
-        const configuration = container.get<Configuration>(TYPES.Configuration);
         roles.cache.forEach(userRole => {
-            if(userRole.id === configuration.roleIds.administrator) {
+            if(userRole.id === this.configuration.roles.administratorId) {
                 userPermission = 3;
                 return;
             }
-            if(userRole.id === configuration.roleIds.moderator) {
+            if(userRole.id === this.configuration.roles.moderatorId) {
                 userPermission = 2;
                 return;
             }
-            configuration.roleIds.user.forEach(roleId => {
+            this.configuration.roles.userIds.forEach(roleId => {
                 if(userRole.id === roleId) {
                     userPermission = 1;
                     return;

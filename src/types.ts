@@ -5,6 +5,8 @@ export const TYPES = {
     Token: Symbol("Token"),
     Configuration: Symbol("Configuration"),
     BotOwnerId: Symbol("BotOwnerId"),
+    Environment: Symbol("Environment"),
+    MongoDbConnectionString: Symbol("MongoDbConnectionString"),
 
     // Services
     MessageController: Symbol("MessageController"),
