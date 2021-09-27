@@ -18,8 +18,8 @@ import { Ping, SessionStart, SessionFinish } from "@src/commands";
 import { SessionNext } from "@commands/session-next";
 import { IConfiguration } from "@models/configuration";
 import configLocal from "@config/config-local";
-import * as configDev from "@config/config-dev";
-import * as configProd from "@config/config-prod";
+import configDev from "@config/config-dev";
+import configProd from "@config/config-prod";
 
 const container = new Container();
 
@@ -47,9 +47,6 @@ switch(process.env.ENVIRONMENT) {
         break;
 }
 container.bind<IConfiguration>(TYPES.Configuration).toConstantValue(config);
-console.log(configLocal);
-console.log(process.env.ENVIRONMENT);
-console.log(config.guild.prefix);
 
 // Constants
 container.bind<Client>(TYPES.Client).toConstantValue(new Client({ intents: [
