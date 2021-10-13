@@ -1,0 +1,26 @@
+name: cd-release
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  deploy_to_server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: 'none'
+      - name: Add Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Set up sshpass
+        run: sudo apt get sshpass -y
+      - name: Login to Server
+        run: sshpass -p ${{ secrets.SSH_PASSWORD }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+      - name: Checkout
+        run: cd nughub-bot && git pull origin main
+      - name: Upgrade Docker Compose
+        run: RELEASE_VERSION=${{ github.event_name == 'release' }} docker-compose up -d

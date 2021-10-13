@@ -20,10 +20,7 @@ services:
 
   nhb-bot:
     container_name: bot
-    image: "nhb-bot:${BOT_VERSION}"
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: haiyn/nhb:${RELEASE_VERSION}
     env_file:
       - .env
     restart: on-failure
