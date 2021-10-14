@@ -36,7 +36,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name == 'release' }}
-          tags: ${{ github.event.release.tag_name }}
+          tags: ${{ steps.meta.outputs.tags }}
 
   cd-release:
     if: github.event_name == 'release'
