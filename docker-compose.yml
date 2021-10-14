@@ -20,7 +20,7 @@ services:
 
   nhb-bot:
     container_name: bot
-    image: haiyn/nhb:${RELEASE_VERSION}
+    image: haiyn/nughub-bot:${RELEASE_VERSION}
     env_file:
       - .env
     restart: on-failure

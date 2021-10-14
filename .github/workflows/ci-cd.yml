@@ -55,5 +55,5 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            cd nughub-bot && git pull origin main
+            cd nughub-bot && git pull -f origin main
             RELEASE_VERSION=${{ github.event_name == 'release' }} docker-compose up -d
