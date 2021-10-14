@@ -7,7 +7,7 @@ on:
       - edited
   release:
     types:
-      - created
+      - published
 
 jobs:
   ci-docker:
@@ -36,7 +36,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name == 'release' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ github.event.release.tag_name }}
 
   cd-release:
     if: github.event_name == 'release'
@@ -56,4 +56,4 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd nughub-bot && git pull -f origin main
-            RELEASE_VERSION=${{ steps.meta.outputs.tags }} docker-compose up -d
+            RELEASE_VERSION=${{ github.event.release.tag_name }}docker-compose up -d
