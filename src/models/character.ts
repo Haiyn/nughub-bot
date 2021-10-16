@@ -1,8 +1,8 @@
-import { User } from "discord.js";
+import { User } from 'discord.js';
 
 export interface ICharacter {
-    user: User,
-    name: string,
+    user: User;
+    name: string;
 }
 
 export class Character implements ICharacter {

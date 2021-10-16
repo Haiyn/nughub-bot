@@ -1,6 +1,6 @@
-import { injectable } from "inversify";
-import { CommandContext } from "@models/command-context";
-import { Command } from "@src/commands";
+import { injectable } from 'inversify';
+import { CommandContext } from '@models/command-context';
+import { Command } from '@src/commands';
 
 @injectable()
 export class CommandResult {
@@ -15,7 +15,7 @@ export class CommandResult {
         context: CommandContext,
         success: boolean,
         message: string,
-        error?: Error,
+        error?: Error
     ) {
         this._command = command;
         this._context = context;

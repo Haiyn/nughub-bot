@@ -1,14 +1,14 @@
-import { inject, injectable } from "inversify";
-import { Client } from "discord.js";
-import { Logger } from "tslog";
-import { TYPES } from "@src/types";
-import { CommandContext } from "@models/command-context";
-import { CommandResult } from "@models/command-result";
-import { ChannelService, HelperService, MessageService, UserService } from "@services/index";
-import { IConfiguration } from "@models/configuration";
+import { inject, injectable } from 'inversify';
+import { Client } from 'discord.js';
+import { Logger } from 'tslog';
+import { TYPES } from '@src/types';
+import { CommandContext } from '@models/command-context';
+import { CommandResult } from '@models/command-result';
+import { ChannelService, HelperService, MessageService, UserService } from '@services/index';
+import { IConfiguration } from '@models/configuration';
 
 export interface ICommand {
-    readonly names: string[]
+    readonly names: string[];
     readonly description: string;
     readonly usageHint: string;
     readonly permissionLevel: number;
@@ -21,7 +21,7 @@ export interface ICommand {
 
 @injectable()
 export class Command implements ICommand {
-    readonly names: string[]
+    readonly names: string[];
     readonly description: string;
     readonly usageHint: string;
     readonly permissionLevel: number = 0;
@@ -53,14 +53,14 @@ export class Command implements ICommand {
     }
 
     public getHelpMessage(): string {
-        return this.description + "\n" + "Usage: '" + this.usageHint + "'";
+        return this.description + '\n' + "Usage: '" + this.usageHint + "'";
     }
 
     public run(context: CommandContext): Promise<CommandResult> {
-        return Promise.resolve(new CommandResult(this, context, false, "not implemented."));
+        return Promise.resolve(new CommandResult(this, context, false, 'not implemented.'));
     }
 
-    public validateArguments(args: string[]): unknown|string {
+    public validateArguments(args: string[]): unknown | string {
         return args;
     }
 }

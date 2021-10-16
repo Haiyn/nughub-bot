@@ -1,5 +1,5 @@
-import { model, Schema } from "mongoose";
-import { characterSchema, ICharacterSchema } from "@models/character-schema";
+import { model, Schema } from 'mongoose';
+import { characterSchema, ICharacterSchema } from '@models/character-schema';
 
 export interface ISessionSchema {
     channelId: string;
@@ -8,11 +8,14 @@ export interface ISessionSchema {
     sessionPostId: string;
 }
 
-const sessionSchema = new Schema<ISessionSchema>({
-    channelId: { type: String, required: true },
-    turnOrder: { type: [characterSchema], required: true },
-    currentTurn: { type: characterSchema, required: true },
-    sessionPostId: { type: String, required: true },
-}, { collection: "Sessions" });
+const sessionSchema = new Schema<ISessionSchema>(
+    {
+        channelId: { type: String, required: true },
+        turnOrder: { type: [characterSchema], required: true },
+        currentTurn: { type: characterSchema, required: true },
+        sessionPostId: { type: String, required: true },
+    },
+    { collection: 'Sessions' }
+);
 
-export const SessionModel = model<ISessionSchema>("Session", sessionSchema);
+export const SessionModel = model<ISessionSchema>('Session', sessionSchema);

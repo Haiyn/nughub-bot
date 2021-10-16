@@ -1,15 +1,13 @@
-
-
-import { inject, injectable } from "inversify";
-import { Channel, Client, TextChannel } from "discord.js";
-import { Logger } from "tslog";
-import { TYPES } from "@src/types";
-import { HelperService } from "@services/index";
-import { IConfiguration } from "@models/configuration";
-import { Service } from "@services/service";
+import { inject, injectable } from 'inversify';
+import { Channel, Client, TextChannel } from 'discord.js';
+import { Logger } from 'tslog';
+import { TYPES } from '@src/types';
+import { HelperService } from '@services/index';
+import { IConfiguration } from '@models/configuration';
+import { Service } from '@services/service';
 
 @injectable()
-export class ChannelService extends Service{
+export class ChannelService extends Service {
     private readonly helperService: HelperService;
 
     constructor(
@@ -24,10 +22,10 @@ export class ChannelService extends Service{
 
     public getChannelByChannelId(dirtyId: string): Channel {
         const sanitizedChannelId = this.helperService.sanitizeDiscordId(dirtyId);
-        if(!sanitizedChannelId) return null;
+        if (!sanitizedChannelId) return null;
 
         const matchedChannel = this.client.channels.cache.get(sanitizedChannelId);
-        if(!matchedChannel) {
+        if (!matchedChannel) {
             this.logger.warn(`Could not match a Discord channel for ID ${sanitizedChannelId}.`);
             return null;
         }
@@ -36,14 +34,14 @@ export class ChannelService extends Service{
 
     public getTextChannelByChannelId(dirtyId: string): TextChannel {
         const sanitizedChannelId = this.helperService.sanitizeDiscordId(dirtyId);
-        if(!sanitizedChannelId) return null;
+        if (!sanitizedChannelId) return null;
 
         const matchedChannel = this.client.channels.cache.get(sanitizedChannelId);
-        if(!matchedChannel) {
+        if (!matchedChannel) {
             this.logger.warn(`Could not match a Discord channel for ID ${sanitizedChannelId}.`);
             return null;
         }
-        if(!matchedChannel.isText()) {
+        if (!matchedChannel.isText()) {
             this.logger.warn(`Found channel for ID ${sanitizedChannelId} is not a text channel.`);
             return null;
         }

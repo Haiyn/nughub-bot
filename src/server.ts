@@ -1,8 +1,8 @@
-import { Client, Message } from "discord.js";
-import { inject, injectable } from "inversify";
-import { TYPES } from "@src/types";
-import { MessageController } from "@controllers/index";
-import { Logger } from "tslog";
+import { Client, Message } from 'discord.js';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@src/types';
+import { MessageController } from '@controllers/index';
+import { Logger } from 'tslog';
 
 @injectable()
 export class Server {
@@ -24,20 +24,34 @@ export class Server {
     }
 
     public listen(): Promise<string> {
-        this.client.on("messageCreate", async (message: Message) => {
-            this.logger.trace(`Message ID ${message.id}: received\nAuthor ID: ${message.author.id}\nContent length: ${message.content.length}\nContent: ${message.content.substr(0, 100)}`);
+        this.client.on('messageCreate', async (message: Message) => {
+            this.logger.trace(
+                `Message ID ${message.id}: received\nAuthor ID: ${
+                    message.author.id
+                }\nContent length: ${message.content.length}\nContent: ${message.content.substr(
+                    0,
+                    100
+                )}`
+            );
             await this.messageController.handleMessage(message);
         });
 
-        this.client.on("messageDelete", async(message: Message) => {
-            this.logger.trace(`Message ID ${message.id} deleted\nAuthor ID: ${message.author.id}\nContent length: ${message.content.length}\nContent: ${message.content.substr(0, 100)}`);
+        this.client.on('messageDelete', async (message: Message) => {
+            this.logger.trace(
+                `Message ID ${message.id} deleted\nAuthor ID: ${
+                    message.author.id
+                }\nContent length: ${message.content.length}\nContent: ${message.content.substr(
+                    0,
+                    100
+                )}`
+            );
             await this.messageController.handleDeletion(message);
         });
 
-        this.client.on("ready", async() => {
-            this.logger.info("Client is ready. Caching vital messages...");
+        this.client.on('ready', async () => {
+            this.logger.info('Client is ready. Caching vital messages...');
             await this.messageController.handleCaching();
-            this.logger.info("Caching done.");
+            this.logger.info('Caching done.');
         });
 
         return this.client.login(this.token);

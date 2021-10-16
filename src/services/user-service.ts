@@ -1,11 +1,10 @@
-import { inject, injectable } from "inversify";
-import { Client, User } from "discord.js";
-import { Logger } from "tslog";
-import { TYPES } from "@src/types";
-import { HelperService } from "@services/index";
-import { Service } from "@services/service";
-import { IConfiguration } from "@models/configuration";
-
+import { inject, injectable } from 'inversify';
+import { Client, User } from 'discord.js';
+import { Logger } from 'tslog';
+import { TYPES } from '@src/types';
+import { HelperService } from '@services/index';
+import { Service } from '@services/service';
+import { IConfiguration } from '@models/configuration';
 
 @injectable()
 export class UserService extends Service {
@@ -23,10 +22,10 @@ export class UserService extends Service {
 
     public getUserByUserId(dirtyId: string): User {
         const sanitizedUserId = this.helperService.sanitizeDiscordId(dirtyId);
-        if(!sanitizedUserId) return null;
+        if (!sanitizedUserId) return null;
 
         const matchedUser = this.client.users.cache.get(sanitizedUserId);
-        if(!matchedUser) {
+        if (!matchedUser) {
             this.logger.warn(`Could not match a Discord user for ID ${sanitizedUserId}`);
             return null;
         }

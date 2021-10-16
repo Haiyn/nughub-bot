@@ -1,5 +1,5 @@
-import { injectable } from "inversify";
-import { Service } from "@services/service";
+import { injectable } from 'inversify';
+import { Service } from '@services/service';
 
 @injectable()
 export class HelperService extends Service {
@@ -7,7 +7,7 @@ export class HelperService extends Service {
 
     public sanitizeDiscordId(dirtyId: string): string {
         const foundMatch = dirtyId.match(this.discordIdRegex);
-        if(!foundMatch) {
+        if (!foundMatch) {
             this.logger.warn(`Passed an invalid Discord ID to sanitize: ${dirtyId}`);
             return null;
         }
@@ -15,9 +15,9 @@ export class HelperService extends Service {
     }
 
     public isDiscordId(idToCheck: string): boolean {
-        if(idToCheck == null) return false;
+        if (idToCheck == null) return false;
         const isDiscordId = idToCheck.match(this.discordIdRegex) != null;
-        this.logger.trace(`${idToCheck} is ${isDiscordId ? "" : "not"} a discord ID.`);
+        this.logger.trace(`${idToCheck} is ${isDiscordId ? '' : 'not'} a discord ID.`);
         return isDiscordId;
     }
 }
