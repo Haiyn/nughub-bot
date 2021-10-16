@@ -1,12 +1,12 @@
-import "reflect-metadata";
-import "mocha";
-import { expect } from "chai";
-import { instance, mock } from "ts-mockito";
-import { Message, User } from "discord.js";
-import { Logger } from "tslog";
-import { MessageService } from "@src/services";
+import 'reflect-metadata';
+import 'mocha';
+import { expect } from 'chai';
+import { instance, mock } from 'ts-mockito';
+import { Message, User } from 'discord.js';
+import { Logger } from 'tslog';
+import { MessageService } from '@src/services';
 
-describe("MessageService", () => {
+describe('MessageService', () => {
     let mockedServiceLoggerClass: Logger;
     let mockedServiceLoggerInstance: Logger;
     let mockedMessageClass: Message;
@@ -21,13 +21,13 @@ describe("MessageService", () => {
         mockedMessageClass = mock(Message);
         mockedMessageInstance = instance(mockedMessageClass);
         mockedMessageUser = mock(User);
-        mockedMessageInstance.content = "Bot message";
+        mockedMessageInstance.content = 'Bot message';
         mockedMessageInstance.author = mockedMessageUser;
 
-        service = new MessageService("!", mockedServiceLoggerInstance);
+        service = new MessageService('!', mockedServiceLoggerInstance);
     });
 
-    it("isBot should return true", async () => {
+    it('isBot should return true', async () => {
         mockedMessageInstance.author.bot = true;
 
         result = await service.isBotMessage(mockedMessageInstance);
@@ -35,7 +35,7 @@ describe("MessageService", () => {
         expect(result).true;
     });
 
-    it("isBot should return false", async () => {
+    it('isBot should return false', async () => {
         mockedMessageInstance.author.bot = false;
 
         result = await service.isBotMessage(mockedMessageInstance);
@@ -43,16 +43,16 @@ describe("MessageService", () => {
         expect(result).false;
     });
 
-    it("isPrefixed should return true", async () => {
-        mockedMessageInstance.content = process.env.PREFIX + "test";
+    it('isPrefixed should return true', async () => {
+        mockedMessageInstance.content = process.env.PREFIX + 'test';
 
         result = await service.isPrefixedMessage(mockedMessageInstance);
 
         expect(result).true;
     });
 
-    it("isPrefixed should return false", async () => {
-        mockedMessageInstance.content = "not prefixed";
+    it('isPrefixed should return false', async () => {
+        mockedMessageInstance.content = 'not prefixed';
 
         result = await service.isPrefixedMessage(mockedMessageInstance);
 

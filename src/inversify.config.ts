@@ -1,6 +1,6 @@
-import "reflect-metadata";
-import { Client, Intents } from "discord.js";
-import { Container } from "inversify";
+import 'reflect-metadata';
+import { Client, Intents } from 'discord.js';
+import { Container } from 'inversify';
 import {
     PermissionService,
     CommandService,
@@ -8,18 +8,18 @@ import {
     DatabaseService,
     HelperService,
     UserService,
-    ChannelService
-} from "@services/index";
-import { MessageController } from "@controllers/index";
-import { TYPES } from "@src/types";
-import { Server } from "@src/server";
-import { Logger, TLogLevelName } from "tslog";
-import { Ping, SessionStart, SessionFinish } from "@src/commands";
-import { SessionNext } from "@commands/session-next";
-import { IConfiguration } from "@models/configuration";
-import configLocal from "@config/config-local";
-import configDev from "@config/config-dev";
-import configProd from "@config/config-prod";
+    ChannelService,
+} from '@services/index';
+import { MessageController } from '@controllers/index';
+import { TYPES } from '@src/types';
+import { Server } from '@src/server';
+import { Logger, TLogLevelName } from 'tslog';
+import { Ping, SessionStart, SessionFinish } from '@src/commands';
+import { SessionNext } from '@commands/session-next';
+import { IConfiguration } from '@models/configuration';
+import configLocal from '@config/config-local';
+import configDev from '@config/config-dev';
+import configProd from '@config/config-prod';
 
 const container = new Container();
 
@@ -35,44 +35,52 @@ container.bind<string>(TYPES.MongoDbConnectionString).toConstantValue(process.en
 
 // Configuration
 let config;
-switch(process.env.ENVIRONMENT) {
-    case "local":
+switch (process.env.ENVIRONMENT) {
+    case 'local':
         config = configLocal;
         break;
-    case "dev":
+    case 'dev':
         config = configDev;
         break;
-    case "prod":
+    case 'prod':
         config = configProd;
         break;
 }
 container.bind<IConfiguration>(TYPES.Configuration).toConstantValue(config);
 
 // Constants
-container.bind<Client>(TYPES.Client).toConstantValue(new Client({ intents: [
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.GUILD_MESSAGE_TYPING,
-        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-        Intents.FLAGS.GUILD_MEMBERS,
-        Intents.FLAGS.GUILDS
-    ]}
-));
-container.bind<Logger>(TYPES.BaseLogger).toConstantValue(new Logger({
-    name: "Base Logger",
-    minLevel: container.get<string>(TYPES.BaseLogLevel) as TLogLevelName,
-    ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
-}));
-container.bind<Logger>(TYPES.ServiceLogger).toConstantValue(container.get<Logger>(TYPES.BaseLogger).getChildLogger({
-    name: "Service Logger",
-    minLevel: container.get<string>(TYPES.ServiceLogLevel) as TLogLevelName,
-    ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
-}));
-container.bind<Logger>(TYPES.CommandLogger).toConstantValue(container.get<Logger>(TYPES.BaseLogger).getChildLogger({
-    name: "Command Logger",
-    minLevel: container.get<string>(TYPES.CommandLogLevel) as TLogLevelName,
-    ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
-
-}));
+container.bind<Client>(TYPES.Client).toConstantValue(
+    new Client({
+        intents: [
+            Intents.FLAGS.GUILD_MESSAGES,
+            Intents.FLAGS.GUILD_MESSAGE_TYPING,
+            Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+            Intents.FLAGS.GUILD_MEMBERS,
+            Intents.FLAGS.GUILDS,
+        ],
+    })
+);
+container.bind<Logger>(TYPES.BaseLogger).toConstantValue(
+    new Logger({
+        name: 'Base Logger',
+        minLevel: container.get<string>(TYPES.BaseLogLevel) as TLogLevelName,
+        ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
+    })
+);
+container.bind<Logger>(TYPES.ServiceLogger).toConstantValue(
+    container.get<Logger>(TYPES.BaseLogger).getChildLogger({
+        name: 'Service Logger',
+        minLevel: container.get<string>(TYPES.ServiceLogLevel) as TLogLevelName,
+        ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
+    })
+);
+container.bind<Logger>(TYPES.CommandLogger).toConstantValue(
+    container.get<Logger>(TYPES.BaseLogger).getChildLogger({
+        name: 'Command Logger',
+        minLevel: container.get<string>(TYPES.CommandLogLevel) as TLogLevelName,
+        ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
+    })
+);
 
 // Services
 container.bind<Server>(TYPES.Server).to(Server).inSingletonScope();

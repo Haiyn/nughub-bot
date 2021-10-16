@@ -3,29 +3,24 @@
   "parser": "@typescript-eslint/parser",
   "plugins": [
     "@typescript-eslint",
-    "unused-imports"
+    "unused-imports",
+    "prettier"
   ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
   ],
   "rules": {
-    "object-curly-spacing": [ "warn", "always", { "arraysInObjects": false, "objectsInObjects": false }],
-    "array-bracket-spacing": [ "warn", "always", { "singleValue": false }],
     "comma-spacing": [ "warn", { "before": false, "after": true }],
     "semi-spacing": [ "warn", { "before": false, "after":  true }],
     "spaced-comment": [ "warn", "always", { "block": {"balanced": true }}],
-    "space-in-parens": [ "warn", "never" ],
     "no-trailing-spaces": "warn",
-    "semi": [ "warn", "always" ],
     "accessor-pairs": "error",
-    "quotes": [ "warn", "double", { "allowTemplateLiterals": true}],
-    "brace-style": [ "warn", "1tbs", { "allowSingleLine": true }],
-    "curly": [ "warn", "multi-line" ],
     "no-useless-escape": "off",
     // replace unused-vars rule with unused-imports rule for imports
-    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
       "warn",

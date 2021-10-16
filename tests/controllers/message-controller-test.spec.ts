@@ -1,16 +1,16 @@
-import "reflect-metadata";
-import "mocha";
-import { expect } from "chai";
-import { instance, mock, when } from "ts-mockito";
-import { GuildMember, GuildMemberRoleManager, Message, User } from "discord.js";
-import { Logger } from "tslog";
+import 'reflect-metadata';
+import 'mocha';
+import { expect } from 'chai';
+import { instance, mock, when } from 'ts-mockito';
+import { GuildMember, GuildMemberRoleManager, Message, User } from 'discord.js';
+import { Logger } from 'tslog';
 
-import { MessageController } from "@controllers/message-controller";
-import { CommandService, MessageService, PermissionService } from "@src/services";
-import { CommandContext } from "@models/command-context";
-import { Command } from "@src/commands";
+import { MessageController } from '@controllers/message-controller';
+import { CommandService, MessageService, PermissionService } from '@src/services';
+import { CommandContext } from '@models/command-context';
+import { Command } from '@src/commands';
 
-describe("Message Controller", () => {
+describe('Message Controller', () => {
     let mockedMessageService: MessageService;
     let mockedMessageServiceInstance: MessageService;
     let mockedPermissionHandlerClass: PermissionService;
@@ -19,7 +19,6 @@ describe("Message Controller", () => {
     let mockedCommandServiceInstance: CommandService;
     let mockedServiceLoggerClass: Logger;
     let mockedServiceLoggerInstance: Logger;
-
 
     let mockedMessageClass: Message;
     let mockedMessageInstance: Message;
@@ -50,7 +49,6 @@ describe("Message Controller", () => {
         mockMessage();
         mockCommandContext();
 
-
         service = new MessageController(
             mockedMessageServiceInstance,
             mockedPermissionHandlerInstance,
@@ -59,7 +57,7 @@ describe("Message Controller", () => {
         );
     });
 
-    it("Should skip because not prefixed", async () => {
+    it('Should skip because not prefixed', async () => {
         whenIsPrefixedMessageReturns(false);
 
         result = await service.handleMessage(mockedMessageInstance);
@@ -68,7 +66,7 @@ describe("Message Controller", () => {
         expect(result.error).undefined;
     });
 
-    it("Should skip because bot message", async () => {
+    it('Should skip because bot message', async () => {
         whenIsBotMessageReturns(true);
 
         result = await service.handleMessage(mockedMessageInstance);
@@ -77,7 +75,7 @@ describe("Message Controller", () => {
         expect(result.error).undefined;
     });
 
-    it("Should reject: Not recognized", async () => {
+    it('Should reject: Not recognized', async () => {
         whenIsBotMessageReturns(false);
         whenIsPrefixedMessageReturns(true);
         whenGetCommandContextReturns(null);
@@ -88,7 +86,7 @@ describe("Message Controller", () => {
         expect(result.error).undefined;
     });
 
-    it("Should reject: User not authorized", async () => {
+    it('Should reject: User not authorized', async () => {
         whenIsPrefixedMessageReturns(true);
         whenGetCommandContextReturns(mockedCommandContextInstance);
         whenHasPermissionReturns(false);
@@ -99,7 +97,7 @@ describe("Message Controller", () => {
         expect(result.error).undefined;
     });
 
-    it("Should run command", async () => {
+    it('Should run command', async () => {
         whenIsBotMessageReturns(false);
         whenIsPrefixedMessageReturns(true);
         whenGetCommandContextReturns(mockedCommandContextInstance);
@@ -112,7 +110,7 @@ describe("Message Controller", () => {
     });
 
     function mockMessage() {
-        mockedMessageInstance.content = "Test";
+        mockedMessageInstance.content = 'Test';
         when(mockedMessageClass.member).thenReturn(mock(GuildMember));
         when(mockedMessageClass.author).thenReturn(mock(User));
     }
@@ -131,10 +129,14 @@ describe("Message Controller", () => {
     }
 
     function whenHasPermissionReturns(result: boolean) {
-        when(mockedPermissionHandlerClass.hasPermission(mockedGuildMemberRoleManagerInstance, 0)).thenReturn(result);
+        when(
+            mockedPermissionHandlerClass.hasPermission(mockedGuildMemberRoleManagerInstance, 0)
+        ).thenReturn(result);
     }
 
-    function whenGetCommandContextReturns(result: CommandContext|null) {
-        when(mockedCommandService.getCommandContextFromMessage(mockedMessageInstance)).thenReturn(result);
+    function whenGetCommandContextReturns(result: CommandContext | null) {
+        when(mockedCommandService.getCommandContextFromMessage(mockedMessageInstance)).thenReturn(
+            result
+        );
     }
 });
