@@ -79,6 +79,14 @@ export class SessionFinish extends Command {
             return Promise.resolve('Please provide all needed arguments!\n' + this.usageHint);
 
         const channelId = args.length == 0 ? context.originalMessage.channel.id : args[0];
+        if (!this.helperService.isDiscordId(channelId)) {
+            this.logger.info(
+                `Message ID ${context.originalMessage.id}: User provided channel parameter that is not a discord channel.`
+            );
+            return Promise.resolve(
+                "The channel you've given is not valid! Please make sure to either link it with a hashtag (#) or use this command in the RP channel you want to finish."
+            );
+        }
         const channel = this.channelService.getTextChannelByChannelId(channelId);
         if (!channel) {
             this.logger.info(
