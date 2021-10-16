@@ -7,13 +7,13 @@ export class MessageService extends Service {
 
     public isBotMessage(message: Message): boolean {
         const isBot = message.author.bot;
-        isBot ? this.logger.debug(`Message ID ${message.id}: is a bot message.`) : "";
+        isBot ? this.logger.trace(`Message ID ${message.id}: is a bot message.`) : "";
         return isBot;
     }
 
     public isPrefixedMessage(message: Message): boolean {
         const isPrefixed = message.content.startsWith(this.configuration.guild.prefix);
-        this.logger.debug(`Message ID ${message.id}: is ${isPrefixed ? "" : "not"} prefixed.`);
+        this.logger.trace(`Message ID ${message.id}: is ${isPrefixed ? "" : "not"} prefixed.`);
         return isPrefixed;
     }
 
