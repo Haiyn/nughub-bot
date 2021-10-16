@@ -11,11 +11,10 @@ export class DatabaseService extends Service {
     public connect(): Promise<void> {
         return connect(this.connectionString)
             .then(() => {
-                this.logger.debug(`Successfully connected to ${this.connectionString}`);
                 return Promise.resolve();
             })
             .catch((error) => {
-                this.logger.error(`Could not connect to ${this.connectionString}:`,
+                this.logger.error(`Could not connect to MongoDB:`,
                     this.logger.prettyError(error));
                 return Promise.reject();
             });

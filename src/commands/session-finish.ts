@@ -15,7 +15,6 @@ export class SessionFinish extends Command {
         this.logger.debug("Parsing arguments for finish command...");
         let parsedSession: ISessionSchema | string = await this.validateArguments(context.args, context);
         if(typeof parsedSession === "string") {
-            this.logger.debug("Arguments are malformed!");
             const response = await context.originalMessage.reply(parsedSession);
             if(this.channelService.isRpChannel(context.originalMessage.channel.id)) await this.messageService.deleteMessages([ context.originalMessage, response ], 10000);
             return Promise.resolve(new CommandResult(this, context, false, "Input validation failed."));
@@ -46,9 +45,15 @@ export class SessionFinish extends Command {
 
         const channelId = args.length == 0 ? context.originalMessage.channel.id : args[0];
         const channel = this.channelService.getTextChannelByChannelId(channelId);
-        if(!channel) return Promise.resolve("The channel you've given is not valid! Please make sure to either link it with a hashtag (#) or use this command in the RP channel you want to finish.");
+        if(!channel) {
+            this.logger.info(`Message ID ${context.originalMessage.id}: User provided invalid channel.`);
+            return Promise.resolve("The channel you've given is not valid! Please make sure to either link it with a hashtag (#) or use this command in the RP channel you want to finish.");
+        }
         const foundSession: ISessionSchema = await SessionModel.findOne({ channelId: channel.id }).exec();
-        if(!foundSession) return Promise.resolve(`There is no ongoing RP session in <#${channel.id}>!`);
+        if(!foundSession) {
+            this.logger.info(`Message ID ${context.originalMessage.id}: User provided channel without an active RP.`);
+            return Promise.resolve(`There is no ongoing RP session in <#${channel.id}>!`);
+        }
         this.logger.trace(foundSession);
 
         return Promise.resolve(foundSession);

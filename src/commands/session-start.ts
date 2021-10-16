@@ -17,9 +17,8 @@ export class SessionStart extends Command {
 
     public async run(context: CommandContext): Promise<CommandResult> {
         this.logger.debug("Parsing arguments for start command...");
-        const parsedSession: Session | string = await this.validateArguments(context.args);
+        const parsedSession: Session | string = await this.validateArguments(context.args, context);
         if(typeof parsedSession === "string") {
-            this.logger.debug("Arguments are malformed!");
             await context.originalMessage.reply(parsedSession);
             return Promise.resolve(new CommandResult(this, context, false, "Input validation failed."));
         }
@@ -44,18 +43,28 @@ export class SessionStart extends Command {
         return Promise.resolve(new CommandResult(this, context, true, "Successfully started new session."));
     }
 
-    public async validateArguments(args: string[]): Promise<Session|string> {
+    public async validateArguments(args: string[], context?: CommandContext): Promise<Session|string> {
         this.logger.trace(`Arguments for start command: ${JSON.stringify(args)}`);
         // Form
         if(args.length < 2) {
+            this.logger.info(`Message ID ${context.originalMessage.id}: Start command needs 3 arguments but user only provided ${args.length}.`);
             return "Please provide all needed arguments!\n" + this.usageHint;
         }
 
         // Channel
         const channel = this.channelService.getTextChannelByChannelId(args[0]);
-        if(!this.configuration.channels.rpChannelIds.find(channelId => channelId == channel.id)) return "The channel you've provided is not a channel you can start a session in! Please pick a valid RP channel.";
-        if(!channel) return "The channel you've provided is invalid! Does it really exist?";
-        if(await SessionModel.findOne({ "channelId": channel.id }).exec()) return "There is already a RP session running in this channel!";
+        if(!this.configuration.channels.rpChannelIds.find(channelId => channelId == channel.id)) {
+            this.logger.info(`Message ID ${context.originalMessage.id}: User provided channel that isn't in permitted RP channels list.`);
+            return "The channel you've provided is not a channel you can start a session in! Please pick a valid RP channel.";
+        }
+        if(!channel) {
+            this.logger.info(`Message ID ${context.originalMessage.id}: User provided invalid channel that could not be found.`);
+            return "The channel you've provided is invalid! Does it really exist?";
+        }
+        if(await SessionModel.findOne({ "channelId": channel.id }).exec()) {
+            this.logger.info(`Message ID ${context.originalMessage.id}: User provided channel that already has an active RP.`);
+            return "There is already a RP session running in this channel!";
+        }
 
         // Users & Names
         const names = [];
@@ -68,9 +77,18 @@ export class SessionStart extends Command {
             this.logger.debug(`Expected to match ${args.length - 1} users from ${JSON.stringify(users)} but matched ${users.length}`);
             users = null;
         }
-        if(names.length != (args.length - 1) / 2 || names.length != users.length) return "Please provide an character name for every person you mentioned!";
-        if(!users || users.includes(undefined) || users.includes(null)) return "I couldn't find some of the users you provided. Are you sure they're correct?";
-        if(users.length == 1) return "You can't start an RP with just one person!";
+        if(names.length != (args.length - 1) / 2 || names.length != users.length) {
+            this.logger.info(`Message ID ${context.originalMessage.id}: User didn't provide a character name for a mention.`);
+            return "Please provide an character name for every person you mentioned!";
+        }
+        if(!users || users.includes(undefined) || users.includes(null)) {
+            this.logger.info(`Message ID ${context.originalMessage.id}: User provided invalid user mentions.`);
+            return "I couldn't find some of the users you provided. Are you sure they're correct?";
+        }
+        if(users.length == 1) {
+            this.logger.info(`Message ID ${context.originalMessage.id}: User provided only one person.`);
+            return "You can't start an RP with just one person!";
+        }
         const turnOrder: Array<Character> = [];
         users.forEach((user, index) => turnOrder.push(new Character(user, names[index])));
 

@@ -14,11 +14,11 @@ run().then(() => logger.info("Ready!"));
 
 async function run() {
     await databaseStartup();
-    serverStartup();
+    await serverStartup();
 }
 
 async function databaseStartup(): Promise<void> {
-    databaseService.connect().then(() => {
+    await databaseService.connect().then(() => {
         logger.info("#1 Connected to MongoDB.");
         return Promise.resolve();
     }).catch(() => {
@@ -27,8 +27,8 @@ async function databaseStartup(): Promise<void> {
     });
 }
 
-function serverStartup() {
-    server.listen().then(() => {
+async function serverStartup() {
+    await server.listen().then(() => {
         logger.info("#2 Server started and connected.");
     }).catch((error) => {
         logger.fatal("#2 Could not start server.", logger.prettyError(error));

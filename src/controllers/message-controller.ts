@@ -21,8 +21,9 @@ export class MessageController extends Controller {
             return;
         }
 
+        this.logger.info(`Message ID ${commandContext.originalMessage.id}: User issued command \"${commandContext.command.names[0]}\".`);
         if (!this.permissionService.hasPermission(commandContext.originalMessage.member, commandContext.command.permissionLevel)) {
-            this.logger.debug(`Message ID ${message.id}: User is not authorized for command "${commandContext.command.names[0]}".
+            this.logger.info(`Message ID ${message.id}: User is not authorized for command "${commandContext.command.names[0]}".
                 User ID: ${commandContext.originalMessage.author.id}
                 User roles: ${commandContext.originalMessage.member.roles}`);
             const response = await message.reply("You aren't allowed to use that command. Try !help.");
@@ -35,7 +36,6 @@ export class MessageController extends Controller {
                 result.success ?
                     this.logger.info(`Message ID ${message.id}: Successfully ran command "${result.command.names[0]}": ${result.message}`) :
                     this.logger.info(`Message ID ${message.id}: Did not run command "${result.command.names[0]}": ${result.message}`);
-                // reactor.success(message);
                 return;
             })
             .catch((result) => {
