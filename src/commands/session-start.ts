@@ -77,7 +77,19 @@ export class SessionStart extends Command {
         }
 
         // Channel
+        if (!this.helperService.isDiscordId(args[0])) {
+            this.logger.info(
+                `Message ID ${context.originalMessage.id}: User provided invalid channel parameter.`
+            );
+            return "The channel you've provided is not a discord channel! Please make sure to link the channel with a hashtag (#).";
+        }
         const channel = this.channelService.getTextChannelByChannelId(args[0]);
+        if (!channel) {
+            this.logger.info(
+                `Message ID ${context.originalMessage.id}: User provided invalid channel that could not be found.`
+            );
+            return "The channel you've provided is invalid! Does it really exist?";
+        }
         if (
             !this.configuration.channels.rpChannelIds.find((channelId) => channelId == channel.id)
         ) {
@@ -85,12 +97,6 @@ export class SessionStart extends Command {
                 `Message ID ${context.originalMessage.id}: User provided channel that isn't in permitted RP channels list.`
             );
             return "The channel you've provided is not a channel you can start a session in! Please pick a valid RP channel.";
-        }
-        if (!channel) {
-            this.logger.info(
-                `Message ID ${context.originalMessage.id}: User provided invalid channel that could not be found.`
-            );
-            return "The channel you've provided is invalid! Does it really exist?";
         }
         if (await SessionModel.findOne({ channelId: channel.id }).exec()) {
             this.logger.info(
@@ -134,8 +140,26 @@ export class SessionStart extends Command {
         }
         const turnOrder: Array<Character> = [];
         users.forEach((user, index) => turnOrder.push(new Character(user, names[index])));
+        if (SessionStart.characterArrayHasDuplicateNames(turnOrder)) {
+            this.logger.info(
+                `Message ID ${context.originalMessage.id}: User provided same character name twice.`
+            );
+            return "You can't start an RP that has the same character twice!";
+        }
 
         return new Session(channel, turnOrder, turnOrder[0], null);
+    }
+
+    private static characterArrayHasDuplicateNames(array: Array<Character>) {
+        const namesSoFar: Array<string> = [];
+        for (let i = 0; i < array.length; ++i) {
+            const name = array[i].name;
+            if (namesSoFar.indexOf(name) != -1) {
+                return true;
+            }
+            namesSoFar.push(name);
+        }
+        return false;
     }
 
     private async saveSessionToDatabase(data: Session): Promise<boolean> {
