@@ -22,45 +22,36 @@ export class SessionNext extends Command {
             this.logger.debug(
                 `Message ID ${context.originalMessage.id}: No session was found for `
             );
-            const response = await context.originalMessage.reply(
-                'There is no ongoing RP in this channel! Please use this command in the RP channel where you want to notify the next user or pass the channel as an argument.\n' +
-                    this.usageHint
-            );
-            if (this.channelService.isRpChannel(context.originalMessage.channel.id))
-                await this.messageService.deleteMessages(
-                    [context.originalMessage, response],
-                    10000
-                );
+            await this.messageService.reply(context.originalMessage, {
+                content:
+                    'There is no ongoing RP in this channel! Please use this command in the RP channel where you want to notify the next user or pass the channel as an argument.\n' +
+                    this.usageHint,
+            });
             return Promise.resolve(
                 new CommandResult(this, context, false, 'Next command used in an invalid channel.')
             );
         }
         if (context.originalMessage.author.id !== session.currentTurn.userId) {
-            const response = await context.originalMessage.reply({
+            await this.messageService.reply(context.originalMessage, {
                 content: `It's currently <@${session.currentTurn.userId}>'s turn! You can only use this command if it's your turn.`,
                 allowedMentions: { parse: [] },
             });
-            if (this.channelService.isRpChannel(context.originalMessage.channel.id))
-                await this.messageService.deleteMessages(
-                    [context.originalMessage, response],
-                    10000
-                );
             return Promise.resolve(
                 new CommandResult(this, context, false, 'Next command used by invalid user.')
             );
         }
 
         this.logger.debug('Notifying next user...');
-        let userMessage = null;
+        let userMessage;
         if (this.helperService.isDiscordId(context.args[0]))
             userMessage = context.args.slice(1).join(' ');
         else userMessage = context.args.join(' ');
 
         const newSession = await this.updateTurnAndNotifyNextUser(session, userMessage);
         if (!newSession) {
-            await context.originalMessage.reply(
-                `Uh-oh, something went wrong while I tried to notify the next user.`
-            );
+            await this.messageService.reply(context.originalMessage, {
+                content: `Uh-oh, something went wrong while I tried to notify the next user.`,
+            });
             return Promise.resolve(
                 new CommandResult(
                     this,
@@ -73,9 +64,9 @@ export class SessionNext extends Command {
 
         this.logger.debug('Updating session post with new current turn...');
         if (!(await this.updateSessionPost(newSession))) {
-            await context.originalMessage.reply(
-                `Uh-oh, something went wrong while I tried to update the session post.`
-            );
+            await this.messageService.reply(context.originalMessage, {
+                content: `Uh-oh, something went wrong while I tried to update the session post.`,
+            });
             return Promise.resolve(
                 new CommandResult(
                     this,

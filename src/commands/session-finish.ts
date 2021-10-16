@@ -18,12 +18,9 @@ export class SessionFinish extends Command {
             context
         );
         if (typeof parsedSession === 'string') {
-            const response = await context.originalMessage.reply(parsedSession);
-            if (this.channelService.isRpChannel(context.originalMessage.channel.id))
-                await this.messageService.deleteMessages(
-                    [context.originalMessage, response],
-                    10000
-                );
+            await this.messageService.reply(context.originalMessage, {
+                content: parsedSession,
+            });
             return Promise.resolve(
                 new CommandResult(this, context, false, 'Input validation failed.')
             );
@@ -35,23 +32,19 @@ export class SessionFinish extends Command {
         }
 
         if (!(await this.deleteSessionFromDatabase(parsedSession.channelId))) {
-            await context.originalMessage.reply(
-                'Uh-oh, something went wrong while I tried to remove the session internally.'
-            );
+            await this.messageService.reply(context.originalMessage, {
+                content:
+                    'Uh-oh, something went wrong while I tried to remove the session internally.',
+            });
             return Promise.resolve(
                 new CommandResult(this, context, false, 'Failed to delete session from database')
             );
         }
 
         if (!(await this.deleteSessionFromSessionsChannel(parsedSession))) {
-            const response = await context.originalMessage.reply(
-                `I couldn't delete the session post from <#${parsedSession.channelId}> but the session is still finished! Please check if the session message was removed.`
-            );
-            if (this.channelService.isRpChannel(context.originalMessage.channel.id))
-                await this.messageService.deleteMessages(
-                    [context.originalMessage, response],
-                    10000
-                );
+            await this.messageService.reply(context.originalMessage, {
+                content: `I couldn't delete the session post from <#${parsedSession.channelId}> but the session is still finished! Please check if the session message was removed.`,
+            });
             return Promise.resolve(
                 new CommandResult(
                     this,
@@ -62,11 +55,9 @@ export class SessionFinish extends Command {
             );
         }
 
-        const response = await context.originalMessage.reply(
-            `The session in <#${parsedSession.channelId}> is now finished!`
-        );
-        if (this.channelService.isRpChannel(context.originalMessage.channel.id))
-            await this.messageService.deleteMessages([context.originalMessage, response], 10000);
+        await this.messageService.reply(context.originalMessage, {
+            content: `The session in <#${parsedSession.channelId}> is now finished!`,
+        });
         await this.channelService
             .getTextChannelByChannelId(parsedSession.channelId)
             .send('```⋟────────────────────────⋞```');

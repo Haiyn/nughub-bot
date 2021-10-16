@@ -14,6 +14,11 @@ export class Ping extends Command {
         try {
             const pingMessage = await context.originalMessage.channel.send('Checking...');
             await pingMessage.edit(`(Squeaks regally)`);
+            if (this.channelService.isRpChannel(context.originalMessage.channel.id))
+                await this.messageService.deleteMessages(
+                    [context.originalMessage, pingMessage],
+                    10000
+                );
             return Promise.resolve(
                 new CommandResult(
                     this,
