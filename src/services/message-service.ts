@@ -1,9 +1,24 @@
-import { injectable } from 'inversify';
-import { Message } from 'discord.js';
+import { inject, injectable } from 'inversify';
+import { Client, Message, MessageOptions } from 'discord.js';
 import { Service } from '@services/service';
+import { TYPES } from '@src/types';
+import { ChannelService } from '@services/channel-service';
+import { Logger } from 'tslog';
+import { IConfiguration } from '@models/configuration';
 
 @injectable()
 export class MessageService extends Service {
+    readonly channelService: ChannelService;
+
+    constructor(
+        @inject(TYPES.Client) client: Client,
+        @inject(TYPES.CommandLogger) logger: Logger,
+        @inject(TYPES.Configuration) configuration: IConfiguration,
+        @inject(TYPES.ChannelService) channelService: ChannelService
+    ) {
+        super(client, logger, configuration);
+        this.channelService = channelService;
+    }
     public isBotMessage(message: Message): boolean {
         const isBot = message.author.bot;
         isBot ? this.logger.trace(`Message ID ${message.id}: is a bot message.`) : '';
@@ -14,6 +29,27 @@ export class MessageService extends Service {
         const isPrefixed = message.content.startsWith(this.configuration.guild.prefix);
         this.logger.trace(`Message ID ${message.id}: is ${isPrefixed ? '' : 'not'} prefixed.`);
         return isPrefixed;
+    }
+
+    public async reply(
+        message: Message,
+        options: MessageOptions,
+        autoDeleteInRpChannel = true
+    ): Promise<void> {
+        try {
+            const response = await message.reply(options);
+            if (autoDeleteInRpChannel) {
+                const isRpChannel = this.channelService.isRpChannel(message.channel.id);
+                if (isRpChannel) await this.deleteMessages([message, response], 10000);
+            }
+            return Promise.resolve();
+        } catch (error) {
+            this.logger.error(
+                `Failed to auto delete reply messages: `,
+                this.logger.prettyError(error)
+            );
+            return Promise.resolve();
+        }
     }
 
     public async deleteMessages(messagesToDelete: Message[], timeout?: number): Promise<boolean> {

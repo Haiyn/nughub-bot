@@ -23,9 +23,9 @@ export class MessageController extends Controller {
                     message.content.indexOf(' ')
                 )}".`
             );
-            const response = await message.reply("I don't recognize that command. Try !help.");
-            if (this.channelService.isRpChannel(message.channel.id))
-                await this.messageService.deleteMessages([message, response], 10000);
+            await this.messageService.reply(message, {
+                content: "I don't recognize that command. Try !help.",
+            });
             return;
         }
 
@@ -42,11 +42,9 @@ export class MessageController extends Controller {
                 .info(`Message ID ${message.id}: User is not authorized for command "${commandContext.command.names[0]}".
                 User ID: ${commandContext.originalMessage.author.id}
                 User roles: ${commandContext.originalMessage.member.roles}`);
-            const response = await message.reply(
-                "You aren't allowed to use that command. Try !help."
-            );
-            if (this.channelService.isRpChannel(message.channel.id))
-                await this.messageService.deleteMessages([message, response], 10000);
+            await this.messageService.reply(message, {
+                content: "You aren't allowed to use that command. Try !help.",
+            });
             return;
         }
 

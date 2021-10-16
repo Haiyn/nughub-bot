@@ -21,7 +21,9 @@ export class SessionStart extends Command {
         this.logger.debug('Parsing arguments for start command...');
         const parsedSession: Session | string = await this.validateArguments(context.args, context);
         if (typeof parsedSession === 'string') {
-            await context.originalMessage.reply(parsedSession);
+            await this.messageService.reply(context.originalMessage, {
+                content: parsedSession,
+            });
             return Promise.resolve(
                 new CommandResult(this, context, false, 'Input validation failed.')
             );
@@ -31,9 +33,9 @@ export class SessionStart extends Command {
         this.logger.debug('Saving Session to discord post...');
         const sessionMessage = await this.saveSessionToSessionChannel(parsedSession);
         if (!sessionMessage) {
-            await context.originalMessage.reply(
-                'Uh-oh, something went wrong while updating the current sessions post!'
-            );
+            await this.messageService.reply(context.originalMessage, {
+                content: 'Uh-oh, something went wrong while updating the current sessions post!',
+            });
             return Promise.reject(
                 new CommandResult(this, context, false, 'Failed to create/edit session post.')
             );
@@ -42,9 +44,9 @@ export class SessionStart extends Command {
 
         this.logger.debug('Saving Session to database...');
         if (!(await this.saveSessionToDatabase(parsedSession))) {
-            await context.originalMessage.reply(
-                'Uh-oh, something went wrong while saving the session!'
-            );
+            await this.messageService.reply(context.originalMessage, {
+                content: 'Uh-oh, something went wrong while saving the session!',
+            });
             await this.channelService
                 .getTextChannelByChannelId(this.configuration.channels.currentSessionsChannelId)
                 .messages.delete(parsedSession.sessionPost);
@@ -53,9 +55,9 @@ export class SessionStart extends Command {
             );
         }
 
-        await context.originalMessage.reply(
-            `I successfully started a new RP session in <#${parsedSession.channel.id}>!`
-        );
+        await this.messageService.reply(context.originalMessage, {
+            content: `I successfully started a new RP session in <#${parsedSession.channel.id}>!`,
+        });
         return Promise.resolve(
             new CommandResult(this, context, true, 'Successfully started new session.')
         );
