@@ -19,6 +19,7 @@ import { IConfiguration } from '@models/configuration';
 import configLocal from '@config/config-local';
 import configDev from '@config/config-dev';
 import configProd from '@config/config-prod';
+import { ApplicationPing, ApplicationSessionStart } from '@commands/interactions';
 
 const container = new Container();
 
@@ -107,5 +108,17 @@ container.bind<Ping>(TYPES.Ping).to(Ping).inRequestScope();
 container.bind<SessionStart>(TYPES.SessionStart).to(SessionStart).inRequestScope();
 container.bind<SessionFinish>(TYPES.SessionFinish).to(SessionFinish).inRequestScope();
 container.bind<SessionNext>(TYPES.SessionNext).to(SessionNext).inRequestScope();
+
+// Application Commands
+container.bind<ApplicationPing>(TYPES.ApplicationPing).to(ApplicationPing).inRequestScope();
+container.bind<ApplicationPing>('ApplicationPing').to(ApplicationPing).inRequestScope();
+container
+    .bind<ApplicationSessionStart>(TYPES.ApplicationSessionStart)
+    .to(ApplicationSessionStart)
+    .inRequestScope();
+container
+    .bind<ApplicationSessionStart>('ApplicationStart')
+    .to(ApplicationSessionStart)
+    .inRequestScope();
 
 export default container;

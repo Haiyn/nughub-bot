@@ -51,6 +51,15 @@ export class Server {
             await this.messageController.handleDeletion(message);
         });
 
+        this.client.on('interactionCreate', async (interaction: Interaction) => {
+            this.logger.trace(
+                `Interaction ID ${interaction.id} created\nCreator: ${interaction.member}\nType: ${interaction.type}`
+            );
+            await this.interactionController.handleInteraction(interaction).catch((error) => {
+                this.logger.error(`Failed: `, this.logger.prettyError(error));
+            });
+        });
+
         this.client.on('ready', async () => {
             this.logger.info('Client is ready. Caching vital messages...');
             await this.messageController.handleCaching();

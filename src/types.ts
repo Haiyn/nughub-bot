@@ -28,6 +28,10 @@ export const TYPES = {
     SessionFinish: Symbol('finish'),
     SessionNext: Symbol('next'),
 
+    // Application Commands
+    ApplicationPing: Symbol('ApplicationPing'),
+    ApplicationSessionStart: Symbol('ApplicationStart'),
+
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),
     BaseLogger: Symbol('BaseLogger'),
