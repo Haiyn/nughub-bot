@@ -1,10 +1,38 @@
-import { Message, TextChannel } from 'discord.js';
-import { injectable } from 'inversify';
+import { Client, Message, TextChannel } from 'discord.js';
+import { inject, injectable } from 'inversify';
 import { SessionModel } from '@models/session-schema';
 import { Controller } from '@controllers/controller';
+import { TYPES } from '@src/types';
+import { ChannelService, CommandService, MessageService, PermissionService } from '@src/services';
+import { Logger } from 'tslog';
+import { IConfiguration } from '@models/configuration';
 
 @injectable()
 export class MessageController extends Controller {
+    readonly messageService: MessageService;
+    readonly permissionService: PermissionService;
+    readonly commandService: CommandService;
+    readonly channelService: ChannelService;
+    readonly client: Client;
+
+    constructor(
+        @inject(TYPES.MessageService) messageService: MessageService,
+        @inject(TYPES.PermissionService) permissionService: PermissionService,
+        @inject(TYPES.CommandService) commandService: CommandService,
+        @inject(TYPES.ChannelService) channelService: ChannelService,
+        @inject(TYPES.BaseLogger) logger: Logger,
+        @inject(TYPES.Client) client: Client,
+        @inject(TYPES.ClientId) clientId: string,
+        @inject(TYPES.Token) token: string,
+        @inject(TYPES.Configuration) configuration: IConfiguration
+    ) {
+        super(logger, clientId, token, configuration);
+        this.messageService = messageService;
+        this.permissionService = permissionService;
+        this.commandService = commandService;
+        this.channelService = channelService;
+        this.client = client;
+    }
     async handleMessage(message: Message): Promise<void> {
         if (
             this.messageService.isBotMessage(message) ||

@@ -2,18 +2,22 @@ export const TYPES = {
     // Constants
     Server: Symbol('Server'),
     Client: Symbol('Client'),
+    ClientId: Symbol('ClientId'),
     Token: Symbol('Token'),
     Configuration: Symbol('Configuration'),
     BotOwnerId: Symbol('BotOwnerId'),
     Environment: Symbol('Environment'),
     MongoDbConnectionString: Symbol('MongoDbConnectionString'),
 
-    // Services
+    // Controllers
     MessageController: Symbol('MessageController'),
     MessageService: Symbol('MessageService'),
+    DatabaseController: Symbol('DatabaseController'),
+    InteractionController: Symbol('InteractionController'),
+
+    // Services
     PermissionService: Symbol('PermissionService'),
     CommandService: Symbol('CommandService'),
-    DatabaseService: Symbol('DatabaseService'),
     HelperService: Symbol('HelperService'),
     UserService: Symbol('UserService'),
     ChannelService: Symbol('ChannelService'),
@@ -23,6 +27,10 @@ export const TYPES = {
     SessionStart: Symbol('start'),
     SessionFinish: Symbol('finish'),
     SessionNext: Symbol('next'),
+
+    // Application Commands
+    ApplicationPing: Symbol('ApplicationPing'),
+    ApplicationSessionStart: Symbol('ApplicationStart'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

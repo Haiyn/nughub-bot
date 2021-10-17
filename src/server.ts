@@ -1,26 +1,29 @@
-import { Client, Message } from 'discord.js';
+import { Client, Interaction, Message } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@src/types';
-import { MessageController } from '@controllers/index';
+import { InteractionController, MessageController } from '@controllers/index';
 import { Logger } from 'tslog';
 
 @injectable()
 export class Server {
     private client: Client;
     private readonly token: string;
-    private readonly messageController: MessageController;
     private readonly logger: Logger;
+    private readonly messageController: MessageController;
+    private readonly interactionController: InteractionController;
 
     constructor(
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.Token) token: string,
+        @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.MessageController) messageController: MessageController,
-        @inject(TYPES.BaseLogger) logger: Logger
+        @inject(TYPES.InteractionController) interactionController: InteractionController
     ) {
         this.client = client;
         this.token = token;
-        this.messageController = messageController;
         this.logger = logger;
+        this.messageController = messageController;
+        this.interactionController = interactionController;
     }
 
     public listen(): Promise<string> {
@@ -46,6 +49,15 @@ export class Server {
                 )}`
             );
             await this.messageController.handleDeletion(message);
+        });
+
+        this.client.on('interactionCreate', async (interaction: Interaction) => {
+            this.logger.trace(
+                `Interaction ID ${interaction.id} created\nCreator: ${interaction.member}\nType: ${interaction.type}`
+            );
+            await this.interactionController.handleInteraction(interaction).catch((error) => {
+                this.logger.error(`Failed: `, this.logger.prettyError(error));
+            });
         });
 
         this.client.on('ready', async () => {

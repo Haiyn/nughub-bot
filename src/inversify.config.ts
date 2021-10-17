@@ -5,12 +5,11 @@ import {
     PermissionService,
     CommandService,
     MessageService,
-    DatabaseService,
     HelperService,
     UserService,
     ChannelService,
 } from '@services/index';
-import { MessageController } from '@controllers/index';
+import { InteractionController, MessageController, DatabaseController } from '@controllers/index';
 import { TYPES } from '@src/types';
 import { Server } from '@src/server';
 import { Logger, TLogLevelName } from 'tslog';
@@ -20,11 +19,13 @@ import { IConfiguration } from '@models/configuration';
 import configLocal from '@config/config-local';
 import configDev from '@config/config-dev';
 import configProd from '@config/config-prod';
+import { ApplicationPing, ApplicationSessionStart } from '@commands/interactions';
 
 const container = new Container();
 
 // Environment
 container.bind<string>(TYPES.Token).toConstantValue(process.env.TOKEN);
+container.bind<string>(TYPES.ClientId).toConstantValue(process.env.CLIENT_ID);
 container.bind<string>(TYPES.BaseLogLevel).toConstantValue(process.env.BASE_LOG_LEVEL);
 container.bind<string>(TYPES.ServiceLogLevel).toConstantValue(process.env.SERVICE_LOG_LEVEL);
 container.bind<string>(TYPES.CommandLogLevel).toConstantValue(process.env.COMMAND_LOG_LEVEL);
@@ -82,13 +83,22 @@ container.bind<Logger>(TYPES.CommandLogger).toConstantValue(
     })
 );
 
-// Services
+// Controllers
 container.bind<Server>(TYPES.Server).to(Server).inSingletonScope();
 container.bind<MessageController>(TYPES.MessageController).to(MessageController).inSingletonScope();
+container
+    .bind<DatabaseController>(TYPES.DatabaseController)
+    .to(DatabaseController)
+    .inSingletonScope();
+container
+    .bind<InteractionController>(TYPES.InteractionController)
+    .to(InteractionController)
+    .inSingletonScope();
+
+// Services
 container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();
 container.bind<PermissionService>(TYPES.PermissionService).to(PermissionService).inSingletonScope();
 container.bind<CommandService>(TYPES.CommandService).to(CommandService).inSingletonScope();
-container.bind<DatabaseService>(TYPES.DatabaseService).to(DatabaseService).inSingletonScope();
 container.bind<HelperService>(TYPES.HelperService).to(HelperService).inSingletonScope();
 container.bind<UserService>(TYPES.UserService).to(UserService).inSingletonScope();
 container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingletonScope();
@@ -98,5 +108,17 @@ container.bind<Ping>(TYPES.Ping).to(Ping).inRequestScope();
 container.bind<SessionStart>(TYPES.SessionStart).to(SessionStart).inRequestScope();
 container.bind<SessionFinish>(TYPES.SessionFinish).to(SessionFinish).inRequestScope();
 container.bind<SessionNext>(TYPES.SessionNext).to(SessionNext).inRequestScope();
+
+// Application Commands
+container.bind<ApplicationPing>(TYPES.ApplicationPing).to(ApplicationPing).inRequestScope();
+container.bind<ApplicationPing>('ApplicationPing').to(ApplicationPing).inRequestScope();
+container
+    .bind<ApplicationSessionStart>(TYPES.ApplicationSessionStart)
+    .to(ApplicationSessionStart)
+    .inRequestScope();
+container
+    .bind<ApplicationSessionStart>('ApplicationStart')
+    .to(ApplicationSessionStart)
+    .inRequestScope();
 
 export default container;
