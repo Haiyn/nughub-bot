@@ -10,10 +10,9 @@ db.createUser({
     roles: [
         {
             role: 'readWrite',
-            db: "$MONGO_INITDB_DATABASE"
+            db: "$MONGO_DATABASE"
         }
     ]
 });
 db = new Mongo().getDB("$MONGO_DATABASE");
-db.createCollection('Test', { capped: false });
 EOF
