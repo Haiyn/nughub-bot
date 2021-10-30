@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 import { Client, Intents } from 'discord.js';
+import { Redis } from 'ioredis';
+import * as IORedis from 'ioredis';
 import { Container } from 'inversify';
 import {
     PermissionService,
@@ -9,17 +11,17 @@ import {
     UserService,
     ChannelService,
 } from '@services/index';
-import { InteractionController, MessageController, DatabaseController } from '@controllers/index';
+import { InteractionController, MessageController } from '@controllers/index';
 import { TYPES } from '@src/types';
 import { Server } from '@src/server';
 import { Logger, TLogLevelName } from 'tslog';
-import { Ping, SessionStart, SessionFinish } from '@src/commands';
-import { SessionNext } from '@commands/session-next';
+import { SessionNext, Ping, SessionStart, SessionFinish } from '@src/commands';
 import { IConfiguration } from '@models/configuration';
 import configLocal from '@config/config-local';
 import configDev from '@config/config-dev';
 import configProd from '@config/config-prod';
 import { ApplicationPing, ApplicationSessionStart } from '@commands/interactions';
+import { StringProvider, EmojiProvider } from '@src/providers';
 
 const container = new Container();
 
@@ -29,10 +31,14 @@ container.bind<string>(TYPES.ClientId).toConstantValue(process.env.CLIENT_ID);
 container.bind<string>(TYPES.BaseLogLevel).toConstantValue(process.env.BASE_LOG_LEVEL);
 container.bind<string>(TYPES.ServiceLogLevel).toConstantValue(process.env.SERVICE_LOG_LEVEL);
 container.bind<string>(TYPES.CommandLogLevel).toConstantValue(process.env.COMMAND_LOG_LEVEL);
+container.bind<string>(TYPES.ProviderLogLevel).toConstantValue(process.env.PROVIDER_LOG_LEVEL);
 container.bind<string>(TYPES.IgnoreStackLevels).toConstantValue(process.env.IGNORE_STACK_LEVELS);
 container.bind<string>(TYPES.BotOwnerId).toConstantValue(process.env.BOT_OWNER_ID);
 container.bind<string>(TYPES.Environment).toConstantValue(process.env.ENVIRONMENT);
 container.bind<string>(TYPES.MongoDbConnectionString).toConstantValue(process.env.MONGODB_CONNSTR);
+container.bind<string>(TYPES.RedisHost).toConstantValue(process.env.REDIS_HOST);
+container.bind<string>(TYPES.RedisPort).toConstantValue(process.env.REDIS_PORT);
+container.bind<string>(TYPES.RedisPassword).toConstantValue(process.env.REDIS_PASS);
 
 // Configuration
 let config;
@@ -82,18 +88,30 @@ container.bind<Logger>(TYPES.CommandLogger).toConstantValue(
         ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
     })
 );
+container.bind<Logger>(TYPES.ProviderLogger).toConstantValue(
+    container.get<Logger>(TYPES.BaseLogger).getChildLogger({
+        name: 'Provider Logger',
+        minLevel: container.get<string>(TYPES.ProviderLogLevel) as TLogLevelName,
+        ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
+    })
+);
+container.bind<Redis>(TYPES.RedisClient).toConstantValue(
+    new IORedis(container.get(TYPES.RedisHost), container.get(TYPES.RedisPort), {
+        password: container.get(TYPES.RedisPassword),
+    })
+);
 
 // Controllers
 container.bind<Server>(TYPES.Server).to(Server).inSingletonScope();
 container.bind<MessageController>(TYPES.MessageController).to(MessageController).inSingletonScope();
 container
-    .bind<DatabaseController>(TYPES.DatabaseController)
-    .to(DatabaseController)
-    .inSingletonScope();
-container
     .bind<InteractionController>(TYPES.InteractionController)
     .to(InteractionController)
     .inSingletonScope();
+
+// Providers
+container.bind<StringProvider>(TYPES.StringProvider).to(StringProvider).inSingletonScope();
+container.bind<EmojiProvider>(TYPES.EmojiProvider).to(EmojiProvider).inSingletonScope();
 
 // Services
 container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();

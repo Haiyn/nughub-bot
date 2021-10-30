@@ -4,12 +4,13 @@ import container from './inversify.config';
 import { TYPES } from '@src/types';
 import { Server } from '@src/server';
 import { Logger } from 'tslog';
-import { DatabaseController, InteractionController } from '@src/controllers';
+import { InteractionController } from '@src/controllers';
+import { connect } from 'mongoose';
 
 const logger = container.get<Logger>(TYPES.BaseLogger);
 const server = container.get<Server>(TYPES.Server);
-const databaseController = container.get<DatabaseController>(TYPES.DatabaseController);
 const interactionController = container.get<InteractionController>(TYPES.InteractionController);
+const mongoDbConnectionString = container.get<string>(TYPES.MongoDbConnectionString);
 
 run().then(() => logger.info('Finished startup sequence.'));
 
@@ -20,14 +21,13 @@ async function run() {
 }
 
 async function databaseStartup(): Promise<void> {
-    await databaseController
-        .connect()
+    logger.debug(`Connecting to ${mongoDbConnectionString}`);
+    return connect(mongoDbConnectionString)
         .then(() => {
-            logger.info('#1 Connected to MongoDB.');
             return Promise.resolve();
         })
-        .catch(() => {
-            logger.fatal('#1 Could not connect to MongoDB');
+        .catch((error) => {
+            logger.fatal(`Could not connect to MongoDB:`, logger.prettyError(error));
             process.exit(1);
         });
 }

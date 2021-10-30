@@ -1,5 +1,4 @@
 import { inject, injectable } from 'inversify';
-import { Client } from 'discord.js';
 import { Logger } from 'tslog';
 import { TYPES } from '@src/types';
 import { IConfiguration } from '@models/configuration';

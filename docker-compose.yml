@@ -18,6 +18,20 @@ services:
     networks:
       nhb-network:
 
+  nhb-redis:
+    container_name: redis
+    image: "redis:alpine"
+    command: redis-server --requirepass ${REDIS_PASS}
+    ports:
+      - "6379:6379"
+    volumes:
+      - $PWD/redis-data:/var/lib/redis
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    networks:
+      nhb-network:
+
   nhb-bot:
     container_name: bot
     image: haiyn/nughub-bot:${RELEASE_VERSION}

@@ -3,6 +3,8 @@ FROM node:16-alpine3.11
 WORKDIR /usr/nhb/src
 
 COPY package.json /usr/nhb
+RUN npm install -g npm@8.1.0
+RUN npm -v
 RUN npm install
 
 ADD src /usr/nhb/src

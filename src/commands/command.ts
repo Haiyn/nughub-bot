@@ -6,6 +6,7 @@ import { CommandContext } from '@models/command-context';
 import { CommandResult } from '@models/command-result';
 import { ChannelService, HelperService, MessageService, UserService } from '@services/index';
 import { IConfiguration } from '@models/configuration';
+import { StringProvider } from '@src/providers';
 
 export interface ICommand {
     readonly names: string[];
@@ -33,6 +34,7 @@ export class Command implements ICommand {
     readonly helperService: HelperService;
     readonly messageService: MessageService;
     readonly userService: UserService;
+    readonly stringProvider: StringProvider;
 
     constructor(
         @inject(TYPES.CommandLogger) logger: Logger,
@@ -41,7 +43,8 @@ export class Command implements ICommand {
         @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.HelperService) helperService: HelperService,
         @inject(TYPES.MessageService) messageService: MessageService,
-        @inject(TYPES.UserService) userService: UserService
+        @inject(TYPES.UserService) userService: UserService,
+        @inject(TYPES.StringProvider) stringProvider: StringProvider
     ) {
         this.logger = logger;
         this.client = client;
@@ -50,6 +53,7 @@ export class Command implements ICommand {
         this.helperService = helperService;
         this.messageService = messageService;
         this.userService = userService;
+        this.stringProvider = stringProvider;
     }
 
     public getHelpMessage(): string {

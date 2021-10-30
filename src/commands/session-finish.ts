@@ -33,8 +33,9 @@ export class SessionFinish extends Command {
 
         if (!(await this.deleteSessionFromDatabase(parsedSession.channelId))) {
             await this.messageService.reply(context.originalMessage, {
-                content:
-                    'Uh-oh, something went wrong while I tried to remove the session internally.',
+                content: await this.stringProvider.get(
+                    'COMMAND.SESSION-FINISH.ERROR.INTERNAL.DELETE-SESSION-DATABASE'
+                ),
             });
             return Promise.resolve(
                 new CommandResult(this, context, false, 'Failed to delete session from database')
@@ -43,7 +44,10 @@ export class SessionFinish extends Command {
 
         if (!(await this.deleteSessionFromSessionsChannel(parsedSession))) {
             await this.messageService.reply(context.originalMessage, {
-                content: `I couldn't delete the session post from <#${parsedSession.channelId}> but the session is still finished! Please check if the session message was removed.`,
+                content: await this.stringProvider.get(
+                    'COMMAND.SESSION-FINISH.SUCCESS.POST-NOT-DELETED',
+                    [parsedSession.channelId]
+                ),
             });
             return Promise.resolve(
                 new CommandResult(
@@ -56,7 +60,9 @@ export class SessionFinish extends Command {
         }
 
         await this.messageService.reply(context.originalMessage, {
-            content: `The session in <#${parsedSession.channelId}> is now finished!`,
+            content: await this.stringProvider.get('COMMAND.SESSION-FINISH.SUCCESS.POST-DELETED', [
+                parsedSession.channelId,
+            ]),
         });
         await this.channelService
             .getTextChannelByChannelId(parsedSession.channelId)
@@ -76,7 +82,11 @@ export class SessionFinish extends Command {
         context?: CommandContext
     ): Promise<ISessionSchema | string> {
         if (args.length > 1)
-            return Promise.resolve('Please provide all needed arguments!\n' + this.usageHint);
+            return Promise.resolve(
+                await this.stringProvider.get(
+                    'STRINGS.COMMAND.SESSION-FINISH.ERROR.VALIDATION.INSUFFICIENT_ARGUMENT_LENGTH'
+                )
+            );
 
         const channelId = args.length == 0 ? context.originalMessage.channel.id : args[0];
         if (!this.helperService.isDiscordId(channelId)) {
@@ -84,7 +94,9 @@ export class SessionFinish extends Command {
                 `Message ID ${context.originalMessage.id}: User provided channel parameter that is not a discord channel.`
             );
             return Promise.resolve(
-                "The channel you've given is not valid! Please make sure to either link it with a hashtag (#) or use this command in the RP channel you want to finish."
+                await this.stringProvider.get(
+                    'STRINGS.COMMAND.SESSION-FINISH.ERROR.VALIDATION.INVALID_CHANNEL'
+                )
             );
         }
         const channel = this.channelService.getTextChannelByChannelId(channelId);
@@ -93,7 +105,9 @@ export class SessionFinish extends Command {
                 `Message ID ${context.originalMessage.id}: User provided invalid channel.`
             );
             return Promise.resolve(
-                "The channel you've given is not valid! Please make sure to either link it with a hashtag (#) or use this command in the RP channel you want to finish."
+                await this.stringProvider.get(
+                    'STRINGS.COMMAND.SESSION-FINISH.ERROR.VALIDATION.INVALID_CHANNEL'
+                )
             );
         }
         const foundSession: ISessionSchema = await SessionModel.findOne({
@@ -103,7 +117,12 @@ export class SessionFinish extends Command {
             this.logger.info(
                 `Message ID ${context.originalMessage.id}: User provided channel without an active RP.`
             );
-            return Promise.resolve(`There is no ongoing RP session in <#${channel.id}>!`);
+            return Promise.resolve(
+                await this.stringProvider.get(
+                    'STRINGS.COMMAND.SESSION-FINISH.ERROR.VALIDATION.NO_ONGOING_RP',
+                    [channelId]
+                )
+            );
         }
         this.logger.trace(foundSession);
 

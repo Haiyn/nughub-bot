@@ -8,12 +8,18 @@ export const TYPES = {
     BotOwnerId: Symbol('BotOwnerId'),
     Environment: Symbol('Environment'),
     MongoDbConnectionString: Symbol('MongoDbConnectionString'),
+    RedisClient: Symbol('RedisClient'),
+    RedisHost: Symbol('RedisHost'),
+    RedisPort: Symbol('RedisPort'),
+    RedisPassword: Symbol('RedisPassword'),
 
     // Controllers
     MessageController: Symbol('MessageController'),
-    MessageService: Symbol('MessageService'),
-    DatabaseController: Symbol('DatabaseController'),
     InteractionController: Symbol('InteractionController'),
+
+    // Providers
+    StringProvider: Symbol('StringProvider'),
+    EmojiProvider: Symbol('EmojiProvider'),
 
     // Services
     PermissionService: Symbol('PermissionService'),
@@ -21,6 +27,7 @@ export const TYPES = {
     HelperService: Symbol('HelperService'),
     UserService: Symbol('UserService'),
     ChannelService: Symbol('ChannelService'),
+    MessageService: Symbol('MessageService'),
 
     // Commands
     Ping: Symbol('ping'),
@@ -39,5 +46,7 @@ export const TYPES = {
     ServiceLogLevel: Symbol('ServiceLogLevel'),
     CommandLogger: Symbol('CommandLogger'),
     CommandLogLevel: Symbol('CommandLogLevel'),
+    ProviderLogger: Symbol('ProviderLogger'),
+    ProviderLogLevel: Symbol('ProviderLogLevel'),
     IgnoreStackLevels: Symbol('IgnoreStackLevels'),
 };
