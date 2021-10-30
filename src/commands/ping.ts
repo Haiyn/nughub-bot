@@ -1,7 +1,7 @@
 import { Command } from '@commands/command';
 import { CommandContext } from '@models/command-context';
-import { injectable } from 'inversify';
 import { CommandResult } from '@models/command-result';
+import { injectable } from 'inversify';
 
 @injectable()
 export class Ping extends Command {
@@ -12,13 +12,10 @@ export class Ping extends Command {
 
     async run(context: CommandContext): Promise<CommandResult> {
         try {
-            const pingMessage = await context.originalMessage.channel.send('Checking...');
-            await pingMessage.edit(`(Squeaks regally)`);
-            if (this.channelService.isRpChannel(context.originalMessage.channel.id))
-                await this.messageService.deleteMessages(
-                    [context.originalMessage, pingMessage],
-                    10000
-                );
+            const pingMessage = await context.originalMessage.channel.send(
+                await this.stringProvider.get('COMMAND.PING.STATUS.CHECKING')
+            );
+            await pingMessage.edit(await this.stringProvider.get('COMMAND.PING.STATUS.SUCCESSFUL'));
             return Promise.resolve(
                 new CommandResult(
                     this,

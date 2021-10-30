@@ -30,6 +30,7 @@ export class CommandService extends Service {
             this.logger.debug(
                 `No command mapping was found for \"${splitMessage.shift()?.toLowerCase()}\"`
             );
+            this.logger.trace('Command mapping could not be found because:', error);
         }
         if (!matchedCommand) return null;
         return new CommandContext(matchedCommand, message, splitMessage);
