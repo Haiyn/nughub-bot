@@ -5,7 +5,10 @@ export function commandDefinition(): SlashCommandBuilder {
         .setName('finish')
         .setDescription('Finishes an ongoing RP in a channel')
         .addChannelOption((option) =>
-            option.setName('channel').setDescription('The channel with the ongoing RP')
+            option
+                .setName('channel')
+                .setDescription('The channel with the ongoing RP')
+                .setRequired(true)
         );
 
     return <SlashCommandBuilder>command;

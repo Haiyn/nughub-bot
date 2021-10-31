@@ -8,7 +8,7 @@ export function commandDefinition(): SlashCommandBuilder {
             option
                 .setName('channel')
                 .setDescription('The channel with the ongoing RP')
-                .setRequired(true)
+                .setRequired(false)
         )
         .addStringOption((option) =>
             option

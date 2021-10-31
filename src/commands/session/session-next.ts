@@ -15,12 +15,22 @@ import { injectable } from 'inversify';
 @injectable()
 export class SessionNext extends Command {
     async run(interaction: CommandInteraction): Promise<CommandResult> {
-        const channel = interaction.options.getChannel('channel');
-        const userMessage: string = interaction.options.getString('message');
+        this.logger.debug('Resolving channel...');
+        let channel;
+        if (!interaction.options.getChannel('channel')) {
+            // No channel option was supplied, check the current channel
+            await SessionNext.validateCurrentChannel(interaction.channelId);
+            channel = interaction.channel;
+        } else {
+            // Channel option was supplied, use it
+            channel = interaction.options.getChannel('channel');
+        }
+
         const session: ISessionSchema = await SessionModel.findOne({ channelId: channel.id });
+        const userMessage: string = interaction.options.getString('message');
 
         this.logger.debug('Validating user turn...');
-        await this.validateUserTurn(session.currentTurn.userId, interaction.member.user.id);
+        await SessionNext.validateUserTurn(session.currentTurn.userId, interaction.member.user.id);
 
         this.logger.debug('Updating user turn in database...');
         const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
@@ -44,6 +54,7 @@ export class SessionNext extends Command {
 
     public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
         const channel = options.getChannel('channel');
+        if (!channel) return Promise.resolve(); // It is valid to provide no channel, the interaction channel will be checked instead
         const foundSession = await SessionModel.findOne({
             channelId: channel.id,
         }).exec();
@@ -55,7 +66,7 @@ export class SessionNext extends Command {
         }
     }
 
-    private async validateUserTurn(
+    private static async validateUserTurn(
         currentTurnId: string,
         interactionCreatorId: string
     ): Promise<void> {
@@ -65,6 +76,15 @@ export class SessionNext extends Command {
                 `It is currently <@{0}>'s turn! Only they are allowed to advance their turn.`
             );
         }
+    }
+
+    private static async validateCurrentChannel(currentChannelId: string): Promise<void> {
+        const result = await SessionModel.findOne({ channelId: currentChannelId });
+        if (!result)
+            throw new CommandValidationError(
+                'User tried to use next command without parameter in an channel that has no ongoing session',
+                `There is no ongoing RP session in this channel! Please use this command in the RP channel or supply it when using the command.`
+            );
     }
 
     private async updateTurnOderInDatabase(session: ISessionSchema): Promise<ISessionSchema> {
