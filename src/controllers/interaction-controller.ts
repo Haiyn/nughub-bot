@@ -74,26 +74,30 @@ export class InteractionController extends Controller {
 
         // Validate the inputs
         let valid = true;
-        await applicationCommand
-            .validateOptions(interaction.options)
-            .catch((error: CommandValidationError) => {
+        await applicationCommand.validateOptions(interaction.options).catch((error) => {
+            let userMessage;
+            if (error instanceof CommandValidationError) {
                 // User input is not valid
                 this.logger.info(error.internalMessage);
-                interaction.reply({
-                    content: error.userMessage,
-                    ephemeral: true,
-                });
-                valid = false;
-                // TODO: It continues to run the command despite going in here????
-            })
-            .catch((error) => {
-                // Unexpected error
+                if (!error.userMessage) {
+                    this.logger.error('Command did not return a user message');
+                    error.userMessage = `Internal Error: The command failed unexpectedly.`;
+                }
+                userMessage = error.userMessage;
+            } else {
+                // Uncaught error
                 this.logger.error(
                     `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} failed unexpectedly while validating options: `,
                     this.logger.prettyError(error)
                 );
-                valid = false;
+                userMessage = `Internal Error: Command validation failed unexpectedly.`;
+            }
+            valid = false;
+            interaction.reply({
+                content: userMessage,
+                ephemeral: true,
             });
+        });
         if (!valid) return Promise.resolve();
 
         // Run the command
@@ -106,31 +110,32 @@ export class InteractionController extends Controller {
                     } was ${result.executed ? '' : 'not'} executed: ${result.message}`
                 );
             })
-            .catch((error: CommandValidationError) => {
-                // Further user input validation failed
-                this.logger.info(error.internalMessage);
-                interaction.reply({
-                    content: error.userMessage,
-                    ephemeral: true,
-                });
-            })
-            .catch((error: CommandError) => {
-                // Command failed
-                this.logger.error(
-                    error.internalMessage,
-                    error.error ? this.logger.prettyError(error.error) : null
-                );
-                interaction.reply({
-                    content: error.userMessage,
-                    ephemeral: true,
-                });
-            })
             .catch((error) => {
-                // Command failed unexpectedly
-                this.logger.error(
-                    `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} failed unexpectedly while executing: `,
-                    this.logger.prettyError(error)
-                );
+                let userMessage;
+                // Check which type of error was thrown to avoid producing more errors in catch clause
+                if (error instanceof CommandValidationError) {
+                    // Further user input validation failed
+                    this.logger.info(error.internalMessage);
+                    userMessage = error.userMessage;
+                } else if (error instanceof CommandError) {
+                    // Command failed with caught error
+                    this.logger.error(
+                        error.internalMessage,
+                        error.error ? this.logger.prettyError(error.error) : null
+                    );
+                    userMessage = error.userMessage;
+                } else {
+                    // Command failed unexpectedly
+                    this.logger.error(
+                        `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} failed unexpectedly while executing: `,
+                        this.logger.prettyError(error)
+                    );
+                    userMessage = `Internal Error: Command execution failed unexpectedly.`;
+                }
+                interaction.reply({
+                    content: userMessage,
+                    ephemeral: true,
+                });
             });
     }
 }
