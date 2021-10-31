@@ -1,5 +1,4 @@
-export * from '@commands/command';
-export * from '@commands/ping';
-export * from '@commands/session-start';
-export * from '@commands/session-finish';
-export * from '@commands/session-next';
+export { SessionFinish } from '@commands/session/session-finish';
+export { SessionNext } from '@commands/session/session-next';
+export { SessionStart } from '@commands/session/session-start';
+export { Ping } from '@commands/system/ping';

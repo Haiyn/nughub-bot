@@ -1,8 +1,8 @@
-import { inject, injectable } from 'inversify';
-import { Client } from 'discord.js';
-import { Logger } from 'tslog';
-import { TYPES } from '@src/types';
 import { IConfiguration } from '@models/configuration';
+import { TYPES } from '@src/types';
+import { Client } from 'discord.js';
+import { inject, injectable } from 'inversify';
+import { Logger } from 'tslog';
 
 export interface IService {
     readonly configuration: IConfiguration;

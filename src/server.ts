@@ -1,7 +1,7 @@
+import { InteractionController, MessageController } from '@controllers/index';
+import { TYPES } from '@src/types';
 import { Client, Interaction, Message } from 'discord.js';
 import { inject, injectable } from 'inversify';
-import { TYPES } from '@src/types';
-import { InteractionController, MessageController } from '@controllers/index';
 import { Logger } from 'tslog';
 
 @injectable()
@@ -36,7 +36,6 @@ export class Server {
                     100
                 )}`
             );
-            await this.messageController.handleMessage(message);
         });
 
         this.client.on('messageDelete', async (message: Message) => {

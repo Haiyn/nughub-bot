@@ -1,8 +1,8 @@
-import { injectable } from 'inversify';
+import { Service } from '@services/service';
+import container from '@src/inversify.config';
 import { TYPES } from '@src/types';
 import { GuildMember, GuildMemberRoleManager } from 'discord.js';
-import container from '@src/inversify.config';
-import { Service } from '@services/service';
+import { injectable } from 'inversify';
 
 @injectable()
 export class PermissionService extends Service {

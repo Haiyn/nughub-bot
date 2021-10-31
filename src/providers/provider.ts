@@ -1,7 +1,7 @@
+import { TYPES } from '@src/types';
 import { inject, injectable } from 'inversify';
 import { Redis } from 'ioredis';
 import { Logger } from 'tslog';
-import { TYPES } from '@src/types';
 
 @injectable()
 export class Provider {

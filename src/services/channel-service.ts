@@ -1,10 +1,10 @@
-import { inject, injectable } from 'inversify';
-import { Channel, Client, TextChannel } from 'discord.js';
-import { Logger } from 'tslog';
-import { TYPES } from '@src/types';
-import { HelperService } from '@services/index';
 import { IConfiguration } from '@models/configuration';
+import { HelperService } from '@services/index';
 import { Service } from '@services/service';
+import { TYPES } from '@src/types';
+import { Channel, Client, TextChannel } from 'discord.js';
+import { inject, injectable } from 'inversify';
+import { Logger } from 'tslog';
 
 @injectable()
 export class ChannelService extends Service {

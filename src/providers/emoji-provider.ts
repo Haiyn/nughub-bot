@@ -1,5 +1,5 @@
-import { injectable } from 'inversify';
 import { Provider } from '@src/providers/provider';
+import { injectable } from 'inversify';
 
 @injectable()
 export class EmojiProvider extends Provider {

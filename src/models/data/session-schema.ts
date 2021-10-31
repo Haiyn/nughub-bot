@@ -1,5 +1,5 @@
+import { characterSchema, ICharacterSchema } from '@models/data/character-schema';
 import { model, Schema } from 'mongoose';
-import { characterSchema, ICharacterSchema } from '@models/character-schema';
 
 export interface ISessionSchema {
     channelId: string;

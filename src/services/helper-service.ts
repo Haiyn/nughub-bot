@@ -1,5 +1,5 @@
-import { injectable } from 'inversify';
 import { Service } from '@services/service';
+import { injectable } from 'inversify';
 
 @injectable()
 export class HelperService extends Service {

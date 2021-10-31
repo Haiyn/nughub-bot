@@ -6,6 +6,7 @@ export const TYPES = {
     Token: Symbol('Token'),
     Configuration: Symbol('Configuration'),
     BotOwnerId: Symbol('BotOwnerId'),
+    GuildId: Symbol('GuildId'),
     Environment: Symbol('Environment'),
     MongoDbConnectionString: Symbol('MongoDbConnectionString'),
     RedisClient: Symbol('RedisClient'),
@@ -23,21 +24,16 @@ export const TYPES = {
 
     // Services
     PermissionService: Symbol('PermissionService'),
-    CommandService: Symbol('CommandService'),
     HelperService: Symbol('HelperService'),
     UserService: Symbol('UserService'),
     ChannelService: Symbol('ChannelService'),
     MessageService: Symbol('MessageService'),
 
     // Commands
-    Ping: Symbol('ping'),
-    SessionStart: Symbol('start'),
-    SessionFinish: Symbol('finish'),
-    SessionNext: Symbol('next'),
-
-    // Application Commands
-    ApplicationPing: Symbol('ApplicationPing'),
-    ApplicationSessionStart: Symbol('ApplicationStart'),
+    Ping: Symbol('Ping'),
+    SessionStart: Symbol('Start'),
+    SessionFinish: Symbol('Finish'),
+    SessionNext: Symbol('Next'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

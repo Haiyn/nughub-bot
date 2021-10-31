@@ -1,10 +1,10 @@
-import { inject, injectable } from 'inversify';
-import { Client, Message, MessageOptions } from 'discord.js';
+import { IConfiguration } from '@models/configuration';
+import { ChannelService } from '@services/channel-service';
 import { Service } from '@services/service';
 import { TYPES } from '@src/types';
-import { ChannelService } from '@services/channel-service';
+import { Client, Message, MessageOptions } from 'discord.js';
+import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
-import { IConfiguration } from '@models/configuration';
 
 @injectable()
 export class MessageService extends Service {
@@ -64,7 +64,7 @@ export class MessageService extends Service {
             );
             return Promise.resolve(true);
         } catch (error) {
-            this.logger.error('Failed to delete user prompts: ', this.logger.prettyError(error));
+            this.logger.error('Failed to delete messages: ', this.logger.prettyError(error));
             return Promise.resolve(false);
         }
     }

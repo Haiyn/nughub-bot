@@ -1,3 +1,5 @@
+// organize-imports-ignore
+// Don't reorder these because config needs to be loaded before any classes that use it
 import { config } from 'dotenv';
 config();
 import container from './inversify.config';
@@ -24,6 +26,7 @@ async function databaseStartup(): Promise<void> {
     logger.debug(`Connecting to ${mongoDbConnectionString}`);
     return connect(mongoDbConnectionString)
         .then(() => {
+            logger.info('#1 Successfully connected to MongoDB');
             return Promise.resolve();
         })
         .catch((error) => {

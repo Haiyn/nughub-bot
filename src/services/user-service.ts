@@ -1,10 +1,10 @@
-import { inject, injectable } from 'inversify';
-import { Client, User } from 'discord.js';
-import { Logger } from 'tslog';
-import { TYPES } from '@src/types';
+import { IConfiguration } from '@models/configuration';
 import { HelperService } from '@services/index';
 import { Service } from '@services/service';
-import { IConfiguration } from '@models/configuration';
+import { TYPES } from '@src/types';
+import { Client, User } from 'discord.js';
+import { inject, injectable } from 'inversify';
+import { Logger } from 'tslog';
 
 @injectable()
 export class UserService extends Service {
