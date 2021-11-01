@@ -1,27 +1,27 @@
+// organize-imports-ignore
+// Don't reorder these imports because reflect-metadata needs to be imported before any classes that use it
 import 'reflect-metadata';
-import { Client, Intents } from 'discord.js';
-import { Redis } from 'ioredis';
-import * as IORedis from 'ioredis';
-import { Container } from 'inversify';
-import {
-    PermissionService,
-    CommandService,
-    MessageService,
-    HelperService,
-    UserService,
-    ChannelService,
-} from '@services/index';
-import { InteractionController, MessageController } from '@controllers/index';
-import { TYPES } from '@src/types';
-import { Server } from '@src/server';
-import { Logger, TLogLevelName } from 'tslog';
-import { SessionNext, Ping, SessionStart, SessionFinish } from '@src/commands';
-import { IConfiguration } from '@models/configuration';
-import configLocal from '@config/config-local';
 import configDev from '@config/config-dev';
+import configLocal from '@config/config-local';
 import configProd from '@config/config-prod';
-import { ApplicationPing, ApplicationSessionStart } from '@commands/interactions';
-import { StringProvider, EmojiProvider } from '@src/providers';
+import { InteractionController, MessageController } from '@controllers/index';
+import { IConfiguration } from '@models/configuration';
+import {
+    ChannelService,
+    HelperService,
+    MessageService,
+    PermissionService,
+    UserService,
+} from '@services/index';
+import { Ping, SessionFinish, SessionNext, SessionStart } from '@src/commands';
+import { EmojiProvider, StringProvider } from '@src/providers';
+import { Server } from '@src/server';
+import { TYPES } from '@src/types';
+import { Client, Intents } from 'discord.js';
+import { Container } from 'inversify';
+import * as IORedis from 'ioredis';
+import { Redis } from 'ioredis';
+import { Logger, TLogLevelName } from 'tslog';
 
 const container = new Container();
 
@@ -34,6 +34,7 @@ container.bind<string>(TYPES.CommandLogLevel).toConstantValue(process.env.COMMAN
 container.bind<string>(TYPES.ProviderLogLevel).toConstantValue(process.env.PROVIDER_LOG_LEVEL);
 container.bind<string>(TYPES.IgnoreStackLevels).toConstantValue(process.env.IGNORE_STACK_LEVELS);
 container.bind<string>(TYPES.BotOwnerId).toConstantValue(process.env.BOT_OWNER_ID);
+container.bind<string>(TYPES.GuildId).toConstantValue(process.env.GUILD_ID);
 container.bind<string>(TYPES.Environment).toConstantValue(process.env.ENVIRONMENT);
 container.bind<string>(TYPES.MongoDbConnectionString).toConstantValue(process.env.MONGODB_CONNSTR);
 container.bind<string>(TYPES.RedisHost).toConstantValue(process.env.REDIS_HOST);
@@ -116,27 +117,14 @@ container.bind<EmojiProvider>(TYPES.EmojiProvider).to(EmojiProvider).inSingleton
 // Services
 container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();
 container.bind<PermissionService>(TYPES.PermissionService).to(PermissionService).inSingletonScope();
-container.bind<CommandService>(TYPES.CommandService).to(CommandService).inSingletonScope();
 container.bind<HelperService>(TYPES.HelperService).to(HelperService).inSingletonScope();
 container.bind<UserService>(TYPES.UserService).to(UserService).inSingletonScope();
 container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingletonScope();
 
 // Commands
-container.bind<Ping>(TYPES.Ping).to(Ping).inRequestScope();
-container.bind<SessionStart>(TYPES.SessionStart).to(SessionStart).inRequestScope();
-container.bind<SessionFinish>(TYPES.SessionFinish).to(SessionFinish).inRequestScope();
-container.bind<SessionNext>(TYPES.SessionNext).to(SessionNext).inRequestScope();
-
-// Application Commands
-container.bind<ApplicationPing>(TYPES.ApplicationPing).to(ApplicationPing).inRequestScope();
-container.bind<ApplicationPing>('ApplicationPing').to(ApplicationPing).inRequestScope();
-container
-    .bind<ApplicationSessionStart>(TYPES.ApplicationSessionStart)
-    .to(ApplicationSessionStart)
-    .inRequestScope();
-container
-    .bind<ApplicationSessionStart>('ApplicationStart')
-    .to(ApplicationSessionStart)
-    .inRequestScope();
+container.bind<Ping>('Ping').to(Ping).inRequestScope();
+container.bind<SessionStart>('Start').to(SessionStart).inRequestScope();
+container.bind<SessionFinish>('Finish').to(SessionFinish).inRequestScope();
+container.bind<SessionNext>('Next').to(SessionNext).inRequestScope();
 
 export default container;

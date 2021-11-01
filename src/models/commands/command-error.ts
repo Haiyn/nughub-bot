@@ -1,4 +1,4 @@
-export class ApplicationCommandError {
+export class CommandError {
     internalMessage: string;
     userMessage?: string;
     error?: Error;

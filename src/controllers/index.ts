@@ -1,2 +1,2 @@
-export * from '@controllers/message-controller';
 export * from '@controllers/interaction-controller';
+export * from '@controllers/message-controller';

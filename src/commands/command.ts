@@ -1,32 +1,14 @@
-import { inject, injectable } from 'inversify';
-import { Client } from 'discord.js';
-import { Logger } from 'tslog';
-import { TYPES } from '@src/types';
-import { CommandContext } from '@models/command-context';
-import { CommandResult } from '@models/command-result';
-import { ChannelService, HelperService, MessageService, UserService } from '@services/index';
+import { CommandResult } from '@models/commands/command-result';
 import { IConfiguration } from '@models/configuration';
 import { StringProvider } from '@src/providers';
-
-export interface ICommand {
-    readonly names: string[];
-    readonly description: string;
-    readonly usageHint: string;
-    readonly permissionLevel: number;
-    readonly logger: Logger;
-    readonly configuration: IConfiguration;
-
-    getHelpMessage(): string;
-    run(context: CommandContext): Promise<CommandResult>;
-}
+import { ChannelService, HelperService, MessageService, UserService } from '@src/services';
+import { TYPES } from '@src/types';
+import { Client, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
+import { inject, injectable } from 'inversify';
+import { Logger } from 'tslog';
 
 @injectable()
-export class Command implements ICommand {
-    readonly names: string[];
-    readonly description: string;
-    readonly usageHint: string;
-    readonly permissionLevel: number = 0;
-
+export abstract class Command {
     readonly logger: Logger;
     readonly client: Client;
     readonly configuration: IConfiguration;
@@ -56,15 +38,7 @@ export class Command implements ICommand {
         this.stringProvider = stringProvider;
     }
 
-    public getHelpMessage(): string {
-        return this.description + '\n' + "Usage: '" + this.usageHint + "'";
-    }
+    abstract run(interaction: CommandInteraction): Promise<CommandResult>;
 
-    public run(context: CommandContext): Promise<CommandResult> {
-        return Promise.resolve(new CommandResult(this, context, false, 'not implemented.'));
-    }
-
-    public validateArguments(args: string[]): unknown | string {
-        return args;
-    }
+    abstract validateOptions(options: CommandInteractionOptionResolver): Promise<void>;
 }

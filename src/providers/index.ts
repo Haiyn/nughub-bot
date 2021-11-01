@@ -1,2 +1,2 @@
-export * from './string-provider';
 export * from './emoji-provider';
+export * from './string-provider';

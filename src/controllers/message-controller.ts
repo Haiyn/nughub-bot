@@ -1,24 +1,22 @@
+import { Controller } from '@controllers/controller';
+import { IConfiguration } from '@models/configuration';
+import { SessionModel } from '@models/data/session-schema';
+import { ChannelService, MessageService, PermissionService } from '@src/services';
+import { TYPES } from '@src/types';
 import { Client, Message, TextChannel } from 'discord.js';
 import { inject, injectable } from 'inversify';
-import { SessionModel } from '@models/session-schema';
-import { Controller } from '@controllers/controller';
-import { TYPES } from '@src/types';
-import { ChannelService, CommandService, MessageService, PermissionService } from '@src/services';
 import { Logger } from 'tslog';
-import { IConfiguration } from '@models/configuration';
 
 @injectable()
 export class MessageController extends Controller {
     readonly messageService: MessageService;
     readonly permissionService: PermissionService;
-    readonly commandService: CommandService;
     readonly channelService: ChannelService;
     readonly client: Client;
 
     constructor(
         @inject(TYPES.MessageService) messageService: MessageService,
         @inject(TYPES.PermissionService) permissionService: PermissionService,
-        @inject(TYPES.CommandService) commandService: CommandService,
         @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
@@ -29,72 +27,8 @@ export class MessageController extends Controller {
         super(logger, clientId, token, configuration);
         this.messageService = messageService;
         this.permissionService = permissionService;
-        this.commandService = commandService;
         this.channelService = channelService;
         this.client = client;
-    }
-    async handleMessage(message: Message): Promise<void> {
-        if (
-            this.messageService.isBotMessage(message) ||
-            !this.messageService.isPrefixedMessage(message)
-        ) {
-            this.logger.debug(`Message ID ${message.id}: Skipping.`);
-            return;
-        }
-
-        const commandContext = this.commandService.getCommandContextFromMessage(message);
-
-        if (!commandContext) {
-            this.logger.debug(
-                `Message ID ${message.id}: Could not match command "${message.content.substr(
-                    1,
-                    message.content.indexOf(' ')
-                )}".`
-            );
-            await this.messageService.reply(message, {
-                content: "I don't recognize that command. Try !help.",
-            });
-            return;
-        }
-
-        this.logger.info(
-            `Message ID ${commandContext.originalMessage.id}: User issued command \"${commandContext.command.names[0]}\".`
-        );
-        if (
-            !this.permissionService.hasPermission(
-                commandContext.originalMessage.member,
-                commandContext.command.permissionLevel
-            )
-        ) {
-            this.logger
-                .info(`Message ID ${message.id}: User is not authorized for command "${commandContext.command.names[0]}".
-                User ID: ${commandContext.originalMessage.author.id}
-                User roles: ${commandContext.originalMessage.member.roles}`);
-            await this.messageService.reply(message, {
-                content: "You aren't allowed to use that command. Try !help.",
-            });
-            return;
-        }
-
-        await commandContext.command
-            .run(commandContext)
-            .then((result) => {
-                result.success
-                    ? this.logger.info(
-                          `Message ID ${message.id}: Successfully ran command "${result.command.names[0]}": ${result.message}`
-                      )
-                    : this.logger.info(
-                          `Message ID ${message.id}: Did not run command "${result.command.names[0]}": ${result.message}`
-                      );
-                return;
-            })
-            .catch((result) => {
-                this.logger.error(
-                    `Message ID ${message.id}: Could not run command "${commandContext.command.names[0]}": ${result.message}`,
-                    result.error ? this.logger.prettyError(result.error) : null
-                );
-                return;
-            });
     }
 
     async handleDeletion(message: Message): Promise<void> {

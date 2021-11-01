@@ -1,14 +1,13 @@
-import 'reflect-metadata';
-import 'mocha';
-import { expect } from 'chai';
-import { instance, mock, when } from 'ts-mockito';
-import { GuildMember, GuildMemberRoleManager, Message, User } from 'discord.js';
-import { Logger } from 'tslog';
-
 import { MessageController } from '@controllers/message-controller';
-import { CommandService, MessageService, PermissionService } from '@src/services';
 import { CommandContext } from '@models/command-context';
 import { Command } from '@src/commands';
+import { CommandService, MessageService, PermissionService } from '@src/services';
+import { expect } from 'chai';
+import { GuildMember, GuildMemberRoleManager, Message, User } from 'discord.js';
+import 'mocha';
+import 'reflect-metadata';
+import { instance, mock, when } from 'ts-mockito';
+import { Logger } from 'tslog';
 
 describe('Message Controller', () => {
     let mockedMessageService: MessageService;
@@ -97,7 +96,7 @@ describe('Message Controller', () => {
         expect(result.error).undefined;
     });
 
-    it('Should run command', async () => {
+    it('Should run commands', async () => {
         whenIsBotMessageReturns(false);
         whenIsPrefixedMessageReturns(true);
         whenGetCommandContextReturns(mockedCommandContextInstance);

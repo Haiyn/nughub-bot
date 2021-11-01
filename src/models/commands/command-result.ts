@@ -1,4 +1,4 @@
-export interface ApplicationCommandResult {
+export class CommandResult {
     executed: boolean;
     message: string;
 }

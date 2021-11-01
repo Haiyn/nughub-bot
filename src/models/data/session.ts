@@ -1,5 +1,5 @@
+import { Character } from '@models/data/character';
 import { Message, TextChannel } from 'discord.js';
-import { Character } from '@models/character';
 
 export class Session {
     channel: TextChannel;

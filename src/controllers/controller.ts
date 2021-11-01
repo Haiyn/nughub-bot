@@ -1,7 +1,7 @@
+import { IConfiguration } from '@models/configuration';
+import { TYPES } from '@src/types';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
-import { TYPES } from '@src/types';
-import { IConfiguration } from '@models/configuration';
 
 export interface IController {
     readonly logger: Logger;
