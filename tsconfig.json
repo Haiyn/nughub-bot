@@ -25,7 +25,7 @@
       "@models/*": ["models/*"],
       "@resources/*": ["resources/*"],
       "@config/*": ["config/*"],
-      "@providers/*": ["providers/*"],
+      "@providers/*": ["providers/*"]
     },
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
