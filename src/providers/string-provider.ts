@@ -4,6 +4,14 @@ import { String } from 'typescript-string-operations';
 
 @injectable()
 export class StringProvider extends Provider {
+    /**
+     * Gets the localization string for a string key and substitutes string parameters with the passed parameters
+     * String parameter format is {int}
+     *
+     * @param {string} key The key
+     * @param {string[]} parameters The parameters if the string is parameterized
+     * @returns {Promise<string>} The string with all substituted parameters or an error message if it failed
+     */
     public async get(key: string, parameters?: string[]): Promise<string> {
         let result = await this.redisClient.get('STRINGS.' + key);
         if (!result) {

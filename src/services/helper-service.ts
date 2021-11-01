@@ -5,6 +5,12 @@ import { injectable } from 'inversify';
 export class HelperService extends Service {
     private readonly discordIdRegex: RegExp = /([0-9]{18})/g;
 
+    /**
+     * Sanitizes a discord ID into pure numbers, 18 numbers
+     *
+     * @param {string} dirtyId The ID to sanitize
+     * @returns {string} The sanitized ID
+     */
     public sanitizeDiscordId(dirtyId: string): string {
         const foundMatch = dirtyId.match(this.discordIdRegex);
         if (!foundMatch) {
@@ -12,12 +18,5 @@ export class HelperService extends Service {
             return null;
         }
         return foundMatch[0];
-    }
-
-    public isDiscordId(idToCheck: string): boolean {
-        if (idToCheck == null) return false;
-        const isDiscordId = idToCheck.match(this.discordIdRegex) != null;
-        this.logger.trace(`${idToCheck} is ${isDiscordId ? '' : 'not'} a discord ID.`);
-        return isDiscordId;
     }
 }

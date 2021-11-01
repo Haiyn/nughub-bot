@@ -31,6 +31,12 @@ export class MessageController extends Controller {
         this.client = client;
     }
 
+    /**
+     * Handles an incoming message deletion event and checks if the deleted message was a session post
+     *
+     * @param {Message} message The message that was deleted
+     * @returns {Promise<void>} Resolves when deleted
+     */
     async handleDeletion(message: Message): Promise<void> {
         if (message.author.id == this.client.user.id) {
             const foundSessionPost = await SessionModel.findOne({
@@ -69,6 +75,11 @@ export class MessageController extends Controller {
         }
     }
 
+    /**
+     * Handles the caching of session messages in the sessions channel
+     *
+     * @returns {Promise<void>} Resolves when cached
+     */
     async handleCaching(): Promise<void> {
         const currentSessionsChannel = this.channelService.getTextChannelByChannelId(
             this.configuration.channels.currentSessionsChannelId

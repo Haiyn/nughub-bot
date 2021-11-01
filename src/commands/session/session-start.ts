@@ -114,6 +114,13 @@ export class SessionStart extends Command {
             );
     }
 
+    /**
+     * Parses the session business object from all the given command options
+     *
+     * @param {CommandInteractionOptionResolver} options The command options given by the user
+     * @returns {Promise<Session>} The parsed session
+     * @throws {CommandError} Throws if options could not be parsed
+     */
     private async parseSession(options: CommandInteractionOptionResolver): Promise<Session> {
         try {
             const channel = this.channelService.getTextChannelByChannelId(
@@ -143,11 +150,18 @@ export class SessionStart extends Command {
         }
     }
 
+    /**
+     * Saves the parsed session to a new message in the sessions channel
+     *
+     * @param {TextChannel} sessionsChannel The channel where the message is supposed to go
+     * @param {Session} data The session business object
+     * @returns {Promise<Message>} Resolves with the sent message
+     * @throws {CommandError} Throws if the message could not be sent
+     */
     private async saveSessionToSessionChannel(
         sessionsChannel: TextChannel,
         data: Session
     ): Promise<Message> {
-        // Send new message
         try {
             let postContent = `\n\n<#${data.channel.id}>:\n`;
             data.turnOrder.forEach((character) => {
@@ -175,6 +189,13 @@ export class SessionStart extends Command {
         }
     }
 
+    /**
+     * Checks if the sessions channel is already initialized as one
+     *
+     * @param {Channel} sessionsChannel The channel to check
+     * @returns {Promise<boolean>} Whether the channel is initialized or not
+     * @throws {CommandError} Throws if the channel cannot be initialized because it' invalid
+     */
     private async checkSessionsChannel(sessionsChannel: Channel): Promise<boolean> {
         if (!sessionsChannel.isText()) {
             return Promise.reject(
@@ -197,8 +218,9 @@ export class SessionStart extends Command {
                 }
             });
             if (!isOnlyBotMessages) {
-                return Promise.reject(
-                    new Error(`Session Posts Channel has non-bot messages in it.`)
+                throw new CommandError(
+                    `Session Posts Channel has non-bot messages in it.`,
+                    `I can't post the session in <#{0}> because there are messages in it that aren't from me!`
                 );
             }
             this.logger.debug(`Session channel is already initialized.`);
@@ -208,6 +230,13 @@ export class SessionStart extends Command {
         return Promise.resolve(false);
     }
 
+    /**
+     * Initializes the session channel with an info message
+     *
+     * @param {TextChannel} sessionsChannel The channel to initialize
+     * @returns {Promise<void>} Resolves when message sent
+     * @throws {CommandError} Throws if message cannot be sent
+     */
     private async initializeSessionsChannel(sessionsChannel: TextChannel): Promise<void> {
         const embed = new MessageEmbed()
             .setColor(this.configuration.guild.color as ColorResolvable)
@@ -226,6 +255,13 @@ export class SessionStart extends Command {
         return Promise.resolve();
     }
 
+    /**
+     * Saves the new session to the database
+     *
+     * @param {Session} data The session data to save
+     * @returns {Promise<void>} Resolves when session is saved
+     * @throws {CommandError} Throws when saving failed
+     */
     private async saveSessionToDatabase(data: Session): Promise<void> {
         const turnOrder: Array<ICharacterSchema> = [];
         data.turnOrder.forEach((character) => {

@@ -12,6 +12,12 @@ import { injectable } from 'inversify';
 
 @injectable()
 export class InteractionController extends Controller {
+    /**
+     * Registers the Application commands from src/commands/definitions in the guild scope
+     * Deletes any global commands because global commands take too long to register. Guild commands are instant.
+     *
+     * @returns {Promise<number>} Resolves with the amount of application commands registered
+     */
     public async registerApplicationCommands(): Promise<number> {
         // Set up requests
         const jsonPayload = [];
@@ -25,6 +31,7 @@ export class InteractionController extends Controller {
             this.logger.debug('Refreshing application commands...');
 
             // Delete any global commands
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             rest.get(Routes.applicationCommands(this.clientId)).then((data: any) => {
                 const promises = [];
                 for (const command of data) {
@@ -56,6 +63,12 @@ export class InteractionController extends Controller {
         }
     }
 
+    /**
+     * Receives every interaction and handles it according to interaction type
+     *
+     * @param {Interaction} interaction The received interaction
+     * @returns {Promise<void>} Resolves when handled
+     */
     public async handleInteraction(interaction: Interaction): Promise<void> {
         if (interaction.isCommand()) {
             await this.handleApplicationCommand(interaction as CommandInteraction).catch(
@@ -66,6 +79,12 @@ export class InteractionController extends Controller {
         }
     }
 
+    /**
+     * Handles an interaction of the type application command
+     *
+     * @param {CommandInteraction} interaction The received application command interaction
+     * @returns {Promise<void>} Resolves when handled
+     */
     private async handleApplicationCommand(interaction: CommandInteraction): Promise<void> {
         // Match the Command by name
         const applicationCommandName =

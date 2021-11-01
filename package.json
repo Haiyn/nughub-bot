@@ -9,7 +9,8 @@
     "resolve": "tsc -p tsconfig.json --traceResolution",
     "watch": "npm run build && nodemon --watch \"src/**/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec npm run start",
     "test": "mocha -r ts-node/register -r tsconfig-paths/register \"tests/**/*.spec.ts\"",
-    "lint": "eslint --fix . --ext .ts"
+    "lint": "eslint --fix . --ext .ts",
+    "docs": "jsdoc -c jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -39,8 +40,10 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.28.1",
     "@typescript-eslint/parser": "4.28.1",
+    "better-docs": "^2.3.2",
     "eslint": "7.30.0",
     "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-jsdoc": "^37.0.3",
     "eslint-plugin-prettier": "4.0.0",
     "eslint-plugin-unused-imports": "1.1.4",
     "nodemon": "2.0.12",

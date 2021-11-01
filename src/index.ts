@@ -16,12 +16,20 @@ const mongoDbConnectionString = container.get<string>(TYPES.MongoDbConnectionStr
 
 run().then(() => logger.info('Finished startup sequence.'));
 
+/**
+ * Runs all startup sequences
+ */
 async function run() {
     await databaseStartup();
     await interactionStartup();
     await serverStartup();
 }
 
+/**
+ * Starts up the database
+ *
+ * @returns {Promise<void>} Resolves when connected to mongoDB
+ */
 async function databaseStartup(): Promise<void> {
     logger.debug(`Connecting to ${mongoDbConnectionString}`);
     return connect(mongoDbConnectionString)
@@ -35,6 +43,11 @@ async function databaseStartup(): Promise<void> {
         });
 }
 
+/**
+ * Starts up the interaction support
+ *
+ * @returns {Promise<void>} Resolves when interactions are registered
+ */
 async function interactionStartup(): Promise<void> {
     await interactionController
         .registerApplicationCommands()
@@ -48,6 +61,9 @@ async function interactionStartup(): Promise<void> {
         });
 }
 
+/**
+ * Starts the node server
+ */
 async function serverStartup() {
     await server
         .listen()

@@ -66,6 +66,14 @@ export class SessionNext extends Command {
         }
     }
 
+    /**
+     * Validates that it is currently the command creator's turn
+     *
+     * @param {string} currentTurnId The User ID of the user that is currently next
+     * @param {string} interactionCreatorId The User ID of the user that issued the command
+     * @returns {Promise<void>} Resolves if valid
+     * @throws {CommandValidationError} Throws if it's not their turn
+     */
     private static async validateUserTurn(
         currentTurnId: string,
         interactionCreatorId: string
@@ -78,6 +86,13 @@ export class SessionNext extends Command {
         }
     }
 
+    /**
+     * Validates the channel where the command was used because no channel was passe in the options
+     *
+     * @param {string} currentChannelId The ID of the channel where the command was used
+     * @returns {Promise<void>} Resolves if there's an RP in this channel
+     * @throws {CommandValidationError} Throws is there is no RP in this channel
+     */
     private static async validateCurrentChannel(currentChannelId: string): Promise<void> {
         const result = await SessionModel.findOne({ channelId: currentChannelId });
         if (!result)
@@ -87,6 +102,13 @@ export class SessionNext extends Command {
             );
     }
 
+    /**
+     * Iterates the turn and saves the new current turn to the session in the database
+     *
+     * @param {ISessionSchema} session The current session before the iterate turn
+     * @returns {Promise<ISessionSchema>} The new session after the update
+     * @throws {CommandError} Throws if saving to mongodb failed
+     */
     private async updateTurnOderInDatabase(session: ISessionSchema): Promise<ISessionSchema> {
         const nextTurn: ICharacterSchema = this.iterateTurn(session.turnOrder, session.currentTurn);
 
@@ -112,6 +134,13 @@ export class SessionNext extends Command {
         return newSession;
     }
 
+    /**
+     * Updates the current turn indicator in the current sessions channel
+     *
+     * @param {ISessionSchema} session The new session with the new current turn
+     * @returns {Promise<void>} Resolves when sent
+     * @throws {CommandError} Throws if the message could not be edited
+     */
     private async updateTurnOrderInSessionsChannel(session: ISessionSchema): Promise<void> {
         try {
             let postContent = `\n\n<#${session.channelId}>:\n`;
@@ -141,6 +170,14 @@ export class SessionNext extends Command {
         }
     }
 
+    /**
+     * Mentions the user that is next in the turn order
+     *
+     * @param {ICharacterSchema} previousTurn The user that previously had the turn
+     * @param {ISessionSchema} newSession The session after the turn order update
+     * @param {string} userMessage The message the previous user left
+     * @returns {Promise<void>} Resolves when notification sent
+     */
     private async notifyNextUser(
         previousTurn: ICharacterSchema,
         newSession: ISessionSchema,
@@ -162,6 +199,13 @@ export class SessionNext extends Command {
         );
     }
 
+    /**
+     * Takes a turn order and current turn and finds person that is next
+     *
+     * @param {Array<ICharacterSchema>} turnOrder The turn oder
+     * @param {ICharacterSchema} currentTurn The user that currently has the turn
+     * @returns {ICharacterSchema} The user that is next
+     */
     private iterateTurn(
         turnOrder: Array<ICharacterSchema>,
         currentTurn: ICharacterSchema

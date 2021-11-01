@@ -38,7 +38,19 @@ export abstract class Command {
         this.stringProvider = stringProvider;
     }
 
+    /**
+     * Executes the command
+     *
+     * @param {CommandInteraction} interaction The received interaction
+     * @returns {Promise<CommandResult>} The result of the command execution
+     */
     abstract run(interaction: CommandInteraction): Promise<CommandResult>;
 
+    /**
+     * Validates the options that were passed together with the command
+     *
+     * @param {CommandInteractionOptionResolver} options The command options
+     * @returns {Promise<void>} Resolves if all options are valid
+     */
     abstract validateOptions(options: CommandInteractionOptionResolver): Promise<void>;
 }

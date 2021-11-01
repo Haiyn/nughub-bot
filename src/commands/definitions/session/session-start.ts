@@ -1,5 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 
+/**
+ * Returns the application command definition for session start
+ *
+ * @returns {SlashCommandBuilder} the application command definition
+ */
 export function commandDefinition(): SlashCommandBuilder {
     const command = new SlashCommandBuilder()
         .setName('start')
