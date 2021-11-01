@@ -12,6 +12,6 @@ export default {
     roles: {
         administratorId: '889495215533097021',
         moderatorId: '889495168598831184',
-        userIds: '889495119928102912',
+        userIds: ['889495119928102912'],
     },
 };
