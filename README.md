@@ -13,14 +13,12 @@ t.b.a.
 ![node-shield]
 ![docker-shield]
 ![docker-compose-shield]
-![ts-node-shield]
 ![mongodb-compass-shield]
 
 <!-- Image Definitions -->
 [docker-shield]: https://img.shields.io/badge/docker-v20.10.5-blue?style=flat&logo=docker
 [docker-compose-shield]: https://img.shields.io/badge/docker--compose-v1.28.6-blue?style=flat&logo=docker
 [node-shield]: https://img.shields.io/badge/node--lts-v16.6.0-blue?style=flat&logo=nodedotjs
-[ts-node-shield]: https://img.shields.io/badge/ts--node-v10.0.0-blue?style=flat&logo=typescript
 [mongodb-compass-shield]: https://img.shields.io/badge/MongoDB--Compass-v1.28.4-blue?style=flat&logo=mongodb
 
 ### Setting up the base layer
@@ -30,27 +28,36 @@ t.b.a.
 ```dotenv
 # ORCHESTRATION
 BOT_VERSION=[SemVer]
-MONGODB_CONNSTR=mongodb://nhb-user:dev-user@localhost:27017/nhb
 ENVIRONMENT=local
 
 # SECRETS
 TOKEN=[THE_BOT_TOKEN]
 CLIENT_ID=[THE_BOT_CLIENT_ID]
+
+# MONGODB
+MONGODB_CONNSTR=mongodb://nhb-user:dev-user@localhost:27017/nhb?authSource=admin
 MONGODB_ROOT_USER=nhb-admin
 MONGODB_ROOT_PASS=dev-admin
 MONGODB_ROOT_NAME=admin
 MONGODB_USER=nhb-user
 MONGODB_PASS=dev-user
 MONGODB_NAME=nhb
+
+# REDIS
+REDIS_CONNSTR=redis://default:dev@localhost:6379
+REDIS_HOST=localhost
+REDIS_PORT=6379
 REDIS_PASS=dev
 
 # CONFIGURATION
-BOT_OWNER_ID=[THE_BOT_OWNER_ID]
+BOT_OWNER_ID=[YOUR_DISCORD_ID]
+GUILD_ID=[GUILD_ID_WHERE_BOT_SHOULD_WORK]
 
 # LOGGING
 BASE_LOG_LEVEL=trace
 SERVICE_LOG_LEVEL=trace
 COMMAND_LOG_LEVEL=trace
+PROVIDER_LOG_LEVEL=trace
 IGNORE_STACK_LEVELS=6
 ```
 
