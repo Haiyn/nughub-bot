@@ -4,12 +4,22 @@ import { Client, Interaction, Message } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
+/** The server is the main entry point for the bot to connect and subscribe to events */
 @injectable()
 export class Server {
+    /** The discord client */
     private client: Client;
+
+    /** The bot token */
     private readonly token: string;
+
+    /** The ts-log logger */
     private readonly logger: Logger;
+
+    /** The message controller that handles all message events */
     private readonly messageController: MessageController;
+
+    /** The interaction controller that handles all interaction events */
     private readonly interactionController: InteractionController;
 
     constructor(
@@ -26,7 +36,14 @@ export class Server {
         this.interactionController = interactionController;
     }
 
+    /**
+     * The main listen instruction for the bot.
+     * Defines which events to listen to and routes event data to the controllers
+     *
+     * @returns Successful or not
+     */
     public listen(): Promise<string> {
+        /** A new message was created */
         this.client.on('messageCreate', async (message: Message) => {
             this.logger.trace(
                 `Message ID ${message.id}: received\nAuthor ID: ${
@@ -38,6 +55,7 @@ export class Server {
             );
         });
 
+        /** A cached discord message was deleted */
         this.client.on('messageDelete', async (message: Message) => {
             this.logger.trace(
                 `Message ID ${message.id} deleted\nAuthor ID: ${
@@ -50,6 +68,7 @@ export class Server {
             await this.messageController.handleDeletion(message);
         });
 
+        /** An interaction is created */
         this.client.on('interactionCreate', async (interaction: Interaction) => {
             this.logger.trace(
                 `Interaction ID ${interaction.id} created\nCreator: ${interaction.member}\nType: ${interaction.type}`
@@ -59,6 +78,7 @@ export class Server {
             });
         });
 
+        /** The client logged in and is ready to communicate */
         this.client.on('ready', async () => {
             this.logger.info('Client is ready. Caching vital messages...');
             await this.messageController.handleCaching();

@@ -5,7 +5,10 @@ import { Logger } from 'tslog';
 
 @injectable()
 export class Provider {
+    /** The io redis database client */
     protected readonly redisClient: Redis;
+
+    /* The ts-log logger */
     protected readonly logger: Logger;
 
     constructor(

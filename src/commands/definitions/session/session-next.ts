@@ -1,5 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 
+/**
+ * Returns the application command definition for session next
+ *
+ * @returns the application command definition
+ */
 export function commandDefinition(): SlashCommandBuilder {
     const command = new SlashCommandBuilder()
         .setName('next')

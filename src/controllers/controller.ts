@@ -10,11 +10,19 @@ export interface IController {
     configuration: IConfiguration;
 }
 
+/** Controllers handle all Discord events */
 @injectable()
 export class Controller implements IController {
+    /* The ts-log logger */
     readonly logger: Logger;
+
+    /* The client ID of the bot */
     readonly clientId: string;
+
+    /* The token of the bot */
     readonly token: string;
+
+    /** The persistent configuration */
     configuration: IConfiguration;
 
     constructor(

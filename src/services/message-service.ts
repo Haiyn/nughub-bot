@@ -6,8 +6,10 @@ import { Client, Message, MessageOptions } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
+/** Handles different functions in relation to the Discord Message objects */
 @injectable()
 export class MessageService extends Service {
+    /** The channel service. Since messages are in channels, this is needed */
     readonly channelService: ChannelService;
 
     constructor(
@@ -19,18 +21,15 @@ export class MessageService extends Service {
         super(client, logger, configuration);
         this.channelService = channelService;
     }
-    public isBotMessage(message: Message): boolean {
-        const isBot = message.author.bot;
-        isBot ? this.logger.trace(`Message ID ${message.id}: is a bot message.`) : '';
-        return isBot;
-    }
 
-    public isPrefixedMessage(message: Message): boolean {
-        const isPrefixed = message.content.startsWith(this.configuration.guild.prefix);
-        this.logger.trace(`Message ID ${message.id}: is ${isPrefixed ? '' : 'not'} prefixed.`);
-        return isPrefixed;
-    }
-
+    /**
+     * Replies to a message with auto-deletion function if message is in an RP channel
+     *
+     * @param message The message to reply to
+     * @param options The Message options that should be attached to the reply
+     * @param autoDeleteInRpChannel whether or not the auto-delete should be used
+     * @returns Resolves when finished
+     */
     public async reply(
         message: Message,
         options: MessageOptions,
@@ -52,6 +51,13 @@ export class MessageService extends Service {
         }
     }
 
+    /**
+     * Deletes the passed messages with an optional timeout
+     *
+     * @param messagesToDelete The messages to delete
+     * @param timeout Optional timeout in ms
+     * @returns Whether or not the messages were deleted
+     */
     public async deleteMessages(messagesToDelete: Message[], timeout?: number): Promise<boolean> {
         try {
             setTimeout(

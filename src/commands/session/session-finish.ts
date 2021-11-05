@@ -49,6 +49,13 @@ export class SessionFinish extends Command {
         }
     }
 
+    /**
+     * Gets the session for the provided channel from th database
+     *
+     * @param channelId The channelId provided by the command option
+     * @returns The session
+     * @throws {CommandError} When the fetching fails
+     */
     private async getSessionFromDatabase(channelId: string): Promise<ISessionSchema> {
         return await SessionModel.findOne({ channelId: channelId }).catch(async (error) => {
             throw new CommandError(
@@ -59,6 +66,13 @@ export class SessionFinish extends Command {
         });
     }
 
+    /**
+     * Deletes the session from the database
+     *
+     * @param channelId The channelId provided by the command option
+     * @returns Resolves when deleted
+     * @throws {CommandError} When the fetching fails
+     */
     private async deleteSessionFromDatabase(channelId: string): Promise<void> {
         await SessionModel.findOneAndDelete({ channelId: channelId }).catch(async (error) => {
             throw new CommandError(
@@ -69,6 +83,13 @@ export class SessionFinish extends Command {
         });
     }
 
+    /**
+     * Deletes the discord message from the sessions channel
+     *
+     * @param channel The sessions channel
+     * @param messageId The ID of the message to delete
+     * @returns Resolves when deleted
+     */
     private async deleteSessionPostFromSessionsChannel(
         channel: TextChannel,
         messageId: string
@@ -86,6 +107,12 @@ export class SessionFinish extends Command {
             });
     }
 
+    /**
+     * Sends a separator message in the RP channel where the session was finished
+     *
+     * @param channel The channel in which to send the message
+     * @returns Resolves when sent
+     */
     private async sendSeparatorInRpChannel(channel: TextChannel): Promise<void> {
         await channel
             .send({

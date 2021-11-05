@@ -1,3 +1,4 @@
+/** The interface of the persistent configuration */
 export interface IConfiguration {
     guild: {
         prefix: string;

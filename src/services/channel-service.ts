@@ -2,10 +2,11 @@ import { IConfiguration } from '@models/configuration';
 import { HelperService } from '@services/index';
 import { Service } from '@services/service';
 import { TYPES } from '@src/types';
-import { Channel, Client, TextChannel } from 'discord.js';
+import { Client, TextChannel } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
+/** Handles different functions in relation to the Discord Channel objects */
 @injectable()
 export class ChannelService extends Service {
     private readonly helperService: HelperService;
@@ -20,18 +21,12 @@ export class ChannelService extends Service {
         this.helperService = helperService;
     }
 
-    public getChannelByChannelId(dirtyId: string): Channel {
-        const sanitizedChannelId = this.helperService.sanitizeDiscordId(dirtyId);
-        if (!sanitizedChannelId) return null;
-
-        const matchedChannel = this.client.channels.cache.get(sanitizedChannelId);
-        if (!matchedChannel) {
-            this.logger.warn(`Could not match a Discord channel for ID ${sanitizedChannelId}.`);
-            return null;
-        }
-        return matchedChannel;
-    }
-
+    /**
+     * Gets a TextChannel by a un-sanitized Discord ID (<#id>)
+     *
+     * @param dirtyId The un-sanitized ID
+     * @returns The found text channel | null if not found
+     */
     public getTextChannelByChannelId(dirtyId: string): TextChannel {
         const sanitizedChannelId = this.helperService.sanitizeDiscordId(dirtyId);
         if (!sanitizedChannelId) return null;
@@ -48,6 +43,12 @@ export class ChannelService extends Service {
         return matchedChannel as TextChannel;
     }
 
+    /**
+     * Checks if the passed channel ID is registered as as valid RP channel
+     *
+     * @param channelId The channel ID to check
+     * @returns Whether or not the channel is an RP channel
+     */
     public isRpChannel(channelId: string): boolean {
         const rpChannelIds = this.configuration.channels.rpChannelIds;
         return rpChannelIds.includes(channelId);

@@ -7,15 +7,31 @@ import { Client, CommandInteraction, CommandInteractionOptionResolver } from 'di
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
+/** The implementation of an application command interaction */
 @injectable()
 export abstract class Command {
+    /** The ts-log logger */
     readonly logger: Logger;
+
+    /** The connected discord client */
     readonly client: Client;
+
+    /** The persistent configuration */
     readonly configuration: IConfiguration;
+
+    /** The channel service */
     readonly channelService: ChannelService;
+
+    /** The helper service */
     readonly helperService: HelperService;
+
+    /** The message service */
     readonly messageService: MessageService;
+
+    /** The user service */
     readonly userService: UserService;
+
+    /** The string provider */
     readonly stringProvider: StringProvider;
 
     constructor(
@@ -38,7 +54,19 @@ export abstract class Command {
         this.stringProvider = stringProvider;
     }
 
+    /**
+     * Executes the command
+     *
+     * @param interaction The received interaction
+     * @returns The result of the command execution
+     */
     abstract run(interaction: CommandInteraction): Promise<CommandResult>;
 
+    /**
+     * Validates the options that were passed together with the command
+     *
+     * @param options The command options
+     * @returns Resolves if all options are valid
+     */
     abstract validateOptions(options: CommandInteractionOptionResolver): Promise<void>;
 }
