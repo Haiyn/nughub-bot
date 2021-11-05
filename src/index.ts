@@ -28,7 +28,7 @@ async function run() {
 /**
  * Starts up the database
  *
- * @returns {Promise<void>} Resolves when connected to mongoDB
+ * @returns Resolves when connected to mongoDB
  */
 async function databaseStartup(): Promise<void> {
     logger.debug(`Connecting to ${mongoDbConnectionString}`);
@@ -46,7 +46,7 @@ async function databaseStartup(): Promise<void> {
 /**
  * Starts up the interaction support
  *
- * @returns {Promise<void>} Resolves when interactions are registered
+ * @returns Resolves when interactions are registered
  */
 async function interactionStartup(): Promise<void> {
     await interactionController

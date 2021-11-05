@@ -6,6 +6,7 @@ import { Client, TextChannel } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
+/** Handles different functions in relation to the Discord Channel objects */
 @injectable()
 export class ChannelService extends Service {
     private readonly helperService: HelperService;
@@ -23,8 +24,8 @@ export class ChannelService extends Service {
     /**
      * Gets a TextChannel by a un-sanitized Discord ID (<#id>)
      *
-     * @param {string} dirtyId The un-sanitized ID
-     * @returns {TextChannel} The found text channel | null if not found
+     * @param dirtyId The un-sanitized ID
+     * @returns The found text channel | null if not found
      */
     public getTextChannelByChannelId(dirtyId: string): TextChannel {
         const sanitizedChannelId = this.helperService.sanitizeDiscordId(dirtyId);
@@ -45,8 +46,8 @@ export class ChannelService extends Service {
     /**
      * Checks if the passed channel ID is registered as as valid RP channel
      *
-     * @param {string} channelId The channel ID to check
-     * @returns {boolean} Whether or not the channel is an RP channel
+     * @param channelId The channel ID to check
+     * @returns Whether or not the channel is an RP channel
      */
     public isRpChannel(channelId: string): boolean {
         const rpChannelIds = this.configuration.channels.rpChannelIds;

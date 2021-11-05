@@ -7,6 +7,7 @@ import { Client, Message, TextChannel } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
+/** Handles all incoming message events */
 @injectable()
 export class MessageController extends Controller {
     readonly messageService: MessageService;
@@ -34,8 +35,8 @@ export class MessageController extends Controller {
     /**
      * Handles an incoming message deletion event and checks if the deleted message was a session post
      *
-     * @param {Message} message The message that was deleted
-     * @returns {Promise<void>} Resolves when deleted
+     * @param message The message that was deleted
+     * @returns Resolves when deleted
      */
     async handleDeletion(message: Message): Promise<void> {
         if (message.author.id == this.client.user.id) {
@@ -77,8 +78,9 @@ export class MessageController extends Controller {
 
     /**
      * Handles the caching of session messages in the sessions channel
+     * so the messages can be recognized in the messageDeleted event
      *
-     * @returns {Promise<void>} Resolves when cached
+     * @returns Resolves when cached
      */
     async handleCaching(): Promise<void> {
         const currentSessionsChannel = this.channelService.getTextChannelByChannelId(

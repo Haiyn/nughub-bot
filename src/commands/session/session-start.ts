@@ -117,8 +117,8 @@ export class SessionStart extends Command {
     /**
      * Parses the session business object from all the given command options
      *
-     * @param {CommandInteractionOptionResolver} options The command options given by the user
-     * @returns {Promise<Session>} The parsed session
+     * @param options The command options given by the user
+     * @returns The parsed session
      * @throws {CommandError} Throws if options could not be parsed
      */
     private async parseSession(options: CommandInteractionOptionResolver): Promise<Session> {
@@ -153,9 +153,9 @@ export class SessionStart extends Command {
     /**
      * Saves the parsed session to a new message in the sessions channel
      *
-     * @param {TextChannel} sessionsChannel The channel where the message is supposed to go
-     * @param {Session} data The session business object
-     * @returns {Promise<Message>} Resolves with the sent message
+     * @param sessionsChannel The channel where the message is supposed to go
+     * @param data The session business object
+     * @returns Resolves with the sent message
      * @throws {CommandError} Throws if the message could not be sent
      */
     private async saveSessionToSessionChannel(
@@ -192,8 +192,8 @@ export class SessionStart extends Command {
     /**
      * Checks if the sessions channel is already initialized as one
      *
-     * @param {Channel} sessionsChannel The channel to check
-     * @returns {Promise<boolean>} Whether the channel is initialized or not
+     * @param sessionsChannel The channel to check
+     * @returns Whether the channel is initialized or not
      * @throws {CommandError} Throws if the channel cannot be initialized because it' invalid
      */
     private async checkSessionsChannel(sessionsChannel: Channel): Promise<boolean> {
@@ -233,8 +233,8 @@ export class SessionStart extends Command {
     /**
      * Initializes the session channel with an info message
      *
-     * @param {TextChannel} sessionsChannel The channel to initialize
-     * @returns {Promise<void>} Resolves when message sent
+     * @param sessionsChannel The channel to initialize
+     * @returns Resolves when message sent
      * @throws {CommandError} Throws if message cannot be sent
      */
     private async initializeSessionsChannel(sessionsChannel: TextChannel): Promise<void> {
@@ -258,8 +258,8 @@ export class SessionStart extends Command {
     /**
      * Saves the new session to the database
      *
-     * @param {Session} data The session data to save
-     * @returns {Promise<void>} Resolves when session is saved
+     * @param data The session data to save
+     * @returns Resolves when session is saved
      * @throws {CommandError} Throws when saving failed
      */
     private async saveSessionToDatabase(data: Session): Promise<void> {

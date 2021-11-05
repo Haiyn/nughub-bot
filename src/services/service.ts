@@ -9,10 +9,16 @@ export interface IService {
     readonly logger: Logger;
 }
 
+/** Services handle different reusable functions regarding Discord */
 @injectable()
 export class Service implements IService {
+    /** The connected bot client */
     readonly client: Client;
+
+    /** The ts-log logger */
     readonly logger: Logger;
+
+    /** The persistent configuration */
     configuration: IConfiguration;
 
     constructor(

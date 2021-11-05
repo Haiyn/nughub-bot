@@ -10,13 +10,14 @@ import { Routes } from 'discord-api-types/v9';
 import { CommandInteraction, Interaction } from 'discord.js';
 import { injectable } from 'inversify';
 
+/** Registers interactions and handles all incoming interaction events */
 @injectable()
 export class InteractionController extends Controller {
     /**
      * Registers the Application commands from src/commands/definitions in the guild scope
      * Deletes any global commands because global commands take too long to register. Guild commands are instant.
      *
-     * @returns {Promise<number>} Resolves with the amount of application commands registered
+     * @returns Resolves with the amount of application commands registered
      */
     public async registerApplicationCommands(): Promise<number> {
         // Set up requests
@@ -66,8 +67,8 @@ export class InteractionController extends Controller {
     /**
      * Receives every interaction and handles it according to interaction type
      *
-     * @param {Interaction} interaction The received interaction
-     * @returns {Promise<void>} Resolves when handled
+     * @param interaction The received interaction
+     * @returns Resolves when handled
      */
     public async handleInteraction(interaction: Interaction): Promise<void> {
         if (interaction.isCommand()) {
@@ -82,8 +83,8 @@ export class InteractionController extends Controller {
     /**
      * Handles an interaction of the type application command
      *
-     * @param {CommandInteraction} interaction The received application command interaction
-     * @returns {Promise<void>} Resolves when handled
+     * @param interaction The received application command interaction
+     * @returns Resolves when handled
      */
     private async handleApplicationCommand(interaction: CommandInteraction): Promise<void> {
         // Match the Command by name
@@ -97,7 +98,9 @@ export class InteractionController extends Controller {
             let userMessage;
             if (error instanceof CommandValidationError) {
                 // User input is not valid
-                this.logger.info(error.internalMessage);
+                this.logger.info(
+                    `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} validation failed: ${error.internalMessage}`
+                );
                 if (!error.userMessage) {
                     this.logger.error('Command did not return a user message');
                     error.userMessage = `Internal Error: The command failed unexpectedly.`;
@@ -134,12 +137,14 @@ export class InteractionController extends Controller {
                 // Check which type of error was thrown to avoid producing more errors in catch clause
                 if (error instanceof CommandValidationError) {
                     // Further user input validation failed
-                    this.logger.info(error.internalMessage);
+                    this.logger.info(
+                        `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} validation at runtime failed: ${error.internalMessage}`
+                    );
                     userMessage = error.userMessage;
                 } else if (error instanceof CommandError) {
                     // Command failed with caught error
                     this.logger.error(
-                        error.internalMessage,
+                        `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} command failed while executing: ${error.internalMessage}`,
                         error.error ? this.logger.prettyError(error.error) : null
                     );
                     userMessage = error.userMessage;

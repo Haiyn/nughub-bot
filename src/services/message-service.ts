@@ -6,8 +6,10 @@ import { Client, Message, MessageOptions } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
+/** Handles different functions in relation to the Discord Message objects */
 @injectable()
 export class MessageService extends Service {
+    /** The channel service. Since messages are in channels, this is needed */
     readonly channelService: ChannelService;
 
     constructor(
@@ -23,10 +25,10 @@ export class MessageService extends Service {
     /**
      * Replies to a message with auto-deletion function if message is in an RP channel
      *
-     * @param {Message} message The message to reply to
-     * @param {MessageOptions} options The Message options that should be attached to the reply
-     * @param {boolean} autoDeleteInRpChannel whether or not the auto-delete should be used
-     * @returns {Promise<void>} Resolves when finished
+     * @param message The message to reply to
+     * @param options The Message options that should be attached to the reply
+     * @param autoDeleteInRpChannel whether or not the auto-delete should be used
+     * @returns Resolves when finished
      */
     public async reply(
         message: Message,
@@ -52,9 +54,9 @@ export class MessageService extends Service {
     /**
      * Deletes the passed messages with an optional timeout
      *
-     * @param {Message[]} messagesToDelete The messages to delete
-     * @param {number} timeout Optional timeout in ms
-     * @returns {Promise<boolean>} Whether or not the messages were deleted
+     * @param messagesToDelete The messages to delete
+     * @param timeout Optional timeout in ms
+     * @returns Whether or not the messages were deleted
      */
     public async deleteMessages(messagesToDelete: Message[], timeout?: number): Promise<boolean> {
         try {

@@ -3,7 +3,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 /**
  * Returns the application command definition for session next
  *
- * @returns {SlashCommandBuilder} the application command definition
+ * @returns the application command definition
  */
 export function commandDefinition(): SlashCommandBuilder {
     const command = new SlashCommandBuilder()

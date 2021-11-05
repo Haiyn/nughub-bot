@@ -52,8 +52,8 @@ export class SessionFinish extends Command {
     /**
      * Gets the session for the provided channel from th database
      *
-     * @param {string} channelId The channelId provided by the command option
-     * @returns {Promise<ISessionSchema>} The session
+     * @param channelId The channelId provided by the command option
+     * @returns The session
      * @throws {CommandError} When the fetching fails
      */
     private async getSessionFromDatabase(channelId: string): Promise<ISessionSchema> {
@@ -69,8 +69,8 @@ export class SessionFinish extends Command {
     /**
      * Deletes the session from the database
      *
-     * @param {string} channelId The channelId provided by the command option
-     * @returns {Promise<void>} Resolves when deleted
+     * @param channelId The channelId provided by the command option
+     * @returns Resolves when deleted
      * @throws {CommandError} When the fetching fails
      */
     private async deleteSessionFromDatabase(channelId: string): Promise<void> {
@@ -86,9 +86,9 @@ export class SessionFinish extends Command {
     /**
      * Deletes the discord message from the sessions channel
      *
-     * @param {TextChannel} channel The sessions channel
-     * @param {string} messageId The ID of the message to delete
-     * @returns {Promise<void>} Resolves when deleted
+     * @param channel The sessions channel
+     * @param messageId The ID of the message to delete
+     * @returns Resolves when deleted
      */
     private async deleteSessionPostFromSessionsChannel(
         channel: TextChannel,
@@ -110,8 +110,8 @@ export class SessionFinish extends Command {
     /**
      * Sends a separator message in the RP channel where the session was finished
      *
-     * @param {TextChannel} channel The channel in which to send the message
-     * @returns {Promise<void>} Resolves when sent
+     * @param channel The channel in which to send the message
+     * @returns Resolves when sent
      */
     private async sendSeparatorInRpChannel(channel: TextChannel): Promise<void> {
         await channel
