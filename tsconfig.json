@@ -36,5 +36,19 @@
   ],
   "exclude": [
     "./node_modules", "dist"
-  ]
+  ],
+  "typedocOptions": {
+    "entryPoints": [
+      "./src",
+      "./src/index.ts",
+      "./src/server.ts",
+      "./src/commands",
+      "./src/commands/definitions",
+      "./src/models",
+      "./src/controllers",
+      "./src/providers",
+      "./src/services"
+    ],
+    "out": "docs"
+  }
 }
