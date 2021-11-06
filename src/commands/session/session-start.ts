@@ -42,7 +42,9 @@ export class SessionStart extends Command {
         await this.saveSessionToDatabase(sessionToSave);
 
         await interaction.reply({
-            content: `I successfully started a new RP session in <#${sessionToSave.channel.id}>!`,
+            content: await this.stringProvider.get('COMMAND.SESSION-START.SUCCESS', [
+                sessionToSave.channel.id,
+            ]),
         });
         return Promise.resolve({
             executed: true,
@@ -60,14 +62,20 @@ export class SessionStart extends Command {
         ) {
             throw new CommandValidationError(
                 `User provided channel that isn't in permitted RP channels list.`,
-                "The channel you've provided is not a channel you can start a session in! Please pick a valid RP channel."
+                await this.stringProvider.get(
+                    'COMMAND.SESSION-START.VALIDATION.INVALID-RP-CHANNEL',
+                    [channel.id]
+                )
             );
         }
 
         if (await SessionModel.findOne({ channelId: channel.id }).exec()) {
             throw new CommandValidationError(
                 `User provided channel that already has an active RP.`,
-                `There is already a RP session running <#${channel.id}>!`
+                await this.stringProvider.get(
+                    'COMMAND.SESSION-START.VALIDATION.CHANNEL-ALREADY-USED',
+                    [channel.id]
+                )
             );
         }
 
@@ -93,8 +101,12 @@ export class SessionStart extends Command {
             throw new CommandValidationError(
                 `User provided uneven amounts of users and characters.`,
                 users.length > characterNames.length
-                    ? `Please provide a character name for every user you've mentioned!`
-                    : `Please provide a user for every character name you've given!`
+                    ? await this.stringProvider.get(
+                          'COMMAND.SESSION-START.VALIDATION.CHARACTER-NAME-NOT-PROVIDED'
+                      )
+                    : await this.stringProvider.get(
+                          'COMMAND.SESSION-START.VALIDATION.USER-NOT-PROVIDED'
+                      )
             );
         }
 
@@ -110,7 +122,9 @@ export class SessionStart extends Command {
         if (duplicate)
             throw new CommandValidationError(
                 `User provided the same character name more than once.`,
-                "You can't start an RP that has the same character twice!"
+                await this.stringProvider.get(
+                    'COMMAND.SESSION-START.VALIDATION.DUPLICATE-CHARACTER-NAME'
+                )
             );
     }
 
@@ -143,8 +157,8 @@ export class SessionStart extends Command {
             });
         } catch (error) {
             throw new CommandError(
-                `Failed internally while checking options.`,
-                'Uh-oh, something went wrong while I was trying to validate your inputs!',
+                `Failed internally while parsing session.`,
+                await this.stringProvider.get('COMMAND.SESSION-START.ERROR.PARSE-SESSION-FAILED'),
                 error
             );
         }
@@ -172,7 +186,7 @@ export class SessionStart extends Command {
                     postContent += ':arrow_right: ';
                 postContent += `${character.name} <@${character.user.id}>\n`;
             });
-            const divider = '```⋟────────────────────────⋞```';
+            const divider = await this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR');
 
             const result = await sessionsChannel.send({
                 content: postContent + divider,
@@ -183,7 +197,9 @@ export class SessionStart extends Command {
         } catch (error) {
             new CommandError(
                 `Failed internally while saving to session channel.`,
-                'Uh-oh, something went wrong while I was trying to post the session!',
+                await this.stringProvider.get(
+                    'COMMAND.SESSION-START.ERROR.SAVE-TO-SESSION-CHANNEL-FAILED'
+                ),
                 error
             );
         }
@@ -220,7 +236,10 @@ export class SessionStart extends Command {
             if (!isOnlyBotMessages) {
                 throw new CommandError(
                     `Session Posts Channel has non-bot messages in it.`,
-                    `I can't post the session in <#{0}> because there are messages in it that aren't from me!`
+                    await this.stringProvider.get(
+                        'COMMAND.SESSION-START.ERROR.COULD-NOT-INITIALIZE-CHANNEL',
+                        [sessionsChannel.id]
+                    )
                 );
             }
             this.logger.debug(`Session channel is already initialized.`);
@@ -241,16 +260,18 @@ export class SessionStart extends Command {
         const embed = new MessageEmbed()
             .setColor(this.configuration.guild.color as ColorResolvable)
             .setAuthor(sessionsChannel.guild.name, sessionsChannel.guild.iconURL())
-            .setFooter('(squeaks regally)')
-            .setTitle('Ongoing RP Sessions')
+            .setFooter(
+                await this.stringProvider.get('COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER')
+            )
+            .setTitle(await this.stringProvider.get('COMMAND.SESSION-START.INITIALIZE.EMBED-TITLE'))
             .setDescription(
-                'You can find all currently running RPs here - including their turn order.'
+                await this.stringProvider.get('COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION')
             );
         const message = await sessionsChannel.send({ embeds: [embed] });
         if (!message)
             throw new CommandError(
                 'Sessions channel could not be initialized.',
-                'Uh-oh, I ran into some trouble while trying to use !'
+                await this.stringProvider.get('COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED')
             );
         return Promise.resolve();
     }
@@ -286,7 +307,7 @@ export class SessionStart extends Command {
         } catch (error) {
             new CommandError(
                 `Failed internally while saving to database.`,
-                'Uh-oh, something went wrong while I tried to save the session!',
+                await this.stringProvider.get('SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT'),
                 error
             );
         }

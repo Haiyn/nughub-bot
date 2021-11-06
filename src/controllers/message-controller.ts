@@ -39,6 +39,7 @@ export class MessageController extends Controller {
      * @returns Resolves when deleted
      */
     async handleDeletion(message: Message): Promise<void> {
+        // TODO: Refactor this
         if (message.author.id == this.client.user.id) {
             const foundSessionPost = await SessionModel.findOne({
                 sessionPostId: message.id,
