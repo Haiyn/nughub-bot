@@ -19,7 +19,7 @@ export class SessionNext extends Command {
         let channel;
         if (!interaction.options.getChannel('channel')) {
             // No channel option was supplied, check the current channel
-            await SessionNext.validateCurrentChannel(interaction.channelId);
+            await this.validateCurrentChannel(interaction.channelId);
             channel = interaction.channel;
         } else {
             // Channel option was supplied, use it
@@ -30,7 +30,7 @@ export class SessionNext extends Command {
         const userMessage: string = interaction.options.getString('message');
 
         this.logger.debug('Validating user turn...');
-        await SessionNext.validateUserTurn(session.currentTurn.userId, interaction.member.user.id);
+        await this.validateUserTurn(session.currentTurn.userId, interaction.member.user.id);
 
         this.logger.debug('Updating user turn in database...');
         const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
@@ -61,7 +61,9 @@ export class SessionNext extends Command {
         if (!foundSession) {
             throw new CommandValidationError(
                 `User provided channel that has no ongoing RP.`,
-                'There is no ongoing RP in <#{0}>!'
+                await this.stringProvider.get('COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP', [
+                    channel.id,
+                ])
             );
         }
     }
@@ -74,14 +76,16 @@ export class SessionNext extends Command {
      * @returns Resolves if valid
      * @throws {CommandValidationError} Throws if it's not their turn
      */
-    private static async validateUserTurn(
+    private async validateUserTurn(
         currentTurnId: string,
         interactionCreatorId: string
     ): Promise<void> {
         if (currentTurnId != interactionCreatorId) {
             throw new CommandValidationError(
                 "User tried to advance RP but it's not their turn",
-                `It is currently <@{0}>'s turn! Only they are allowed to advance their turn.`
+                await this.stringProvider.get('COMMAND.SESSION-NEXT.VALIDATION.NOT-USERS-TURN', [
+                    currentTurnId,
+                ])
             );
         }
     }
@@ -93,12 +97,14 @@ export class SessionNext extends Command {
      * @returns Resolves if there's an RP in this channel
      * @throws {CommandValidationError} Throws is there is no RP in this channel
      */
-    private static async validateCurrentChannel(currentChannelId: string): Promise<void> {
+    private async validateCurrentChannel(currentChannelId: string): Promise<void> {
         const result = await SessionModel.findOne({ channelId: currentChannelId });
         if (!result)
             throw new CommandValidationError(
                 'User tried to use next command without parameter in an channel that has no ongoing session',
-                `There is no ongoing RP session in this channel! Please use this command in the RP channel or supply it when using the command.`
+                await this.stringProvider.get(
+                    'COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP-IN-CURRENT-CHANNEL'
+                )
             );
     }
 
@@ -152,7 +158,7 @@ export class SessionNext extends Command {
                     postContent += ':arrow_right: ';
                 postContent += `${character.name} <@${character.userId}>\n`;
             });
-            const divider = '```⋟────────────────────────⋞```';
+            const divider = this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR');
 
             const sessionPost: Message = this.channelService
                 .getTextChannelByChannelId(this.configuration.channels.currentSessionsChannelId)
@@ -164,7 +170,10 @@ export class SessionNext extends Command {
         } catch (error) {
             throw new CommandError(
                 'Failed to update session post with new current turn marker',
-                "Uh-oh, I couldn't manage to update the session post in <#{0}!",
+                await this.stringProvider.get(
+                    'COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED',
+                    [this.configuration.channels.currentSessionsChannelId]
+                ),
                 error
             );
         }
