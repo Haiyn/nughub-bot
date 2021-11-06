@@ -114,3 +114,13 @@ Open `localhost:8001` and connect to existing database with these values:
 
 Enter the connection string from the dotenv file and connect.
 
+## Data Management
+### Managing Strings
+
+To manage strings, either add them manually in RedisInsight or use the script in `orchestration/redis/import-strings.sh`. 
+The script needs a CSV file with a `;` delimiter to work. 
+
+The script will only work on the local machine.
+
+The best way to achieve data consistence is to either export it with that delimiter or use a `tsv` file and replace all tab characters with semicolons.
+
