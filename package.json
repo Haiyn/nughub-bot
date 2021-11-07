@@ -6,6 +6,7 @@
   "scripts": {
     "start": "npm run start:data && npm run build && node -r tsconfig-paths/register ./dist/index.js",
     "start:data": "docker-compose up -d nhb-mongodb nhb-redis",
+    "start:redisinsight": "docker run -d -v redisinsight:/db -p 8001:8001 redislabs/redisinsight:latest\n",
     "build": "rm -rf dist && tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
     "resolve": "tsc -p tsconfig.json --traceResolution",
     "watch": "npm run build && nodemon --watch \"src/**/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec npm run start",
