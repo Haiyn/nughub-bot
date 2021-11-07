@@ -1,4 +1,4 @@
-import { IConfiguration } from '@models/configuration';
+import { ConfigurationProvider } from '@providers/configuration-provider';
 import { HelperService } from '@services/index';
 import { Service } from '@services/service';
 import { TYPES } from '@src/types';
@@ -14,7 +14,7 @@ export class ChannelService extends Service {
     constructor(
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.CommandLogger) logger: Logger,
-        @inject(TYPES.Configuration) configuration: IConfiguration,
+        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.HelperService) helperService: HelperService
     ) {
         super(client, logger, configuration);
@@ -41,16 +41,5 @@ export class ChannelService extends Service {
             return null;
         }
         return matchedChannel as TextChannel;
-    }
-
-    /**
-     * Checks if the passed channel ID is registered as as valid RP channel
-     *
-     * @param channelId The channel ID to check
-     * @returns Whether or not the channel is an RP channel
-     */
-    public isRpChannel(channelId: string): boolean {
-        const rpChannelIds = this.configuration.channels.rpChannelIds;
-        return rpChannelIds.includes(channelId);
     }
 }

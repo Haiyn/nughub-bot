@@ -9,6 +9,23 @@ t.b.a.
 
 t.b.a.
 
+### Naming Conventions
+
+String and Emoji values in the database are in UPPER-KEBAB-CASE with dots (`.`) separating 
+the categories. They are prefixed by a `STRINGS` or `EMOJIS` key prefix respectively:
+```
+// String
+STRINGS.CATEGORY.ANOTHER-CATEGORY.LAST-CATEGORY
+
+// Emoji
+EMOJIS.CATEGORY.ANOTHER-CATEGORY.LAST-CATEGORY
+```
+
+Configuration values are in Pascal_CamelCase. They are prefixed by a `CONFIGURATION_` key prefix:
+```
+CONFIGURATION_SomeCategory_SomeConfigurationValue
+```
+
 ## Development Setup
 ![node-shield]
 ![docker-shield]

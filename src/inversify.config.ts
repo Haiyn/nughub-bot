@@ -1,11 +1,7 @@
 // organize-imports-ignore
 // Don't reorder these imports because reflect-metadata needs to be imported before any classes that use it
 import 'reflect-metadata';
-import configDev from '@config/config-dev';
-import configLocal from '@config/config-local';
-import configProd from '@config/config-prod';
 import { InteractionController, MessageController } from '@controllers/index';
-import { IConfiguration } from '@models/configuration';
 import {
     ChannelService,
     HelperService,
@@ -19,9 +15,8 @@ import { Server } from '@src/server';
 import { TYPES } from '@src/types';
 import { Client, Intents } from 'discord.js';
 import { Container } from 'inversify';
-import * as IORedis from 'ioredis';
-import { Redis } from 'ioredis';
 import { Logger, TLogLevelName } from 'tslog';
+import { ConfigurationProvider } from '@providers/configuration-provider';
 
 const container = new Container();
 
@@ -40,21 +35,6 @@ container.bind<string>(TYPES.MongoDbConnectionString).toConstantValue(process.en
 container.bind<string>(TYPES.RedisHost).toConstantValue(process.env.REDIS_HOST);
 container.bind<string>(TYPES.RedisPort).toConstantValue(process.env.REDIS_PORT);
 container.bind<string>(TYPES.RedisPassword).toConstantValue(process.env.REDIS_PASS);
-
-// Configuration
-let config;
-switch (process.env.ENVIRONMENT) {
-    case 'local':
-        config = configLocal;
-        break;
-    case 'dev':
-        config = configDev;
-        break;
-    case 'prod':
-        config = configProd;
-        break;
-}
-container.bind<IConfiguration>(TYPES.Configuration).toConstantValue(config);
 
 // Constants
 container.bind<Client>(TYPES.Client).toConstantValue(
@@ -96,11 +76,6 @@ container.bind<Logger>(TYPES.ProviderLogger).toConstantValue(
         ignoreStackLevels: container.get<string>(TYPES.IgnoreStackLevels) as unknown as number,
     })
 );
-container.bind<Redis>(TYPES.RedisClient).toConstantValue(
-    new IORedis(container.get(TYPES.RedisHost), container.get(TYPES.RedisPort), {
-        password: container.get(TYPES.RedisPassword),
-    })
-);
 
 // Controllers
 container.bind<Server>(TYPES.Server).to(Server).inSingletonScope();
@@ -113,6 +88,10 @@ container
 // Providers
 container.bind<StringProvider>(TYPES.StringProvider).to(StringProvider).inSingletonScope();
 container.bind<EmojiProvider>(TYPES.EmojiProvider).to(EmojiProvider).inSingletonScope();
+container
+    .bind<ConfigurationProvider>(TYPES.ConfigurationProvider)
+    .to(ConfigurationProvider)
+    .inSingletonScope();
 
 // Services
 container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();

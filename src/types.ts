@@ -4,7 +4,6 @@ export const TYPES = {
     Client: Symbol('Client'),
     ClientId: Symbol('ClientId'),
     Token: Symbol('Token'),
-    Configuration: Symbol('Configuration'),
     BotOwnerId: Symbol('BotOwnerId'),
     GuildId: Symbol('GuildId'),
     Environment: Symbol('Environment'),
@@ -21,6 +20,7 @@ export const TYPES = {
     // Providers
     StringProvider: Symbol('StringProvider'),
     EmojiProvider: Symbol('EmojiProvider'),
+    ConfigurationProvider: Symbol('ConfigurationProvider'),
 
     // Services
     PermissionService: Symbol('PermissionService'),
