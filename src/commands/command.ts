@@ -1,5 +1,5 @@
 import { CommandResult } from '@models/commands/command-result';
-import { IConfiguration } from '@models/configuration';
+import { ConfigurationProvider } from '@providers/configuration-provider';
 import { StringProvider } from '@src/providers';
 import { ChannelService, HelperService, MessageService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
@@ -16,8 +16,8 @@ export abstract class Command {
     /** The connected discord client */
     readonly client: Client;
 
-    /** The persistent configuration */
-    readonly configuration: IConfiguration;
+    /** The persistent config */
+    readonly configuration: ConfigurationProvider;
 
     /** The channel service */
     readonly channelService: ChannelService;
@@ -37,7 +37,7 @@ export abstract class Command {
     constructor(
         @inject(TYPES.CommandLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
-        @inject(TYPES.Configuration) configuration: IConfiguration,
+        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.HelperService) helperService: HelperService,
         @inject(TYPES.MessageService) messageService: MessageService,

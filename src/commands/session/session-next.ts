@@ -148,6 +148,9 @@ export class SessionNext extends Command {
      * @throws {CommandError} Throws if the message could not be edited
      */
     private async updateTurnOrderInSessionsChannel(session: ISessionSchema): Promise<void> {
+        const currentSessionsChannelId = await this.configuration.getString(
+            'Channels_CurrentSessionsChannelId'
+        );
         try {
             let postContent = `\n\n<#${session.channelId}>:\n`;
             session.turnOrder.forEach((character) => {
@@ -161,7 +164,7 @@ export class SessionNext extends Command {
             const divider = this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR');
 
             const sessionPost: Message = this.channelService
-                .getTextChannelByChannelId(this.configuration.channels.currentSessionsChannelId)
+                .getTextChannelByChannelId(currentSessionsChannelId)
                 .messages.cache.get(session.sessionPostId);
             await sessionPost.edit({
                 content: postContent + divider,
@@ -172,7 +175,7 @@ export class SessionNext extends Command {
                 'Failed to update session post with new current turn marker',
                 await this.stringProvider.get(
                     'COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED',
-                    [this.configuration.channels.currentSessionsChannelId]
+                    [currentSessionsChannelId]
                 ),
                 error
             );
@@ -196,7 +199,7 @@ export class SessionNext extends Command {
         if (userMessage) messageContent += `\n<@${previousTurn.userId}> said: \"${userMessage}\"`;
         const notificationChannel: TextChannel =
             await this.channelService.getTextChannelByChannelId(
-                this.configuration.channels.notificationChannelId
+                await this.configuration.getString('Channels_NotificationChannelId')
             );
         await notificationChannel.send({
             content: messageContent,

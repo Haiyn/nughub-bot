@@ -1,4 +1,4 @@
-import { IConfiguration } from '@models/configuration';
+import { ConfigurationProvider } from '@providers/configuration-provider';
 import { ChannelService } from '@services/channel-service';
 import { Service } from '@services/service';
 import { TYPES } from '@src/types';
@@ -15,7 +15,7 @@ export class MessageService extends Service {
     constructor(
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.CommandLogger) logger: Logger,
-        @inject(TYPES.Configuration) configuration: IConfiguration,
+        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.ChannelService) channelService: ChannelService
     ) {
         super(client, logger, configuration);
@@ -38,7 +38,10 @@ export class MessageService extends Service {
         try {
             const response = await message.reply(options);
             if (autoDeleteInRpChannel) {
-                const isRpChannel = this.channelService.isRpChannel(message.channel.id);
+                const isRpChannel = this.configuration.isIn(
+                    'Channels_RpChannelIds',
+                    message.channel.id
+                );
                 if (isRpChannel) await this.deleteMessages([message, response], 10000);
             }
             return Promise.resolve();

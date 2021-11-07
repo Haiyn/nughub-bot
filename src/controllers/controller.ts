@@ -1,4 +1,4 @@
-import { IConfiguration } from '@models/configuration';
+import { ConfigurationProvider } from '@providers/configuration-provider';
 import { TYPES } from '@src/types';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
@@ -7,7 +7,7 @@ export interface IController {
     readonly logger: Logger;
     readonly clientId: string;
     readonly token: string;
-    configuration: IConfiguration;
+    readonly configuration: ConfigurationProvider;
 }
 
 /** Controllers handle all Discord events */
@@ -22,14 +22,14 @@ export class Controller implements IController {
     /* The token of the bot */
     readonly token: string;
 
-    /** The persistent configuration */
-    configuration: IConfiguration;
+    /** The persistent config */
+    configuration: ConfigurationProvider;
 
     constructor(
         @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.ClientId) clientId: string,
         @inject(TYPES.Token) token: string,
-        @inject(TYPES.Configuration) configuration: IConfiguration
+        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider
     ) {
         this.logger = logger;
         this.clientId = clientId;

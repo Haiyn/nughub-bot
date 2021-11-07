@@ -4,6 +4,7 @@ import { Controller } from '@controllers/controller';
 import { REST, RouteLike } from '@discordjs/rest';
 import { CommandError } from '@models/commands/command-error';
 import { CommandValidationError } from '@models/commands/command-validation-error';
+import { ConfigurationError } from '@models/config/configuration-error';
 import container from '@src/inversify.config';
 import { TYPES } from '@src/types';
 import { Routes } from 'discord-api-types/v9';
@@ -95,30 +96,8 @@ export class InteractionController extends Controller {
         // Validate the inputs
         let valid = true;
         await applicationCommand.validateOptions(interaction.options).catch((error) => {
-            let userMessage;
-            if (error instanceof CommandValidationError) {
-                // User input is not valid
-                this.logger.info(
-                    `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} validation failed: ${error.internalMessage}`
-                );
-                if (!error.userMessage) {
-                    this.logger.error('Command did not return a user message');
-                    error.userMessage = `Internal Error: The command failed unexpectedly.`;
-                }
-                userMessage = error.userMessage;
-            } else {
-                // Uncaught error
-                this.logger.error(
-                    `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} failed unexpectedly while validating options: `,
-                    this.logger.prettyError(error)
-                );
-                userMessage = `Internal Error: Command validation failed unexpectedly.`;
-            }
+            this.handleInteractionError(interaction, error);
             valid = false;
-            interaction.reply({
-                content: userMessage,
-                ephemeral: true,
-            });
         });
         if (!valid) return Promise.resolve();
 
@@ -133,33 +112,48 @@ export class InteractionController extends Controller {
                 );
             })
             .catch((error) => {
-                let userMessage;
-                // Check which type of error was thrown to avoid producing more errors in catch clause
-                if (error instanceof CommandValidationError) {
-                    // Further user input validation failed
-                    this.logger.info(
-                        `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} validation at runtime failed: ${error.internalMessage}`
-                    );
-                    userMessage = error.userMessage;
-                } else if (error instanceof CommandError) {
-                    // Command failed with caught error
-                    this.logger.error(
-                        `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} command failed while executing: ${error.internalMessage}`,
-                        error.error ? this.logger.prettyError(error.error) : null
-                    );
-                    userMessage = error.userMessage;
-                } else {
-                    // Command failed unexpectedly
-                    this.logger.error(
-                        `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} failed unexpectedly while executing: `,
-                        this.logger.prettyError(error)
-                    );
-                    userMessage = `Internal Error: Command execution failed unexpectedly.`;
-                }
-                interaction.reply({
-                    content: userMessage,
-                    ephemeral: true,
-                });
+                this.handleInteractionError(interaction, error);
             });
+    }
+
+    private async handleInteractionError(interaction: CommandInteraction, error: unknown) {
+        let userMessage;
+        // Check which type of error was thrown to avoid producing more errors in catch clause
+        if (error instanceof CommandValidationError) {
+            // Further user input validation failed
+            this.logger.info(
+                `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} validation at runtime failed: ${error.internalMessage}`
+            );
+            userMessage = error.userMessage;
+        } else if (error instanceof CommandError) {
+            // Command failed with caught error
+            this.logger.error(
+                `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} command failed while executing: ${error.internalMessage}`,
+                error.error ? this.logger.prettyError(error.error) : null
+            );
+            userMessage = error.userMessage;
+        } else if (error instanceof ConfigurationError) {
+            // Issue with config
+            this.logger.error(
+                `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} could not fetch configuration properly: ${error.message}`,
+                error.error ? this.logger.prettyError(error.error) : null
+            );
+            userMessage = `Internal Error: \`Could not retrieve configuration.\``;
+        } else {
+            // Command failed unexpectedly
+            this.logger.error(
+                `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} failed unexpectedly while executing: `,
+                this.logger.prettyError(error as Error)
+            );
+            userMessage = `Internal Error: \`Command execution failed unexpectedly.\``;
+        }
+
+        // Reply to the user if it hasn't happened already
+        if (!interaction.replied) {
+            await interaction.reply({
+                content: userMessage,
+                ephemeral: true,
+            });
+        }
     }
 }

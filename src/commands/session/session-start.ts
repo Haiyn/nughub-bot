@@ -23,7 +23,7 @@ export class SessionStart extends Command {
         this.logger.debug('Parsing session...');
         const sessionToSave = await this.parseSession(interaction.options);
         const sessionsChannel = await this.channelService.getTextChannelByChannelId(
-            this.configuration.channels.currentSessionsChannelId
+            await this.configuration.getString('Channels_CurrentSessionsChannelId')
         );
 
         this.logger.debug('Checking session channel...');
@@ -57,9 +57,7 @@ export class SessionStart extends Command {
         const channel = this.channelService.getTextChannelByChannelId(
             options.getChannel('channel').id
         );
-        if (
-            !this.configuration.channels.rpChannelIds.find((channelId) => channelId == channel.id)
-        ) {
+        if (!(await this.configuration.isIn('Channels_RpChannelIds', channel.id))) {
             throw new CommandValidationError(
                 `User provided channel that isn't in permitted RP channels list.`,
                 await this.stringProvider.get(
@@ -258,7 +256,7 @@ export class SessionStart extends Command {
      */
     private async initializeSessionsChannel(sessionsChannel: TextChannel): Promise<void> {
         const embed = new MessageEmbed()
-            .setColor(this.configuration.guild.color as ColorResolvable)
+            .setColor((await this.configuration.getString('Guild_Color')) as ColorResolvable)
             .setAuthor(sessionsChannel.guild.name, sessionsChannel.guild.iconURL())
             .setFooter(
                 await this.stringProvider.get('COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER')

@@ -1,6 +1,7 @@
 import { Controller } from '@controllers/controller';
-import { IConfiguration } from '@models/configuration';
+import { ConfigurationError } from '@models/config/configuration-error';
 import { SessionModel } from '@models/data/session-schema';
+import { ConfigurationProvider } from '@providers/configuration-provider';
 import { ChannelService, MessageService, PermissionService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, Message, TextChannel } from 'discord.js';
@@ -23,7 +24,7 @@ export class MessageController extends Controller {
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.ClientId) clientId: string,
         @inject(TYPES.Token) token: string,
-        @inject(TYPES.Configuration) configuration: IConfiguration
+        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider
     ) {
         super(logger, clientId, token, configuration);
         this.messageService = messageService;
@@ -53,7 +54,7 @@ export class MessageController extends Controller {
                 await SessionModel.findOneAndDelete({ sessionPostId: message.id }).exec();
                 const internalChannel: TextChannel =
                     await this.channelService.getTextChannelByChannelId(
-                        this.configuration.channels.internalChannelId
+                        await this.configuration.getString('Channels_InternalChannelId')
                     );
                 await this.channelService
                     .getTextChannelByChannelId(foundSessionPost.channelId)
@@ -84,16 +85,30 @@ export class MessageController extends Controller {
      * @returns Resolves when cached
      */
     async handleCaching(): Promise<void> {
-        const currentSessionsChannel = this.channelService.getTextChannelByChannelId(
-            this.configuration.channels.currentSessionsChannelId
-        );
-        await currentSessionsChannel.messages.fetch().then((fetchedMessages) => {
-            this.logger.debug(
-                `Fetched ${fetchedMessages.size} messages from currentSessionsChannel.`
+        try {
+            const currentSessionsChannel = this.channelService.getTextChannelByChannelId(
+                await this.configuration.getString('Channels_CurrentSessionsChannelId')
             );
-        });
+            await currentSessionsChannel.messages.fetch().then((fetchedMessages) => {
+                this.logger.debug(
+                    `Fetched ${fetchedMessages.size} messages from currentSessionsChannel.`
+                );
+            });
 
-        this.logger.debug('Fetching done.');
-        return;
+            this.logger.debug('Fetching done.');
+            return;
+        } catch (error) {
+            await this.handleError(error);
+        }
+    }
+
+    private async handleError(error: unknown, message?: Message) {
+        let internalMessage = message ? `Message ID ${message.id}: ` : '';
+        if (error instanceof ConfigurationError) {
+            // Configuration fetching failed
+            internalMessage += `Configuration fetching failed: ${error.message}`;
+        }
+
+        this.logger.error(internalMessage);
     }
 }

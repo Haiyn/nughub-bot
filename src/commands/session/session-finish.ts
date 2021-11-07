@@ -13,7 +13,7 @@ export class SessionFinish extends Command {
             interaction.options.getChannel('channel').id
         );
         const sessionChannel = this.channelService.getTextChannelByChannelId(
-            this.configuration.channels.currentSessionsChannelId
+            await this.configuration.getString('Channels_CurrentSessionsChannelId')
         );
         const session: ISessionSchema = await this.getSessionFromDatabase(channel.id);
 
