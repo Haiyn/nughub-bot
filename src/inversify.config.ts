@@ -10,13 +10,17 @@ import {
     UserService,
 } from '@services/index';
 import { Ping, SessionFinish, SessionNext, SessionStart } from '@src/commands';
-import { EmojiProvider, StringProvider } from '@src/providers';
+import {
+    EmojiProvider,
+    StringProvider,
+    EmbedProvider,
+    ConfigurationProvider,
+} from '@src/providers';
 import { Server } from '@src/server';
 import { TYPES } from '@src/types';
 import { Client, Intents } from 'discord.js';
 import { Container } from 'inversify';
 import { Logger, TLogLevelName } from 'tslog';
-import { ConfigurationProvider } from '@providers/configuration-provider';
 
 const container = new Container();
 
@@ -92,6 +96,7 @@ container
     .bind<ConfigurationProvider>(TYPES.ConfigurationProvider)
     .to(ConfigurationProvider)
     .inSingletonScope();
+container.bind<EmbedProvider>(TYPES.EmbedProvider).to(EmbedProvider).inSingletonScope();
 
 // Services
 container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();

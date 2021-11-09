@@ -1,5 +1,7 @@
 import { Command } from '@commands/command';
 import { CommandResult } from '@models/commands/command-result';
+import { EmbedLevel } from '@models/ui/embed-level';
+import { EmbedType } from '@models/ui/embed-type';
 import { CommandInteraction } from 'discord.js';
 import { injectable } from 'inversify';
 
@@ -7,11 +9,16 @@ import { injectable } from 'inversify';
 export class Ping extends Command {
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         const start = new Date().getTime();
-        await interaction.reply({
+
+        const embedReply = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Info, {
             content: await this.stringProvider.get('COMMAND.PING.PENDING'),
         });
+        await interaction.reply({
+            embeds: [embedReply],
+        });
+        embedReply.setDescription(await this.stringProvider.get('COMMAND.PING.SUCCESS'));
         await interaction.editReply({
-            content: await this.stringProvider.get('COMMAND.PING.SUCCESS'),
+            embeds: [embedReply],
         });
         const end = new Date().getTime();
         return Promise.resolve({

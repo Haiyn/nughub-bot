@@ -3,6 +3,8 @@ import { CommandError } from '@models/commands/command-error';
 import { CommandResult } from '@models/commands/command-result';
 import { CommandValidationError } from '@models/commands/command-validation-error';
 import { ISessionSchema, SessionModel } from '@models/data/session-schema';
+import { EmbedLevel } from '@models/ui/embed-level';
+import { EmbedType } from '@models/ui/embed-type';
 import { CommandInteraction, CommandInteractionOptionResolver, TextChannel } from 'discord.js';
 import { injectable } from 'inversify';
 
@@ -23,10 +25,13 @@ export class SessionFinish extends Command {
 
         await this.sendSeparatorInRpChannel(channel);
 
-        await interaction.reply({
+        const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-FINISH.SUCCESS.POST-DELETED', [
                 channel.id,
             ]),
+        });
+        await interaction.reply({
+            embeds: [embedReply],
         });
         return {
             executed: true,

@@ -2,6 +2,7 @@ import { Controller } from '@controllers/controller';
 import { ConfigurationError } from '@models/config/configuration-error';
 import { SessionModel } from '@models/data/session-schema';
 import { ConfigurationProvider } from '@providers/configuration-provider';
+import { EmbedProvider } from '@src/providers';
 import { ChannelService, MessageService, PermissionService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, Message, TextChannel } from 'discord.js';
@@ -15,6 +16,7 @@ export class MessageController extends Controller {
     readonly permissionService: PermissionService;
     readonly channelService: ChannelService;
     readonly client: Client;
+    readonly embedProvider: EmbedProvider;
 
     constructor(
         @inject(TYPES.MessageService) messageService: MessageService,
@@ -24,9 +26,10 @@ export class MessageController extends Controller {
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.ClientId) clientId: string,
         @inject(TYPES.Token) token: string,
-        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider
+        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
+        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider
     ) {
-        super(logger, clientId, token, configuration);
+        super(logger, clientId, token, configuration, embedProvider);
         this.messageService = messageService;
         this.permissionService = permissionService;
         this.channelService = channelService;

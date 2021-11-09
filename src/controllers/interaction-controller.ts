@@ -5,6 +5,8 @@ import { REST, RouteLike } from '@discordjs/rest';
 import { CommandError } from '@models/commands/command-error';
 import { CommandValidationError } from '@models/commands/command-validation-error';
 import { ConfigurationError } from '@models/config/configuration-error';
+import { EmbedLevel } from '@models/ui/embed-level';
+import { EmbedType } from '@models/ui/embed-type';
 import container from '@src/inversify.config';
 import { TYPES } from '@src/types';
 import { Routes } from 'discord-api-types/v9';
@@ -150,8 +152,11 @@ export class InteractionController extends Controller {
 
         // Reply to the user if it hasn't happened already
         if (!interaction.replied) {
-            await interaction.reply({
+            const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Error, {
                 content: userMessage,
+            });
+            await interaction.reply({
+                embeds: [embedReply],
                 ephemeral: true,
             });
         }

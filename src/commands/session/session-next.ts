@@ -3,6 +3,8 @@ import { CommandError } from '@models/commands/command-error';
 import { CommandResult } from '@models/commands/command-result';
 import { ICharacterSchema } from '@models/data/character-schema';
 import { ISessionSchema, SessionModel } from '@models/data/session-schema';
+import { EmbedLevel } from '@models/ui/embed-level';
+import { EmbedType } from '@models/ui/embed-type';
 import { CommandValidationError } from '@src/models/commands/command-validation-error';
 import {
     CommandInteraction,
@@ -41,8 +43,11 @@ export class SessionNext extends Command {
         this.logger.debug('Notifying next user...');
         await this.notifyNextUser(session.currentTurn, newSession, userMessage);
 
+        const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
+            content: await this.stringProvider.get('COMMAND.SESSION-NEXT.SUCCESS'),
+        });
         await interaction.reply({
-            content: 'I notified the next user!',
+            embeds: [embedReply],
         });
         // TODO: Delete message
 
@@ -161,7 +166,7 @@ export class SessionNext extends Command {
                     postContent += ':arrow_right: ';
                 postContent += `${character.name} <@${character.userId}>\n`;
             });
-            const divider = this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR');
+            const divider = await this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR');
 
             const sessionPost: Message = this.channelService
                 .getTextChannelByChannelId(currentSessionsChannelId)

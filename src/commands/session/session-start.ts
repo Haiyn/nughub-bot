@@ -6,6 +6,8 @@ import { Character } from '@models/data/character';
 import { ICharacterSchema } from '@models/data/character-schema';
 import { Session } from '@models/data/session';
 import { SessionModel } from '@models/data/session-schema';
+import { EmbedLevel } from '@models/ui/embed-level';
+import { EmbedType } from '@models/ui/embed-type';
 import {
     Channel,
     ColorResolvable,
@@ -41,10 +43,13 @@ export class SessionStart extends Command {
         this.logger.debug('Saving Session to database...');
         await this.saveSessionToDatabase(sessionToSave);
 
-        await interaction.reply({
+        const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-START.SUCCESS', [
                 sessionToSave.channel.id,
             ]),
+        });
+        await interaction.reply({
+            embeds: [embedReply],
         });
         return Promise.resolve({
             executed: true,
