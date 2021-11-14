@@ -3,4 +3,5 @@ export enum EmbedLevel {
     Info,
     Warning,
     Error,
+    Guild,
 }

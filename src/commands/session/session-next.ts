@@ -157,7 +157,7 @@ export class SessionNext extends Command {
             'Channels_CurrentSessionsChannelId'
         );
         try {
-            let postContent = `\n\n<#${session.channelId}>:\n`;
+            let postContent = `\n\n<#${session.channelId}>:\n\n`;
             session.turnOrder.forEach((character) => {
                 if (
                     character.userId === session.currentTurn.userId &&
@@ -166,13 +166,16 @@ export class SessionNext extends Command {
                     postContent += ':arrow_right: ';
                 postContent += `${character.name} <@${character.userId}>\n`;
             });
-            const divider = await this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR');
+            const divider = await this.embedProvider.get(EmbedType.Separator, EmbedLevel.Info, {
+                content: await this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR'),
+            });
 
             const sessionPost: Message = this.channelService
                 .getTextChannelByChannelId(currentSessionsChannelId)
                 .messages.cache.get(session.sessionPostId);
             await sessionPost.edit({
-                content: postContent + divider,
+                content: postContent,
+                embeds: [divider],
                 allowedMentions: { parse: [] },
             });
         } catch (error) {
@@ -200,14 +203,23 @@ export class SessionNext extends Command {
         newSession: ISessionSchema,
         userMessage?: string
     ): Promise<void> {
-        let messageContent = `<@${newSession.currentTurn.userId}> (${newSession.currentTurn.name}) in <#${newSession.channelId}>`;
-        if (userMessage) messageContent += `\n<@${previousTurn.userId}> said: \"${userMessage}\"`;
+        let content = `*${newSession.currentTurn.name}* in <#${newSession.channelId}>`;
+        if (userMessage) content += `\n\n<@${previousTurn.userId}> said: \\"${userMessage}\\"`;
+        const user = await this.client.users.fetch(newSession.currentTurn.userId);
+        const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
+            title: "It's your turn!",
+            content: content,
+            authorName: user.username,
+            authorIcon: user.avatarURL(),
+        });
+        const ping = `<@${newSession.currentTurn.userId}>`;
         const notificationChannel: TextChannel =
             await this.channelService.getTextChannelByChannelId(
                 await this.configuration.getString('Channels_NotificationChannelId')
             );
         await notificationChannel.send({
-            content: messageContent,
+            content: ping,
+            embeds: [embed],
             allowedMentions: { users: [newSession.currentTurn.userId] },
         });
 

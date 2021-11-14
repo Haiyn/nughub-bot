@@ -1,6 +1,8 @@
 import { Controller } from '@controllers/controller';
 import { ConfigurationError } from '@models/config/configuration-error';
 import { SessionModel } from '@models/data/session-schema';
+import { EmbedLevel } from '@models/ui/embed-level';
+import { EmbedType } from '@models/ui/embed-type';
 import { ConfigurationProvider } from '@providers/configuration-provider';
 import { EmbedProvider } from '@src/providers';
 import { ChannelService, MessageService, PermissionService } from '@src/services';
@@ -61,10 +63,21 @@ export class MessageController extends Controller {
                     );
                 await this.channelService
                     .getTextChannelByChannelId(foundSessionPost.channelId)
-                    .send('```⋟────────────────────────⋞```');
-                await internalChannel.send(
-                    `The session post for the session in <#${foundSessionPost.channelId}> was deleted. I have finished the session for you.`
-                );
+                    .send({
+                        embeds: [
+                            await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Guild, {
+                                content: '༺═──────────────═༻',
+                            }),
+                        ],
+                    });
+                await internalChannel.send({
+                    embeds: [
+                        await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
+                            title: 'Session post deleted',
+                            content: `The session post for the session in <#${foundSessionPost.channelId}> was deleted. I have finished the session for you.`,
+                        }),
+                    ],
+                });
                 this.logger.debug('Removed session from database.');
                 return;
             } catch (error) {
@@ -74,7 +87,7 @@ export class MessageController extends Controller {
                 return;
             }
         } else {
-            this.logger.debug(
+            this.logger.trace(
                 `Deleted message is not a bot message from the client (Author ID: ${message.author.id}, Client ID: ${this.client.user.id}).`
             );
             return;

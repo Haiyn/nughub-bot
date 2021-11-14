@@ -121,7 +121,11 @@ export class SessionFinish extends Command {
     private async sendSeparatorInRpChannel(channel: TextChannel): Promise<void> {
         await channel
             .send({
-                content: await this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR'),
+                embeds: [
+                    await this.embedProvider.get(EmbedType.Separator, EmbedLevel.Guild, {
+                        content: await this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR'),
+                    }),
+                ],
             })
             .catch((error) => {
                 this.logger.warn(

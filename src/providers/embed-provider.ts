@@ -51,6 +51,9 @@ export class EmbedProvider extends Provider {
      * @returns A discord.js Message Embed
      */
     public async get(type: EmbedType, level: EmbedLevel, data: EmbedData): Promise<MessageEmbed> {
+        if (data.content.includes('Error')) {
+            level = EmbedLevel.Error;
+        }
         const color: ColorResolvable = await this.mapEmbedLevelToColorResolvable(level);
 
         const embedData: Partial<MessageEmbed> = await this.mapEmbedDataToPartialMessageEmbedByType(
@@ -102,16 +105,14 @@ export class EmbedProvider extends Provider {
         switch (embedType) {
             case EmbedType.Minimal:
                 embedData = {
-                    author: {
-                        name: data.content,
-                    },
+                    description: '**' + data.content + '**',
                 };
                 break;
             case EmbedType.Detailed:
                 embedData = {
                     author: {
-                        name: this.client.user.username,
-                        iconURL: this.client.user.avatarURL(),
+                        name: data.authorName,
+                        iconURL: data.authorIcon,
                     },
                     title: data.title,
                     description: data.content,
@@ -125,17 +126,18 @@ export class EmbedProvider extends Provider {
                 break;
             case EmbedType.Technical:
                 embedData = {
-                    author: {
-                        name: this.client.user.username,
-                        iconURL: this.client.user.avatarURL(),
-                    },
                     title: data.title,
                     description: data.content,
                     footer: {
-                        iconURL: this.client.user.avatar,
+                        iconURL: this.client.user.avatarURL(),
                         text: 'Internal Message',
                     },
                     timestamp: Date.now(),
+                };
+                break;
+            case EmbedType.Separator:
+                embedData = {
+                    description: data.content,
                 };
                 break;
             default:
