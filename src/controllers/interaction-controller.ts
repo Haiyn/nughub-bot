@@ -118,6 +118,12 @@ export class InteractionController extends Controller {
             });
     }
 
+    /**
+     * Handles all errors that can be thrown while handling an interaction
+     *
+     * @param interaction The interaction during which the error was thrown
+     * @param error The error that was thrown
+     */
     private async handleInteractionError(interaction: CommandInteraction, error: unknown) {
         let userMessage;
         // Check which type of error was thrown to avoid producing more errors in catch clause

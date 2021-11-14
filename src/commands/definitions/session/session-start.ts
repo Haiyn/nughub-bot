@@ -21,13 +21,13 @@ export function commandDefinition(): SlashCommandBuilder {
             option
                 .setName(`user${i}`)
                 .setDescription(`The user that is supposed to go in turn order spot #${i}.`)
-                .setRequired(i < 3)
+                .setRequired(i < 2)
         );
         command.addStringOption((option) =>
             option
                 .setName(`character${i}`)
                 .setDescription(`The character name for the user #${i}.`)
-                .setRequired(i < 3)
+                .setRequired(i < 2)
         );
     }
     return <SlashCommandBuilder>command;

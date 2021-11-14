@@ -39,6 +39,28 @@ export class SessionFinish extends Command {
         };
     }
 
+    async runInternally(sessionToFinish: ISessionSchema): Promise<void> {
+        const rpSessionChannel = this.channelService.getTextChannelByChannelId(
+            sessionToFinish.channelId
+        );
+        const internalChannel = this.channelService.getTextChannelByChannelId(
+            await this.configuration.getString('Channels_InternalChannelId')
+        );
+
+        await this.deleteSessionFromDatabase(rpSessionChannel.id);
+
+        await this.sendSeparatorInRpChannel(rpSessionChannel);
+
+        await internalChannel.send({
+            embeds: [
+                await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
+                    title: 'Session post deleted',
+                    content: `The session post for the session in <#${rpSessionChannel.id}> was deleted. I have finished the session for you.`,
+                }),
+            ],
+        });
+    }
+
     public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
         const channel = this.channelService.getTextChannelByChannelId(
             options.getChannel('channel').id
