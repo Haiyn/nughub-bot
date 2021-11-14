@@ -4,6 +4,7 @@ import { SessionModel } from '@models/data/session-schema';
 import { ConfigurationProvider } from '@providers/configuration-provider';
 import { SessionFinish } from '@src/commands';
 import container from '@src/inversify.config';
+import { CommandError } from '@src/models';
 import { EmbedProvider } from '@src/providers';
 import { ChannelService, MessageService, PermissionService } from '@src/services';
 import { TYPES } from '@src/types';
@@ -100,11 +101,19 @@ export class MessageController extends Controller {
         }
     }
 
+    /**
+     * Handles all errors that can be thrown during a message handling
+     *
+     * @param error The error that was thrown
+     * @param message Optional message if it failed on a certain message
+     */
     private async handleError(error: unknown, message?: Message) {
         let internalMessage = message ? `Message ID ${message.id}: ` : '';
         if (error instanceof ConfigurationError) {
             // Configuration fetching failed
             internalMessage += `Configuration fetching failed: ${error.message}`;
+        } else if (error instanceof CommandError) {
+            internalMessage += `Failed while handling an internal command run: ${error.internalMessage}`;
         } else {
             internalMessage += `Unexpectedly failed while handling a message event: ${error}`;
         }
