@@ -1,6 +1,6 @@
 import { CommandResult } from '@models/commands/command-result';
 import { ConfigurationProvider } from '@providers/configuration-provider';
-import { StringProvider } from '@src/providers';
+import { EmbedProvider, StringProvider } from '@src/providers';
 import { ChannelService, HelperService, MessageService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
@@ -34,6 +34,9 @@ export abstract class Command {
     /** The string provider */
     readonly stringProvider: StringProvider;
 
+    /** The embed provider */
+    readonly embedProvider: EmbedProvider;
+
     constructor(
         @inject(TYPES.CommandLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
@@ -42,7 +45,8 @@ export abstract class Command {
         @inject(TYPES.HelperService) helperService: HelperService,
         @inject(TYPES.MessageService) messageService: MessageService,
         @inject(TYPES.UserService) userService: UserService,
-        @inject(TYPES.StringProvider) stringProvider: StringProvider
+        @inject(TYPES.StringProvider) stringProvider: StringProvider,
+        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider
     ) {
         this.logger = logger;
         this.client = client;
@@ -52,6 +56,7 @@ export abstract class Command {
         this.messageService = messageService;
         this.userService = userService;
         this.stringProvider = stringProvider;
+        this.embedProvider = embedProvider;
     }
 
     /**

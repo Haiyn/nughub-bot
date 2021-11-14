@@ -6,13 +6,13 @@ import { Character } from '@models/data/character';
 import { ICharacterSchema } from '@models/data/character-schema';
 import { Session } from '@models/data/session';
 import { SessionModel } from '@models/data/session-schema';
+import { EmbedLevel } from '@models/ui/embed-level';
+import { EmbedType } from '@models/ui/embed-type';
 import {
     Channel,
-    ColorResolvable,
     CommandInteraction,
     CommandInteractionOptionResolver,
     Message,
-    MessageEmbed,
     TextChannel,
 } from 'discord.js';
 import { injectable } from 'inversify';
@@ -41,10 +41,13 @@ export class SessionStart extends Command {
         this.logger.debug('Saving Session to database...');
         await this.saveSessionToDatabase(sessionToSave);
 
-        await interaction.reply({
+        const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-START.SUCCESS', [
                 sessionToSave.channel.id,
             ]),
+        });
+        await interaction.reply({
+            embeds: [embedReply],
         });
         return Promise.resolve({
             executed: true,
@@ -175,7 +178,7 @@ export class SessionStart extends Command {
         data: Session
     ): Promise<Message> {
         try {
-            let postContent = `\n\n<#${data.channel.id}>:\n`;
+            let postContent = `\n\n<#${data.channel.id}>:\n\n`;
             data.turnOrder.forEach((character) => {
                 if (
                     character.user.id === data.currentTurn.user.id &&
@@ -184,10 +187,13 @@ export class SessionStart extends Command {
                     postContent += ':arrow_right: ';
                 postContent += `${character.name} <@${character.user.id}>\n`;
             });
-            const divider = await this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR');
+            const divider = await this.embedProvider.get(EmbedType.Separator, EmbedLevel.Guild, {
+                content: await this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR'),
+            });
 
             const result = await sessionsChannel.send({
-                content: postContent + divider,
+                content: postContent,
+                embeds: [divider],
                 allowedMentions: { parse: [] },
             });
             this.logger.debug(`Sent new sessions message (ID: ${result.id})`);
@@ -255,16 +261,16 @@ export class SessionStart extends Command {
      * @throws {CommandError} Throws if message cannot be sent
      */
     private async initializeSessionsChannel(sessionsChannel: TextChannel): Promise<void> {
-        const embed = new MessageEmbed()
-            .setColor((await this.configuration.getString('Guild_Color')) as ColorResolvable)
-            .setAuthor(sessionsChannel.guild.name, sessionsChannel.guild.iconURL())
-            .setFooter(
-                await this.stringProvider.get('COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER')
-            )
-            .setTitle(await this.stringProvider.get('COMMAND.SESSION-START.INITIALIZE.EMBED-TITLE'))
-            .setDescription(
-                await this.stringProvider.get('COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION')
-            );
+        const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
+            title: await this.stringProvider.get('COMMAND.SESSION-START.INITIALIZE.EMBED-TITLE'),
+            content: await this.stringProvider.get(
+                'COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION'
+            ),
+            authorName: sessionsChannel.guild.name,
+            authorIcon: sessionsChannel.guild.iconURL(),
+            footer: await this.stringProvider.get('COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER'),
+        });
+
         const message = await sessionsChannel.send({ embeds: [embed] });
         if (!message)
             throw new CommandError(
