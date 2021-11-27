@@ -36,10 +36,12 @@ export class InteractionController extends Controller {
 
             // Delete any global commands
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            rest.get(Routes.applicationCommands(this.clientId)).then((data: any) => {
+            rest.get(Routes.applicationCommands(this.client.user.id)).then((data: any) => {
                 const promises = [];
                 for (const command of data) {
-                    const deleteUrl = `${Routes.applicationCommands(this.clientId)}/${command.id}`;
+                    const deleteUrl = `${Routes.applicationCommands(this.client.user.id)}/${
+                        command.id
+                    }`;
                     promises.push(rest.delete(<RouteLike>deleteUrl));
                 }
                 return Promise.all(promises);
@@ -48,7 +50,7 @@ export class InteractionController extends Controller {
             // Register guild commands
             await rest.put(
                 Routes.applicationGuildCommands(
-                    this.clientId,
+                    this.client.user.id,
                     container.get<string>(TYPES.GuildId)
                 ),
                 {
@@ -59,12 +61,63 @@ export class InteractionController extends Controller {
             this.logger.debug('Successfully refreshed application commands.');
             return Promise.resolve(commandDefinitions.length);
         } catch (error) {
-            this.logger.error(
+            this.logger.fatal(
                 'Failed to register application commands: ',
                 this.logger.prettyError(error)
             );
             return Promise.reject();
         }
+    }
+
+    /**
+     * Registers the permission for the application commands
+     *
+     * @returns Resolves when done, rejects when failed
+     */
+    public async registerApplicationCommandPermissions(): Promise<void> {
+        const rest = new REST({ version: '9' }).setToken(this.token);
+        const guild = await this.client.guilds.cache.get(this.guildId);
+
+        await rest.get(Routes.applicationGuildCommands(this.client.user.id, this.guildId)).then(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            async (data: any) => {
+                for (const command of data) {
+                    try {
+                        const registeredCommand = await guild?.commands.fetch(command.id);
+                        const applicationCommand = this.getCommandFromCommandName(
+                            registeredCommand.name
+                        );
+                        const permissions =
+                            await this.permissionProvider.mapCommandToCommandPermissions(
+                                applicationCommand,
+                                guild
+                            );
+
+                        await registeredCommand.permissions.add({ permissions });
+                    } catch (error) {
+                        this.logger.fatal(
+                            `Failed to construct and add permissions: `,
+                            this.logger.prettyError(error)
+                        );
+                        return Promise.reject();
+                    }
+                }
+            }
+        );
+
+        return Promise.resolve();
+    }
+
+    /**
+     * Gets a Command type class via a name
+     *
+     * @param name The name of the command to get
+     * @returns The fetched command
+     */
+    private getCommandFromCommandName(name: string): Command {
+        this.logger.debug(`Matching command for command name: ${name}...`);
+        const applicationCommandName = name.charAt(0).toUpperCase() + name.slice(1);
+        return container.get(applicationCommandName) as Command;
     }
 
     /**
@@ -90,10 +143,7 @@ export class InteractionController extends Controller {
      * @returns Resolves when handled
      */
     private async handleApplicationCommand(interaction: CommandInteraction): Promise<void> {
-        // Match the Command by name
-        const applicationCommandName =
-            interaction.commandName.charAt(0).toUpperCase() + interaction.commandName.slice(1);
-        const applicationCommand = container.get(applicationCommandName) as Command;
+        const applicationCommand = this.getCommandFromCommandName(interaction.commandName);
 
         // Validate the inputs
         let valid = true;

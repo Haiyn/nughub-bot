@@ -3,6 +3,7 @@ import { CommandError } from '@models/commands/command-error';
 import { CommandResult } from '@models/commands/command-result';
 import { CommandValidationError } from '@models/commands/command-validation-error';
 import { ISessionSchema, SessionModel } from '@models/data/session-schema';
+import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import { CommandInteraction, CommandInteractionOptionResolver, TextChannel } from 'discord.js';
@@ -10,6 +11,8 @@ import { injectable } from 'inversify';
 
 @injectable()
 export class SessionFinish extends Command {
+    public permissionLevel: PermissionLevel = PermissionLevel.Moderator;
+
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         const channel = this.channelService.getTextChannelByChannelId(
             interaction.options.getChannel('channel').id

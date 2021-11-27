@@ -6,6 +6,7 @@ import { Character } from '@models/data/character';
 import { ICharacterSchema } from '@models/data/character-schema';
 import { Session } from '@models/data/session';
 import { SessionModel } from '@models/data/session-schema';
+import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import {
@@ -19,6 +20,8 @@ import { injectable } from 'inversify';
 
 @injectable()
 export class SessionStart extends Command {
+    public permissionLevel: PermissionLevel = PermissionLevel.Moderator;
+
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         this.logger.debug('Parsing session...');
         const sessionToSave = await this.parseSession(interaction.options);

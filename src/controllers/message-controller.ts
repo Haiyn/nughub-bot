@@ -5,8 +5,8 @@ import { ConfigurationProvider } from '@providers/configuration-provider';
 import { SessionFinish } from '@src/commands';
 import container from '@src/inversify.config';
 import { CommandError } from '@src/models';
-import { EmbedProvider } from '@src/providers';
-import { ChannelService, MessageService, PermissionService } from '@src/services';
+import { EmbedProvider, PermissionProvider } from '@src/providers';
+import { ChannelService, MessageService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, Message } from 'discord.js';
 import { inject, injectable } from 'inversify';
@@ -16,27 +16,24 @@ import { Logger } from 'tslog';
 @injectable()
 export class MessageController extends Controller {
     readonly messageService: MessageService;
-    readonly permissionService: PermissionService;
     readonly channelService: ChannelService;
     readonly client: Client;
     readonly embedProvider: EmbedProvider;
 
     constructor(
         @inject(TYPES.MessageService) messageService: MessageService,
-        @inject(TYPES.PermissionService) permissionService: PermissionService,
         @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
-        @inject(TYPES.ClientId) clientId: string,
+        @inject(TYPES.GuildId) guildId: string,
         @inject(TYPES.Token) token: string,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
-        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider
+        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
+        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider
     ) {
-        super(logger, clientId, token, configuration, embedProvider);
+        super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
         this.messageService = messageService;
-        this.permissionService = permissionService;
         this.channelService = channelService;
-        this.client = client;
     }
 
     /**
