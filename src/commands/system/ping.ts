@@ -16,7 +16,7 @@ export class Ping extends Command {
         const embedReply = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Info, {
             content: await this.stringProvider.get('COMMAND.PING.PENDING'),
         });
-        await interaction.reply({
+        await this.interactionService.reply(interaction, {
             embeds: [embedReply],
         });
         embedReply.setDescription(await this.stringProvider.get('COMMAND.PING.SUCCESS'));

@@ -2,7 +2,7 @@ import { CommandResult } from '@models/commands/command-result';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { ConfigurationProvider } from '@providers/configuration-provider';
 import { EmbedProvider, StringProvider } from '@src/providers';
-import { ChannelService, HelperService, MessageService, UserService } from '@src/services';
+import { ChannelService, HelperService, InteractionService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import { inject, injectable } from 'inversify';
@@ -26,8 +26,8 @@ export abstract class Command {
     /** The helper service */
     protected readonly helperService: HelperService;
 
-    /** The message service */
-    protected readonly messageService: MessageService;
+    /** The interaction service */
+    protected readonly interactionService: InteractionService;
 
     /** The user service */
     protected readonly userService: UserService;
@@ -47,7 +47,7 @@ export abstract class Command {
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.HelperService) helperService: HelperService,
-        @inject(TYPES.MessageService) messageService: MessageService,
+        @inject(TYPES.InteractionService) interactionService: InteractionService,
         @inject(TYPES.UserService) userService: UserService,
         @inject(TYPES.StringProvider) stringProvider: StringProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider
@@ -57,7 +57,7 @@ export abstract class Command {
         this.configuration = configuration;
         this.channelService = channelService;
         this.helperService = helperService;
-        this.messageService = messageService;
+        this.interactionService = interactionService;
         this.userService = userService;
         this.stringProvider = stringProvider;
         this.embedProvider = embedProvider;
