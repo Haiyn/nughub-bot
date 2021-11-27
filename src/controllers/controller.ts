@@ -1,27 +1,23 @@
-import { ConfigurationProvider } from '@providers/configuration-provider';
-import { EmbedProvider } from '@src/providers';
+import { ConfigurationProvider, EmbedProvider, PermissionProvider } from '@src/providers';
 import { TYPES } from '@src/types';
+import { Client } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
-export interface IController {
-    readonly logger: Logger;
-    readonly clientId: string;
-    readonly token: string;
-    readonly configuration: ConfigurationProvider;
-}
-
 /** Controllers handle all Discord events */
 @injectable()
-export class Controller implements IController {
+export class Controller {
     /* The ts-log logger */
     readonly logger: Logger;
 
-    /* The client ID of the bot */
-    readonly clientId: string;
+    /* The guild ID where the bot is used */
+    readonly guildId: string;
 
     /* The token of the bot */
     readonly token: string;
+
+    /* The bot client */
+    readonly client: Client;
 
     /** The persistent config */
     configuration: ConfigurationProvider;
@@ -29,17 +25,24 @@ export class Controller implements IController {
     /** The embed provider for replying */
     embedProvider: EmbedProvider;
 
+    /** The permission provider to handle command permissions */
+    permissionProvider: PermissionProvider;
+
     constructor(
         @inject(TYPES.BaseLogger) logger: Logger,
-        @inject(TYPES.ClientId) clientId: string,
+        @inject(TYPES.GuildId) guildId: string,
         @inject(TYPES.Token) token: string,
+        @inject(TYPES.Client) client: Client,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
-        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider
+        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
+        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider
     ) {
         this.logger = logger;
-        this.clientId = clientId;
+        this.guildId = guildId;
         this.token = token;
+        this.client = client;
         this.configuration = configuration;
         this.embedProvider = embedProvider;
+        this.permissionProvider = permissionProvider;
     }
 }

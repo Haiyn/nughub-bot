@@ -81,8 +81,32 @@ export class Server {
         /** The client logged in and is ready to communicate */
         this.client.on('ready', async () => {
             this.logger.info('Client is ready. Caching vital messages...');
-            await this.messageController.handleCaching();
-            this.logger.info('Caching done.');
+            await this.messageController
+                .handleCaching()
+                .then(() => {
+                    this.logger.info('Caching done.');
+                })
+                .catch((error) => {
+                    this.logger.error(`Failed to cache messages: `, this.logger.prettyError(error));
+                });
+            this.logger.info('Registering application commands...');
+            await this.interactionController
+                .registerApplicationCommands()
+                .then((result) => {
+                    this.logger.info(`Registered ${result} interactions.`);
+                })
+                .catch(() => {
+                    process.exit(1);
+                });
+            this.logger.info('Registering application command permissions...');
+            await this.interactionController
+                .registerApplicationCommandPermissions()
+                .then(() => {
+                    this.logger.info(`Registered application command permissions.`);
+                })
+                .catch(() => {
+                    process.exit(1);
+                });
         });
 
         return this.client.login(this.token);

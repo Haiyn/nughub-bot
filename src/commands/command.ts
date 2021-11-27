@@ -1,4 +1,5 @@
 import { CommandResult } from '@models/commands/command-result';
+import { PermissionLevel } from '@models/permissions/permission-level';
 import { ConfigurationProvider } from '@providers/configuration-provider';
 import { EmbedProvider, StringProvider } from '@src/providers';
 import { ChannelService, HelperService, MessageService, UserService } from '@src/services';
@@ -11,31 +12,34 @@ import { Logger } from 'tslog';
 @injectable()
 export abstract class Command {
     /** The ts-log logger */
-    readonly logger: Logger;
+    protected readonly logger: Logger;
 
     /** The connected discord client */
-    readonly client: Client;
+    protected readonly client: Client;
 
     /** The persistent config */
-    readonly configuration: ConfigurationProvider;
+    protected readonly configuration: ConfigurationProvider;
 
     /** The channel service */
-    readonly channelService: ChannelService;
+    protected readonly channelService: ChannelService;
 
     /** The helper service */
-    readonly helperService: HelperService;
+    protected readonly helperService: HelperService;
 
     /** The message service */
-    readonly messageService: MessageService;
+    protected readonly messageService: MessageService;
 
     /** The user service */
-    readonly userService: UserService;
+    protected readonly userService: UserService;
 
     /** The string provider */
-    readonly stringProvider: StringProvider;
+    protected readonly stringProvider: StringProvider;
 
     /** The embed provider */
-    readonly embedProvider: EmbedProvider;
+    protected readonly embedProvider: EmbedProvider;
+
+    /* The permission level of the command */
+    public readonly permissionLevel: PermissionLevel;
 
     constructor(
         @inject(TYPES.CommandLogger) logger: Logger,

@@ -3,6 +3,7 @@ import { CommandError } from '@models/commands/command-error';
 import { CommandResult } from '@models/commands/command-result';
 import { ICharacterSchema } from '@models/data/character-schema';
 import { ISessionSchema, SessionModel } from '@models/data/session-schema';
+import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import { CommandValidationError } from '@src/models/commands/command-validation-error';
@@ -16,6 +17,8 @@ import { injectable } from 'inversify';
 
 @injectable()
 export class SessionNext extends Command {
+    public permissionLevel: PermissionLevel = PermissionLevel.Member;
+
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         this.logger.debug('Resolving channel...');
         let channel;

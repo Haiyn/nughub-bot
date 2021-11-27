@@ -2,19 +2,14 @@
 // Don't reorder these imports because reflect-metadata needs to be imported before any classes that use it
 import 'reflect-metadata';
 import { InteractionController, MessageController } from '@controllers/index';
-import {
-    ChannelService,
-    HelperService,
-    MessageService,
-    PermissionService,
-    UserService,
-} from '@services/index';
+import { ChannelService, HelperService, MessageService, UserService } from '@services/index';
 import { Ping, SessionFinish, SessionNext, SessionStart } from '@src/commands';
 import {
     EmojiProvider,
     StringProvider,
     EmbedProvider,
     ConfigurationProvider,
+    PermissionProvider,
 } from '@src/providers';
 import { Server } from '@src/server';
 import { TYPES } from '@src/types';
@@ -26,7 +21,6 @@ const container = new Container();
 
 // Environment
 container.bind<string>(TYPES.Token).toConstantValue(process.env.TOKEN);
-container.bind<string>(TYPES.ClientId).toConstantValue(process.env.CLIENT_ID);
 container.bind<string>(TYPES.BaseLogLevel).toConstantValue(process.env.BASE_LOG_LEVEL);
 container.bind<string>(TYPES.ServiceLogLevel).toConstantValue(process.env.SERVICE_LOG_LEVEL);
 container.bind<string>(TYPES.CommandLogLevel).toConstantValue(process.env.COMMAND_LOG_LEVEL);
@@ -97,10 +91,13 @@ container
     .to(ConfigurationProvider)
     .inSingletonScope();
 container.bind<EmbedProvider>(TYPES.EmbedProvider).to(EmbedProvider).inSingletonScope();
+container
+    .bind<PermissionProvider>(TYPES.PermissionProvider)
+    .to(PermissionProvider)
+    .inSingletonScope();
 
 // Services
 container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();
-container.bind<PermissionService>(TYPES.PermissionService).to(PermissionService).inSingletonScope();
 container.bind<HelperService>(TYPES.HelperService).to(HelperService).inSingletonScope();
 container.bind<UserService>(TYPES.UserService).to(UserService).inSingletonScope();
 container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingletonScope();

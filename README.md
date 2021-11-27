@@ -49,7 +49,6 @@ ENVIRONMENT=local
 
 # SECRETS
 TOKEN=[THE_BOT_TOKEN]
-CLIENT_ID=[THE_BOT_CLIENT_ID]
 
 # MONGODB
 MONGODB_CONNSTR=mongodb://nhb-user:dev-user@localhost:27017/nhb?authSource=admin

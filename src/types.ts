@@ -2,7 +2,6 @@ export const TYPES = {
     // Constants
     Server: Symbol('Server'),
     Client: Symbol('Client'),
-    ClientId: Symbol('ClientId'),
     Token: Symbol('Token'),
     BotOwnerId: Symbol('BotOwnerId'),
     GuildId: Symbol('GuildId'),
@@ -22,9 +21,9 @@ export const TYPES = {
     EmojiProvider: Symbol('EmojiProvider'),
     ConfigurationProvider: Symbol('ConfigurationProvider'),
     EmbedProvider: Symbol('EmbedProvider'),
+    PermissionProvider: Symbol('PermissionProvider'),
 
     // Services
-    PermissionService: Symbol('PermissionService'),
     HelperService: Symbol('HelperService'),
     UserService: Symbol('UserService'),
     ChannelService: Symbol('ChannelService'),

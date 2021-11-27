@@ -1,10 +1,13 @@
 export { CommandError } from './commands/command-error';
+export { CommandPermission } from './commands/command-permission';
 export { CommandResult } from './commands/command-result';
 export { CommandValidationError } from './commands/command-validation-error';
 export { Character, ICharacter } from './data/character';
 export { characterSchema, ICharacterSchema } from './data/character-schema';
 export { Session } from './data/session';
 export { ISessionSchema, SessionModel } from './data/session-schema';
+export { PermissionLevel } from './permissions/permission-level';
+export { PermissionType } from './permissions/permission-type';
 export { EmbedData } from './ui/embed-data';
 export { EmbedLevel } from './ui/embed-level';
 export { EmbedType } from './ui/embed-type';
