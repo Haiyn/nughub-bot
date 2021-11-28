@@ -74,4 +74,30 @@ export class ConfigurationProvider extends Provider {
         );
         return Promise.resolve(result);
     }
+
+    /**
+     * Scans the redis database recursively for available keys and returns them
+     *
+     * @param cursor Where the scan cursor is at right now
+     * @param pattern the (regex) pattern which keys should be returned
+     * @param foundKeys Found redis keys that match the pattern (so far)
+     * @returns All found redis keys that match the pattern as an array
+     */
+    public async scan(cursor: number, pattern: string, foundKeys: string[]): Promise<string[]> {
+        return this.redisClient.scan(cursor, 'MATCH', pattern, 'COUNT', 100).then((result) => {
+            cursor = result[0] as unknown as number;
+            const keys = result[1];
+            keys.forEach((key) => {
+                this.logger.trace(`Found new redis key: ${key}`);
+                foundKeys.push(key);
+            });
+
+            if (cursor == 0) {
+                this.logger.trace(`Cursor at null. Redis key fetch done.`);
+                return foundKeys;
+            } else {
+                return this.scan(cursor, pattern, foundKeys);
+            }
+        });
+    }
 }
