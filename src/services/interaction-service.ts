@@ -45,7 +45,12 @@ export class InteractionService extends Service {
 
             if (interaction.replied) {
                 this.logger.warn(`Trying to reply to an interaction that already has a reply!`);
-                return;
+                return Promise.resolve();
+            }
+
+            if (interaction.deferred) {
+                await interaction.editReply({ ...options });
+                return Promise.resolve();
             }
 
             await interaction.reply({ ...options, ephemeral: isEphemeral });

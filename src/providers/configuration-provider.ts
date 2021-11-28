@@ -100,4 +100,19 @@ export class ConfigurationProvider extends Provider {
             }
         });
     }
+
+    /**
+     * Checks if a given key exists as an entry in the db
+     *
+     * @param key The key to check for
+     * @returns true if exists, false otherwise
+     */
+    public async exists(key: string): Promise<boolean> {
+        if (key.startsWith('CONFIGURATION_')) {
+            key = key.slice(14);
+        }
+        const result = await this.redisClient.get(key);
+        this.logger.trace(`Value for ${key}: ${result}`);
+        return result !== null;
+    }
 }

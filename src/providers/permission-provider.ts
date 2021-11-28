@@ -30,7 +30,7 @@ export class PermissionProvider extends Provider {
             container.get(TYPES.RedisPort),
             {
                 password: container.get(TYPES.RedisPassword),
-                keyPrefix: 'PERMISSION_',
+                keyPrefix: 'CONFIGURATION_',
             }
         );
     }
@@ -63,9 +63,11 @@ export class PermissionProvider extends Provider {
             level < Object.keys(PermissionLevel).length / 2;
             level++
         ) {
-            const roleId = await this.redisClient.get(`Role_${level}_Id`);
+            const roleId = await this.redisClient.get(`Permission_Role_${level}_Id`);
             if (!roleId)
-                throw new ConfigurationError(`Could not find a Role ID for 'Role_${level}_Id'`);
+                throw new ConfigurationError(
+                    `Could not find a Role ID for 'Permission_Role_${level}_Id'`
+                );
 
             permissions.push({
                 id: roleId,
@@ -76,7 +78,7 @@ export class PermissionProvider extends Provider {
 
         // Attach owner permissions
         permissions.push({
-            id: await this.redisClient.get('User_4_Id'),
+            id: await this.redisClient.get('Permission_User_4_Id'),
             type: PermissionType.USER,
             permission: true,
         });
