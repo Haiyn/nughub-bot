@@ -27,7 +27,7 @@ export const TYPES = {
     HelperService: Symbol('HelperService'),
     UserService: Symbol('UserService'),
     ChannelService: Symbol('ChannelService'),
-    MessageService: Symbol('MessageService'),
+    InteractionService: Symbol('InteractionService'),
 
     // Commands
     Ping: Symbol('Ping'),

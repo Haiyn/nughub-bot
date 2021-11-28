@@ -49,10 +49,9 @@ export class SessionNext extends Command {
         const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-NEXT.SUCCESS'),
         });
-        await interaction.reply({
+        await this.interactionService.reply(interaction, {
             embeds: [embedReply],
         });
-        // TODO: Delete message
 
         return {
             executed: true,

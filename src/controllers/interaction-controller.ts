@@ -8,14 +8,33 @@ import { ConfigurationError } from '@models/config/configuration-error';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import container from '@src/inversify.config';
+import { ConfigurationProvider, EmbedProvider, PermissionProvider } from '@src/providers';
+import { InteractionService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Routes } from 'discord-api-types/v9';
-import { CommandInteraction, Interaction } from 'discord.js';
-import { injectable } from 'inversify';
+import { Client, CommandInteraction, Interaction } from 'discord.js';
+import { inject, injectable } from 'inversify';
+import { Logger } from 'tslog';
 
 /** Registers interactions and handles all incoming interaction events */
 @injectable()
 export class InteractionController extends Controller {
+    readonly interactionService: InteractionService;
+
+    constructor(
+        @inject(TYPES.InteractionService) interactionService: InteractionService,
+        @inject(TYPES.BaseLogger) logger: Logger,
+        @inject(TYPES.Client) client: Client,
+        @inject(TYPES.GuildId) guildId: string,
+        @inject(TYPES.Token) token: string,
+        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
+        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
+        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider
+    ) {
+        super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
+        this.interactionService = interactionService;
+    }
+
     /**
      * Registers the Application commands from src/commands/definitions in the guild scope
      * Deletes any global commands because global commands take too long to register. Guild commands are instant.
@@ -211,7 +230,7 @@ export class InteractionController extends Controller {
             const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Error, {
                 content: userMessage,
             });
-            await interaction.reply({
+            await this.interactionService.reply(interaction, {
                 embeds: [embedReply],
                 ephemeral: true,
             });

@@ -6,7 +6,7 @@ import { SessionFinish } from '@src/commands';
 import container from '@src/inversify.config';
 import { CommandError } from '@src/models';
 import { EmbedProvider, PermissionProvider } from '@src/providers';
-import { ChannelService, MessageService } from '@src/services';
+import { ChannelService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, Message } from 'discord.js';
 import { inject, injectable } from 'inversify';
@@ -15,13 +15,9 @@ import { Logger } from 'tslog';
 /** Handles all incoming message events */
 @injectable()
 export class MessageController extends Controller {
-    readonly messageService: MessageService;
     readonly channelService: ChannelService;
-    readonly client: Client;
-    readonly embedProvider: EmbedProvider;
 
     constructor(
-        @inject(TYPES.MessageService) messageService: MessageService,
         @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
@@ -32,7 +28,6 @@ export class MessageController extends Controller {
         @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider
     ) {
         super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
-        this.messageService = messageService;
         this.channelService = channelService;
     }
 

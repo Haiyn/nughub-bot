@@ -49,7 +49,7 @@ export class SessionStart extends Command {
                 sessionToSave.channel.id,
             ]),
         });
-        await interaction.reply({
+        await this.interactionService.reply(interaction, {
             embeds: [embedReply],
         });
         return Promise.resolve({

@@ -33,7 +33,7 @@ export class SessionFinish extends Command {
                 channel.id,
             ]),
         });
-        await interaction.reply({
+        await this.interactionService.reply(interaction, {
             embeds: [embedReply],
         });
         return {

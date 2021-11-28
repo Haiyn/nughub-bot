@@ -2,7 +2,7 @@
 // Don't reorder these imports because reflect-metadata needs to be imported before any classes that use it
 import 'reflect-metadata';
 import { InteractionController, MessageController } from '@controllers/index';
-import { ChannelService, HelperService, MessageService, UserService } from '@services/index';
+import { ChannelService, HelperService, InteractionService, UserService } from '@services/index';
 import { Ping, SessionFinish, SessionNext, SessionStart } from '@src/commands';
 import {
     EmojiProvider,
@@ -97,7 +97,10 @@ container
     .inSingletonScope();
 
 // Services
-container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();
+container
+    .bind<InteractionService>(TYPES.InteractionService)
+    .to(InteractionService)
+    .inSingletonScope();
 container.bind<HelperService>(TYPES.HelperService).to(HelperService).inSingletonScope();
 container.bind<UserService>(TYPES.UserService).to(UserService).inSingletonScope();
 container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingletonScope();
