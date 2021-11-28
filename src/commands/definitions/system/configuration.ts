@@ -14,6 +14,19 @@ export function commandDefinition(): SlashCommandBuilder {
         )
         .addSubcommand((subcommand) =>
             subcommand
+                .setName('get')
+                .setDescription('Gets the values of a specific key.')
+                .addStringOption((option) =>
+                    option
+                        .setName('key')
+                        .setDescription(
+                            'The key to get the values of. You can see them all with /configuration show.'
+                        )
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
                 .setName('edit')
                 .setDescription('Edit the current configuration.')
                 .addStringOption((option) =>

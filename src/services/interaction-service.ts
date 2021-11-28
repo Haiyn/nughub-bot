@@ -37,7 +37,7 @@ export class InteractionService extends Service {
             let isEphemeral = true;
             // If ephemeral wasn't explicitly set, check if it should be
             if (!options.ephemeral) {
-                isEphemeral = await this.configuration.isIn(
+                isEphemeral = await this.configuration.isInSet(
                     'Channels_RpChannelIds',
                     interaction.channel.id
                 );
