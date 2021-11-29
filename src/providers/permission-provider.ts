@@ -63,16 +63,18 @@ export class PermissionProvider extends Provider {
             level < Object.keys(PermissionLevel).length / 2;
             level++
         ) {
-            const roleId = await this.redisClient.get(`Permission_Role_${level}_Id`);
+            const roleId = await this.redisClient.smembers(`Permission_Roles_${level}_Ids`);
             if (!roleId)
                 throw new ConfigurationError(
-                    `Could not find a Role ID for 'Permission_Role_${level}_Id'`
+                    `Could not find a Role ID for 'Permission_Roles_${level}_Ids'`
                 );
 
-            permissions.push({
-                id: roleId,
-                type: PermissionType.ROLE,
-                permission: true,
+            roleId.forEach((roleId) => {
+                permissions.push({
+                    id: roleId,
+                    type: PermissionType.ROLE,
+                    permission: true,
+                });
             });
         }
 

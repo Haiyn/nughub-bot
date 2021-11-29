@@ -152,7 +152,7 @@ export class Configuration extends Command {
             embedCount++;
         }
 
-        await interaction.editReply({
+        await this.interactionService.reply(interaction, {
             embeds: embeds,
         });
     }
