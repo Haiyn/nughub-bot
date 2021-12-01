@@ -20,4 +20,15 @@ export class HelperService extends Service {
         }
         return foundMatch[0];
     }
+
+    /**
+     * Checks if a passed string is a valid Discord ID
+     *
+     * @param stringValue the string to check
+     * @returns true if discord ID, false if not
+     */
+    public isDiscordId(stringValue: string): boolean {
+        const foundMatch = String(stringValue).match(this.discordIdRegex);
+        return foundMatch !== null;
+    }
 }

@@ -63,7 +63,7 @@ export class SessionStart extends Command {
         const channel = this.channelService.getTextChannelByChannelId(
             options.getChannel('channel').id
         );
-        if (!(await this.configuration.isIn('Channels_RpChannelIds', channel.id))) {
+        if (!(await this.configuration.isInSet('Channels_RpChannelIds', channel.id))) {
             throw new CommandValidationError(
                 `User provided channel that isn't in permitted RP channels list.`,
                 await this.stringProvider.get(

@@ -42,4 +42,14 @@ export class ChannelService extends Service {
         }
         return matchedChannel as TextChannel;
     }
+
+    /**
+     * Checks if a given channelId is an RP channel
+     *
+     * @param channelId The channel id to check
+     * @returns True if rp channel, false if not
+     */
+    public async isRpChannel(channelId: string): Promise<boolean> {
+        return await this.configuration.isInSet('Channels_RpChannelIds', channelId);
+    }
 }

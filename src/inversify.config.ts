@@ -3,7 +3,7 @@
 import 'reflect-metadata';
 import { InteractionController, MessageController } from '@controllers/index';
 import { ChannelService, HelperService, InteractionService, UserService } from '@services/index';
-import { Ping, SessionFinish, SessionNext, SessionStart } from '@src/commands';
+import { Ping, SessionFinish, SessionNext, SessionStart, Configuration } from '@src/commands';
 import {
     EmojiProvider,
     StringProvider,
@@ -118,5 +118,6 @@ container.bind<Ping>('Ping').to(Ping).inRequestScope();
 container.bind<SessionStart>('Start').to(SessionStart).inRequestScope();
 container.bind<SessionFinish>('Finish').to(SessionFinish).inRequestScope();
 container.bind<SessionNext>('Next').to(SessionNext).inRequestScope();
+container.bind<Configuration>('Configuration').to(Configuration).inRequestScope();
 
 export default container;

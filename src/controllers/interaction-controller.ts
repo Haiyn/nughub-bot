@@ -42,15 +42,15 @@ export class InteractionController extends Controller {
      * @returns Resolves with the amount of application commands registered
      */
     public async registerApplicationCommands(): Promise<number> {
-        // Set up requests
-        const jsonPayload = [];
-        for (let i = 0; i < commandDefinitions.length; i++) {
-            jsonPayload.push(commandDefinitions[i].toJSON());
-        }
-        const rest = new REST({ version: '9' }).setToken(this.token);
-
-        // Run requests
         try {
+            // Set up requests
+            const jsonPayload = [];
+            for (let i = 0; i < commandDefinitions.length; i++) {
+                jsonPayload.push(commandDefinitions[i].toJSON());
+            }
+            const rest = new REST({ version: '9' }).setToken(this.token);
+
+            // Run requests
             this.logger.debug('Refreshing application commands...');
 
             // Delete any global commands
