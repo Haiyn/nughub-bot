@@ -1,0 +1,28 @@
+Group;Key;Value
+Ping;STRINGS.COMMAND.PING.SUCCESS;(Squeaks regally)
+Ping;STRINGS.COMMAND.PING.PENDING;Checking...
+Session Finish;STRINGS.COMMAND.SESSION-FINISH.VALIDATION.NO-ONGOING-RP;There is no ongoing RP session in <#{0}>!
+Session Finish;STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-NOT-DELETED;I couldn't delete the session post from <#{0}> but the session is still finished! Please check if the session message was removed.
+Session Finish;STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-DELETED;The session in <#{0}> is now finished!
+Session Next;STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP;There is no ongoing RP session in <#{0}>!
+Session Next;STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NOT-USERS-TURN;It is currently <@{0}>'s turn! Only they are allowed to advance their turn.
+Session Next;STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP-IN-CURRENT-CHANNEL;There is no ongoing RP session in this channel! Please use this command in the RP channel or supply it when using the command.
+Session Next;STRINGS.COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED;Uh-oh, I couldn't manage to update the session post in <#{0}!
+Session Next;STRINGS.COMMAND.SESSION-NEXT.SUCCESS;I notified the next user!
+Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.INVALID-RP-CHANNEL;<#{0}> is not a channel you can start a session in! Please pick a valid RP channel.
+Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.CHANNEL-ALREADY-USED;There is already a RP session running <#{0}>!
+Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.CHARACTER-NAME-NOT-PROVIDED;Please provide a character name for every user you've mentioned!
+Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.USER-NOT-PROVIDED;Please provide a user for every character name you've given!
+Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.DUPLICATE-CHARACTER-NAME;You can't start an RP that has the same character twice!
+Session Start;STRINGS.COMMAND.SESSION-START.ERROR.PARSE-SESSION-FAILED;Uh-oh, something went wrong while I was trying to process your inputs!
+Session Start;STRINGS.COMMAND.SESSION-START.ERROR.SAVE-TO-SESSION-CHANNEL-FAILED;Uh-oh, something went wrong while I was trying to post the session!
+Session Start;STRINGS.COMMAND.SESSION-START.ERROR.COULD-NOT-INITIALIZE-CHANNEL;I can't post the session in <#{0}> because there are messages in it that aren't from me!
+Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-TITLE;Ongoing RP Sessions
+Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION;You can find all currently running RPs here - including their turn order.
+Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER;(squeaks regally)
+Session Start;STRINGS.COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED;Uh-oh, I ran into some trouble while trying to initialize the sessions channel!
+Session Start;STRINGS.COMMAND.SESSION-START.SUCCESS;I successfully started a new RP session in <#${sessionToSave.channel.id}>!
+System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR;Internal Error: `Command validation failed unexpectedly.`
+System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR;Internal Error: `Command execution failed unexpectedly.`
+System;SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT;Internal Error: `Database rejection`
+System;STRINGS.SYSTEM.DECORATORS.SEPARATOR;༺═──────────────═༻

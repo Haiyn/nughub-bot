@@ -1,6 +1,6 @@
 {
   "name": "nughub-bot",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "A Discord.js bot for The Nug Hub.",
   "main": "index.js",
   "scripts": {
