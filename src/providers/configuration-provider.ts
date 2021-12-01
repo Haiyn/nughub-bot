@@ -65,13 +65,6 @@ export class ConfigurationProvider extends Provider {
      */
     public async isIn(key: string, member: string): Promise<boolean> {
         const result = (await this.redisClient.sismember(key, member)) != 0;
-        this.logger.debug(
-            `${member} is ${
-                result ? '' : 'not'
-            } a member of ${key}, where ${key} is: ${await this.redisClient.smembers(
-                'CONFIGURATION_' + key
-            )}`
-        );
         return Promise.resolve(result);
     }
 }

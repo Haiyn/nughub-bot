@@ -1,6 +1,15 @@
 import { InteractionController, MessageController } from '@controllers/index';
+import { ReactionController } from '@controllers/reaction-controller';
 import { TYPES } from '@src/types';
-import { Client, Interaction, Message } from 'discord.js';
+import {
+    Client,
+    Interaction,
+    Message,
+    MessageReaction,
+    PartialMessageReaction,
+    PartialUser,
+    User,
+} from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
@@ -22,18 +31,23 @@ export class Server {
     /** The interaction controller that handles all interaction events */
     private readonly interactionController: InteractionController;
 
+    /** The reaction controller that handles all reaction events */
+    private readonly reactionController: ReactionController;
+
     constructor(
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.Token) token: string,
         @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.MessageController) messageController: MessageController,
-        @inject(TYPES.InteractionController) interactionController: InteractionController
+        @inject(TYPES.InteractionController) interactionController: InteractionController,
+        @inject(TYPES.ReactionController) reactionController: ReactionController
     ) {
         this.client = client;
         this.token = token;
         this.logger = logger;
         this.messageController = messageController;
         this.interactionController = interactionController;
+        this.reactionController = reactionController;
     }
 
     /**
@@ -77,6 +91,41 @@ export class Server {
                 this.logger.error(`Failed: `, this.logger.prettyError(error));
             });
         });
+
+        /** A reaction was added */
+        this.client.on(
+            'messageReactionAdd',
+            async (
+                reaction: MessageReaction | PartialMessageReaction,
+                user: User | PartialUser
+            ) => {
+                if (reaction.partial || user.partial) {
+                    // Message or user is partial, fetch the whole object
+                    try {
+                        await reaction.fetch();
+                        await user.fetch();
+                    } catch (error) {
+                        this.logger.warn(
+                            `Could not fetch partial reaction or user: `,
+                            this.logger.prettyError(error)
+                        );
+                        return;
+                    }
+                }
+
+                this.logger.trace(
+                    `Reaction received: Message ID: ${reaction.message.id}\nEmoji: ${reaction.emoji}\n Count: ${reaction.count}`
+                );
+                await this.reactionController
+                    .handleReactionAdd(reaction as MessageReaction, user as User)
+                    .catch((error) => {
+                        this.logger.error(
+                            `Reaction Handling failed: `,
+                            this.logger.prettyError(error)
+                        );
+                    });
+            }
+        );
 
         /** The client logged in and is ready to communicate */
         this.client.on('ready', async () => {
