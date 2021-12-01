@@ -16,6 +16,8 @@ import { TYPES } from '@src/types';
 import { Client, Intents } from 'discord.js';
 import { Container } from 'inversify';
 import { Logger, TLogLevelName } from 'tslog';
+import { ReactionController } from '@controllers/reaction-controller';
+import { ReactionService } from '@services/reaction-service';
 
 const container = new Container();
 
@@ -44,6 +46,7 @@ container.bind<Client>(TYPES.Client).toConstantValue(
             Intents.FLAGS.GUILD_MEMBERS,
             Intents.FLAGS.GUILDS,
         ],
+        partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
     })
 );
 container.bind<Logger>(TYPES.BaseLogger).toConstantValue(
@@ -82,6 +85,10 @@ container
     .bind<InteractionController>(TYPES.InteractionController)
     .to(InteractionController)
     .inSingletonScope();
+container
+    .bind<ReactionController>(TYPES.ReactionController)
+    .to(ReactionController)
+    .inSingletonScope();
 
 // Providers
 container.bind<StringProvider>(TYPES.StringProvider).to(StringProvider).inSingletonScope();
@@ -104,6 +111,7 @@ container
 container.bind<HelperService>(TYPES.HelperService).to(HelperService).inSingletonScope();
 container.bind<UserService>(TYPES.UserService).to(UserService).inSingletonScope();
 container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingletonScope();
+container.bind<ReactionService>(TYPES.ReactionService).to(ReactionService).inSingletonScope();
 
 // Commands
 container.bind<Ping>('Ping').to(Ping).inRequestScope();

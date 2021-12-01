@@ -90,11 +90,6 @@ export class ConfigurationProvider extends Provider {
      */
     public async isInSet(key: string, member: string): Promise<boolean> {
         const result = (await this.redisClient.sismember(key, member)) != 0;
-        this.logger.trace(
-            `${member} is ${
-                result ? '' : 'not'
-            } a member of ${key}, where ${key} is: ${await this.redisClient.smembers(key)}`
-        );
         return Promise.resolve(result);
     }
 

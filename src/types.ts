@@ -15,6 +15,7 @@ export const TYPES = {
     // Controllers
     MessageController: Symbol('MessageController'),
     InteractionController: Symbol('InteractionController'),
+    ReactionController: Symbol('ReactionController'),
 
     // Providers
     StringProvider: Symbol('StringProvider'),
@@ -28,6 +29,7 @@ export const TYPES = {
     UserService: Symbol('UserService'),
     ChannelService: Symbol('ChannelService'),
     InteractionService: Symbol('InteractionService'),
+    ReactionService: Symbol('ReactionService'),
 
     // Commands
     Ping: Symbol('Ping'),
