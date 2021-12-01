@@ -66,7 +66,10 @@ export class ReactionController extends Controller {
 
         // Remove disallowed rp channel reactions
         if (
-            (await this.configuration.isIn('Channels_RpChannelIds', reaction.message.channelId)) &&
+            (await this.configuration.isInSet(
+                'Channels_RpChannelIds',
+                reaction.message.channelId
+            )) &&
             reaction.emoji.name !== (await this.emojiProvider.get('TUPPER.EDIT')) &&
             reaction.emoji.name !== (await this.emojiProvider.get('TUPPER.DELETE'))
         ) {
