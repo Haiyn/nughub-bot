@@ -1,6 +1,8 @@
+import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { CommandResult } from '@models/commands/command-result';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { ConfigurationProvider } from '@providers/configuration-provider';
+import { ScheduleService } from '@services/schedule-service';
 import { EmbedProvider, StringProvider } from '@src/providers';
 import { ChannelService, HelperService, InteractionService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
@@ -32,8 +34,14 @@ export abstract class Command {
     /** The user service */
     protected readonly userService: UserService;
 
+    /** The schedule service */
+    protected readonly scheduleService: ScheduleService;
+
     /** The string provider */
     protected readonly stringProvider: StringProvider;
+
+    /** The job runtime controller */
+    protected readonly jobRuntime: JobRuntimeController;
 
     /** The embed provider */
     protected readonly embedProvider: EmbedProvider;
@@ -49,8 +57,10 @@ export abstract class Command {
         @inject(TYPES.HelperService) helperService: HelperService,
         @inject(TYPES.InteractionService) interactionService: InteractionService,
         @inject(TYPES.UserService) userService: UserService,
+        @inject(TYPES.ScheduleService) scheduleService: ScheduleService,
         @inject(TYPES.StringProvider) stringProvider: StringProvider,
-        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider
+        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
+        @inject(TYPES.JobRuntimeController) jobRuntime: JobRuntimeController
     ) {
         this.logger = logger;
         this.client = client;
@@ -59,8 +69,10 @@ export abstract class Command {
         this.helperService = helperService;
         this.interactionService = interactionService;
         this.userService = userService;
+        this.scheduleService = scheduleService;
         this.stringProvider = stringProvider;
         this.embedProvider = embedProvider;
+        this.jobRuntime = jobRuntime;
     }
 
     /**

@@ -4,22 +4,17 @@ import { Client } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
-export interface IService {
-    readonly configuration: ConfigurationProvider;
-    readonly logger: Logger;
-}
-
 /** Services handle different reusable functions regarding Discord */
 @injectable()
-export class Service implements IService {
+export class Service {
     /** The connected bot client */
-    readonly client: Client;
+    protected readonly client: Client;
 
     /** The ts-log logger */
-    readonly logger: Logger;
+    protected readonly logger: Logger;
 
     /** The persistent config */
-    configuration: ConfigurationProvider;
+    protected readonly configuration: ConfigurationProvider;
 
     constructor(
         @inject(TYPES.Client) client: Client,
