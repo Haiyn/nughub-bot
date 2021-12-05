@@ -3,7 +3,12 @@ import { Reminder } from '@models/jobs/reminder';
 import { IReminderSchema, ReminderModel } from '@models/jobs/reminder-schema';
 import { ScheduleService } from '@services/schedule-service';
 import { EmbedLevel, EmbedType } from '@src/models';
-import { ConfigurationProvider, EmbedProvider, PermissionProvider } from '@src/providers';
+import {
+    ConfigurationProvider,
+    EmbedProvider,
+    PermissionProvider,
+    StringProvider,
+} from '@src/providers';
 import { ChannelService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client } from 'discord.js';
@@ -16,6 +21,7 @@ export class JobRuntimeController extends Controller {
     private readonly channelService: ChannelService;
     private readonly scheduleService: ScheduleService;
     private readonly userService: UserService;
+    private readonly stringProvider: StringProvider;
 
     constructor(
         @inject(TYPES.ChannelService) channelService: ChannelService,
@@ -27,12 +33,14 @@ export class JobRuntimeController extends Controller {
         @inject(TYPES.Token) token: string,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider
+        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider,
+        @inject(TYPES.StringProvider) stringProvider: StringProvider
     ) {
         super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
         this.channelService = channelService;
         this.userService = userService;
         this.scheduleService = scheduleService;
+        this.stringProvider = stringProvider;
     }
 
     /**
@@ -95,7 +103,7 @@ export class JobRuntimeController extends Controller {
             this.logger.info(`Sending reminder ${reminder.name}...`);
             try {
                 const message = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
-                    title: "Reminder: It's your turn!",
+                    title: await this.stringProvider.get('JOB.REMINDER.TITLE'),
                     content: `*${reminder.characterName}* in <#${reminder.channel.id}>`,
                     authorName: reminder.user.username,
                     authorIcon: reminder.user.avatarURL(),

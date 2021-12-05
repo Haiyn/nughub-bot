@@ -43,7 +43,7 @@ export class StringProvider extends Provider {
         if (!result) {
             // Since strings are used in message sending, make sure that they are not null
             this.logger.warn(`Failed to get string with key STRINGS.${key}`);
-            return `\`Internal Error: Cannot resolve key ${key}\`\n`;
+            return key;
         }
 
         // Append the parameters, if there are any
@@ -56,7 +56,7 @@ export class StringProvider extends Provider {
                         parameters.length
                     } parameters: ${JSON.stringify(parameters)}`
                 );
-                return `\`Internal Error: Cannot resolve parameters for key ${key}\``;
+                return key;
             }
         }
         return result;

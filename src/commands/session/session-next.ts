@@ -216,7 +216,7 @@ export class SessionNext extends Command {
         if (userMessage) content += `\n\n<@${previousTurn.userId}> said: \\"${userMessage}\\"`;
         const user = await this.client.users.fetch(newSession.currentTurn.userId);
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
-            title: "It's your turn!",
+            title: await this.stringProvider.get('COMMAND.SESSION-NEXT.NOTIFICATION-TITLE'),
             content: content,
             authorName: user.username,
             authorIcon: user.avatarURL(),
