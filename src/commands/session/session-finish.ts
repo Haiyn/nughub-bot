@@ -46,15 +46,12 @@ export class SessionFinish extends Command {
         const rpSessionChannel = this.channelService.getTextChannelByChannelId(
             sessionToFinish.channelId
         );
-        const internalChannel = this.channelService.getTextChannelByChannelId(
-            await this.configuration.getString('Channels_InternalChannelId')
-        );
 
         await this.deleteSessionFromDatabase(rpSessionChannel.id);
 
         await this.sendSeparatorInRpChannel(rpSessionChannel);
 
-        await internalChannel.send({
+        await this.messageService.sendInternalMessage({
             embeds: [
                 await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
                     title: 'Session post deleted',

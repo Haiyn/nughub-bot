@@ -1,4 +1,5 @@
 import { InteractionController, MessageController } from '@controllers/index';
+import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { ReactionController } from '@controllers/reaction-controller';
 import { TYPES } from '@src/types';
 import {
@@ -34,13 +35,17 @@ export class Server {
     /** The reaction controller that handles all reaction events */
     private readonly reactionController: ReactionController;
 
+    /** The job runtime controller that handles all timed jobs */
+    private readonly jobRuntimeController: JobRuntimeController;
+
     constructor(
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.Token) token: string,
         @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.MessageController) messageController: MessageController,
         @inject(TYPES.InteractionController) interactionController: InteractionController,
-        @inject(TYPES.ReactionController) reactionController: ReactionController
+        @inject(TYPES.ReactionController) reactionController: ReactionController,
+        @inject(TYPES.JobRuntimeController) jobRuntimeController: JobRuntimeController
     ) {
         this.client = client;
         this.token = token;
@@ -48,6 +53,7 @@ export class Server {
         this.messageController = messageController;
         this.interactionController = interactionController;
         this.reactionController = reactionController;
+        this.jobRuntimeController = jobRuntimeController;
     }
 
     /**
@@ -129,35 +135,51 @@ export class Server {
 
         /** The client logged in and is ready to communicate */
         this.client.on('ready', async () => {
-            this.logger.info('Client is ready. Caching vital messages...');
-            await this.messageController
-                .handleCaching()
-                .then(() => {
-                    this.logger.info('Caching done.');
-                })
-                .catch((error) => {
-                    this.logger.error(`Failed to cache messages: `, this.logger.prettyError(error));
-                });
-            this.logger.info('Registering application commands...');
-            await this.interactionController
-                .registerApplicationCommands()
-                .then((result) => {
-                    this.logger.info(`Registered ${result} interactions.`);
-                })
-                .catch(() => {
-                    process.exit(1);
-                });
-            this.logger.info('Registering application command permissions...');
-            await this.interactionController
-                .registerApplicationCommandPermissions()
-                .then(() => {
-                    this.logger.info(`Registered application command permissions.`);
-                })
-                .catch(() => {
-                    process.exit(1);
-                });
+            await this.readyRoutine();
         });
 
         return this.client.login(this.token);
+    }
+
+    public async readyRoutine(): Promise<void> {
+        this.logger.info('Client is ready. Caching vital messages...');
+        await this.messageController
+            .handleCaching()
+            .then(() => {
+                this.logger.info('Caching done.');
+            })
+            .catch((error) => {
+                this.logger.error(`Failed to cache messages: `, this.logger.prettyError(error));
+            });
+
+        this.logger.info('Registering application commands...');
+        await this.interactionController
+            .registerApplicationCommands()
+            .then((result) => {
+                this.logger.info(`Registered ${result} interactions.`);
+            })
+            .catch(() => {
+                process.exit(1);
+            });
+
+        this.logger.info('Registering application command permissions...');
+        await this.interactionController
+            .registerApplicationCommandPermissions()
+            .then(() => {
+                this.logger.info(`Registered application command permissions.`);
+            })
+            .catch(() => {
+                process.exit(1);
+            });
+
+        this.logger.info('Restoring active reminders from database...');
+        await this.jobRuntimeController
+            .restoreRemindersFromDatabase()
+            .then((result) => {
+                this.logger.info(`Restored ${result} reminders.`);
+            })
+            .catch(() => {
+                this.logger.warn(`Could not restore reminders.`);
+            });
     }
 }

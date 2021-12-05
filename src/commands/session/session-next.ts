@@ -3,6 +3,7 @@ import { CommandError } from '@models/commands/command-error';
 import { CommandResult } from '@models/commands/command-result';
 import { ICharacterSchema } from '@models/data/character-schema';
 import { ISessionSchema, SessionModel } from '@models/data/session-schema';
+import { Reminder } from '@models/jobs/reminder';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
@@ -45,6 +46,12 @@ export class SessionNext extends Command {
 
         this.logger.debug('Notifying next user...');
         await this.notifyNextUser(session.currentTurn, newSession, userMessage);
+
+        this.logger.debug('Parsing reminder...');
+        const reminder: Reminder = await this.parseReminder(newSession);
+
+        this.logger.debug('Scheduling reminder...');
+        await this.jobRuntime.scheduleReminder(reminder, true);
 
         const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-NEXT.SUCCESS'),
@@ -209,7 +216,7 @@ export class SessionNext extends Command {
         if (userMessage) content += `\n\n<@${previousTurn.userId}> said: \\"${userMessage}\\"`;
         const user = await this.client.users.fetch(newSession.currentTurn.userId);
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
-            title: "It's your turn!",
+            title: await this.stringProvider.get('COMMAND.SESSION-NEXT.NOTIFICATION-TITLE'),
             content: content,
             authorName: user.username,
             authorIcon: user.avatarURL(),
@@ -258,5 +265,32 @@ export class SessionNext extends Command {
             index++;
         });
         return nextTurn;
+    }
+
+    /**
+     * Parses a session into a reminder
+     *
+     * @param session the session to parse
+     * @returns the parsed reminder
+     */
+    public async parseReminder(session: ISessionSchema): Promise<Reminder> {
+        const name = `reminder:${session.channelId}`;
+        const user = await this.userService.getUserById(session.currentTurn.userId);
+        const channel = await this.channelService.getTextChannelByChannelId(session.channelId);
+
+        // Get the new reminder date
+        const currentDate = new Date(new Date().getTime());
+        const reminderHours = Number.parseInt(
+            await this.configuration.getString('Schedule_Reminder_0_Hours')
+        );
+        const reminderMinutes = Number.parseInt(
+            await this.configuration.getString('Schedule_Reminder_0_Minutes')
+        );
+        currentDate.setHours(
+            currentDate.getHours() + reminderHours,
+            currentDate.getMinutes() + reminderMinutes
+        );
+
+        return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
     }
 }
