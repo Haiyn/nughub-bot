@@ -20,6 +20,7 @@ import { ReactionController } from '@controllers/reaction-controller';
 import { ReactionService } from '@services/reaction-service';
 import { ScheduleService } from '@services/schedule-service';
 import { JobRuntimeController } from '@controllers/job-runtime-controller';
+import { MessageService } from '@services/message-service';
 
 const container = new Container();
 
@@ -119,6 +120,7 @@ container.bind<UserService>(TYPES.UserService).to(UserService).inSingletonScope(
 container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingletonScope();
 container.bind<ReactionService>(TYPES.ReactionService).to(ReactionService).inSingletonScope();
 container.bind<ScheduleService>(TYPES.ScheduleService).to(ScheduleService).inSingletonScope();
+container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();
 
 // Commands
 container.bind<Ping>('Ping').to(Ping).inRequestScope();

@@ -14,7 +14,7 @@ export class ScheduleService extends Service {
      */
     public scheduleJob(name: string, date: Date, callback: () => void): void {
         scheduleJob(name, this.dateToCron(date), callback);
-        this.logger.info(`Scheduled task (${name}) for ${date}`);
+        this.logger.debug(`Scheduled job (${name}) for ${date}`);
     }
 
     /**

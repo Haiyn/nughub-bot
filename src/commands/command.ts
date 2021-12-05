@@ -2,6 +2,7 @@ import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { CommandResult } from '@models/commands/command-result';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { ConfigurationProvider } from '@providers/configuration-provider';
+import { MessageService } from '@services/message-service';
 import { ScheduleService } from '@services/schedule-service';
 import { EmbedProvider, StringProvider } from '@src/providers';
 import { ChannelService, HelperService, InteractionService, UserService } from '@src/services';
@@ -31,6 +32,9 @@ export abstract class Command {
     /** The interaction service */
     protected readonly interactionService: InteractionService;
 
+    /** The interaction service */
+    protected readonly messageService: MessageService;
+
     /** The user service */
     protected readonly userService: UserService;
 
@@ -58,6 +62,7 @@ export abstract class Command {
         @inject(TYPES.InteractionService) interactionService: InteractionService,
         @inject(TYPES.UserService) userService: UserService,
         @inject(TYPES.ScheduleService) scheduleService: ScheduleService,
+        @inject(TYPES.MessageService) messageService: MessageService,
         @inject(TYPES.StringProvider) stringProvider: StringProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
         @inject(TYPES.JobRuntimeController) jobRuntime: JobRuntimeController
@@ -70,6 +75,7 @@ export abstract class Command {
         this.interactionService = interactionService;
         this.userService = userService;
         this.scheduleService = scheduleService;
+        this.messageService = messageService;
         this.stringProvider = stringProvider;
         this.embedProvider = embedProvider;
         this.jobRuntime = jobRuntime;

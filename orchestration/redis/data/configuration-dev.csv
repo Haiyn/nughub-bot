@@ -16,3 +16,8 @@ CONFIGURATION_Permission_Roles_1_Ids;889495119928102912;SET;The ID of the roles 
 CONFIGURATION_Permission_Roles_2_Ids;889495168598831184;SET;The ID of the roles that should have Moderator access
 CONFIGURATION_Permission_Roles_3_Ids;889495215533097021;SET;The ID of the roles that should have Administrator access
 CONFIGURATION_Permission_User_4_Id;356178941913858049;STRING;The User ID of the Owner
+CONFIGURATION_Schedule_Reminder_0_Hours;0;STRING;The number of hours that should pass before the first reminder is sent
+CONFIGURATION_Schedule_Reminder_0_Minutes;2;STRING;The number of minutes that should pass before the first reminder is sent
+CONFIGURATION_Schedule_Reminder_1_Hours;0;STRING;The number of hours that should pass before the second reminder is sent
+CONFIGURATION_Schedule_Reminder_1_Minutes;2;STRING;The number of minutes that should pass before the second reminder is sent
+CONFIGURATION_Schedule_Reminder_Count;2;STRING;The amount of reminders that should be sent

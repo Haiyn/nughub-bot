@@ -32,6 +32,7 @@ export const TYPES = {
     InteractionService: Symbol('InteractionService'),
     ReactionService: Symbol('ReactionService'),
     ScheduleService: Symbol('ScheduleService'),
+    MessageService: Symbol('MessageService'),
 
     // Commands
     Ping: Symbol('Ping'),

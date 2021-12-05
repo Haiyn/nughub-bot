@@ -7,6 +7,7 @@ export interface IReminderSchema {
     characterName: string;
     date: Date;
     channelId: string;
+    iteration: number;
 }
 
 /** The mongoose schema of the reminder database object */
@@ -17,6 +18,7 @@ export const reminderSchema = new Schema<IReminderSchema>(
         characterName: { type: 'String', required: true },
         date: { type: 'Date', required: true },
         channelId: { type: 'String', required: true },
+        iteration: { type: 'Number', required: true },
     },
     { collection: 'Reminders' }
 );

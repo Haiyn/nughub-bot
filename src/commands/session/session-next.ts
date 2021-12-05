@@ -281,18 +281,16 @@ export class SessionNext extends Command {
         // Get the new reminder date
         const currentDate = new Date(new Date().getTime());
         const reminderHours = Number.parseInt(
-            await this.configuration.getString('Schedule_Reminder_1_Hours')
+            await this.configuration.getString('Schedule_Reminder_0_Hours')
         );
         const reminderMinutes = Number.parseInt(
-            await this.configuration.getString('Schedule_Reminder_1_Minutes')
+            await this.configuration.getString('Schedule_Reminder_0_Minutes')
         );
         currentDate.setHours(
             currentDate.getHours() + reminderHours,
             currentDate.getMinutes() + reminderMinutes
         );
 
-        const reminder = new Reminder(name, user, session.currentTurn.name, currentDate, channel);
-
-        return reminder;
+        return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
     }
 }
