@@ -51,13 +51,13 @@ ENVIRONMENT=local
 TOKEN=[THE_BOT_TOKEN]
 
 # MONGODB
-MONGODB_CONNSTR=mongodb://nhb-user:dev-user@localhost:27017/nhb?authSource=admin
-MONGODB_ROOT_USER=nhb-admin
+MONGODB_CONNSTR=mongodb://xenon-user:dev-user@localhost:27017/xenon?authSource=admin
+MONGODB_ROOT_USER=xenon-admin
 MONGODB_ROOT_PASS=dev-admin
 MONGODB_ROOT_NAME=admin
-MONGODB_USER=nhb-user
+MONGODB_USER=xenon-user
 MONGODB_PASS=dev-user
-MONGODB_NAME=nhb
+MONGODB_NAME=xenon
 
 # REDIS
 REDIS_CONNSTR=redis://default:dev@localhost:6379
