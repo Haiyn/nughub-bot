@@ -1,5 +1,5 @@
-# nughub-bot
-> A Discord.js bot for The Nug Hub.
+# Xenon the Antiquarian
+> A Discord.js bot for managing RP things.
 
 ## Infrastructure
 
