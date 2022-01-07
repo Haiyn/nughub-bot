@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run build && node -r tsconfig-paths/register ./dist/index.js",
-    "start:data": "docker-compose up -d nhb-mongodb nhb-redis",
+    "start:data": "docker-compose up -d xenon-mongodb xenon-redis",
     "start:redisinsight": "docker run -d -v redisinsight:/db -p 8001:8001 redislabs/redisinsight:latest\n",
     "build": "rm -rf dist && tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
     "resolve": "tsc -p tsconfig.json --traceResolution",
@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Haiyn/nughub-bot.git"
+    "url": "git+https://github.com/Haiyn/xenon-the-antiquarian-bot.git"
   },
   "author": "Haiyn",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Haiyn/nughub-bot/issues"
+    "url": "https://github.com/Haiyn/xenon-the-antiquarian-bot/issues"
   },
-  "homepage": "https://github.com/Haiyn/nughub-bot#readme",
+  "homepage": "https://github.com/Haiyn/xenon-the-antiquarian-bot#readme",
   "dependencies": {
     "@discordjs/rest": "0.1.0-canary.0",
     "@types/ioredis": "4.27.8",

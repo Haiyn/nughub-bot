@@ -19,7 +19,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: haiyn/nughub-bot
+          images: haiyn/xenon-bot
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -55,5 +55,5 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            cd nughub-bot && git pull -f origin main
+            cd xenon-the-antiquarian-bot && git pull -f origin main
             RELEASE_VERSION=${{ github.event.release.tag_name }} docker-compose up -d
