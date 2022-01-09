@@ -1,9 +1,9 @@
 <!DOCTYPE html><html class="default no-js"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>nughub-bot</title><meta name="description" content="Documentation for nughub-bot"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">nughub-bot</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1> nughub-bot</h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
-<a href="#nughub-bot" id="nughub-bot" style="color: inherit; text-decoration: none;">
-  <h1>nughub-bot</h1>
+<a href="#xenon-the-antiquarian" id="xenon-the-antiquarian" style="color: inherit; text-decoration: none;">
+  <h1>Xenon the Antiquarian</h1>
 </a>
 <blockquote>
-<p>A Discord.js bot for The Nug Hub.</p>
+<p>A Discord.js bot for managing RP things.</p>
 </blockquote>
 
 <a href="#infrastructure" id="infrastructure" style="color: inherit; text-decoration: none;">
@@ -50,13 +50,13 @@ ENVIRONMENT=local
 TOKEN=[THE_BOT_TOKEN]
 
 # MONGODB
-MONGODB_CONNSTR=mongodb://nhb-user:dev-user@localhost:27017/nhb?authSource=admin
-MONGODB_ROOT_USER=nhb-admin
+MONGODB_CONNSTR=mongodb://xenon-user:dev-user@localhost:27017/xenon?authSource=admin
+MONGODB_ROOT_USER=xenon-admin
 MONGODB_ROOT_PASS=dev-admin
 MONGODB_ROOT_NAME=admin
-MONGODB_USER=nhb-user
+MONGODB_USER=xenon-user
 MONGODB_PASS=dev-user
-MONGODB_NAME=nhb
+MONGODB_NAME=xenon
 
 # REDIS
 REDIS_CONNSTR=redis://default:dev@localhost:6379
@@ -99,10 +99,10 @@ IGNORE_STACK_LEVELS=6
 <ol>
 <li>Run the databases</li>
 </ol>
-<pre><code class="language-shell"><span class="hl-2">docker-compose up -d nhb-mongodb nhb-redis</span>
+<pre><code class="language-shell"><span class="hl-2">docker-compose up -d xenon-mongodb xenon-redis</span>
 </code></pre>
-<p>The MongoDB will be started with the authentication database <code>admin</code> that will contain the user <code>nhb-user</code> with the 
-password <code>dev-user</code> (specified in the dotenv file). The user has read and write permissions on the <code>nhb</code> database (also 
+<p>The MongoDB will be started with the authentication database <code>admin</code> that will contain the user <code>xenon-user</code> with the 
+password <code>dev-user</code> (specified in the dotenv file). The user has read and write permissions on the <code>xenon</code> database (also 
 specified in dotenv file).</p>
 <ol start="2">
 <li>Run RedisInsight</li>
@@ -117,7 +117,7 @@ specified in dotenv file).</p>
 <ul>
 <li><strong>Host:</strong> Host-IP (<code>ifconfig -a</code>)</li>
 <li><strong>Port:</strong> 6379</li>
-<li><strong>Name:</strong> nhb-redis</li>
+<li><strong>Name:</strong> xenon-redis</li>
 <li><strong>Username:</strong> default</li>
 <li><strong>Password:</strong> Value from <code>.env</code> file</li>
 </ul>

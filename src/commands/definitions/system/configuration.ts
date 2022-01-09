@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 
 /**
- * Returns the application command definition for ping
+ * Returns the application command definition for configuration
  *
  * @returns the application command definition
  */

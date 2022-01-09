@@ -6,8 +6,12 @@ export class CommandValidationError {
     /** The message that can be given to the user */
     userMessage: string;
 
-    constructor(internalMessage: string, userMessage: string) {
+    /** If the validation error was thrown by an internal command */
+    isInternal: boolean;
+
+    constructor(internalMessage: string, userMessage: string, isInternal = false) {
         this.internalMessage = internalMessage;
         this.userMessage = userMessage;
+        this.isInternal = isInternal;
     }
 }

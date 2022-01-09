@@ -40,6 +40,7 @@ export const TYPES = {
     SessionFinish: Symbol('Finish'),
     SessionNext: Symbol('Next'),
     Configuration: Symbol('Configuration'),
+    Strings: Symbol('Strings'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

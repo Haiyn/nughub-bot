@@ -1,2 +1,2 @@
-branchName: 'nhb-${issue.number}-${issue.title}'
+branchName: 'xenon-${issue.number}-${issue.title}'
 gitSafeReplacementChar: '-'

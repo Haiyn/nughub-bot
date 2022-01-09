@@ -101,11 +101,11 @@ npm run watch
 1. Run the databases 
    
 ```shell
-docker-compose up -d nhb-mongodb nhb-redis
+docker-compose up -d xenon-mongodb xenon-redis
 ```
 
-The MongoDB will be started with the authentication database `admin` that will contain the user `nhb-user` with the 
-password `dev-user` (specified in the dotenv file). The user has read and write permissions on the `nhb` database (also 
+The MongoDB will be started with the authentication database `admin` that will contain the user `xenon-user` with the 
+password `dev-user` (specified in the dotenv file). The user has read and write permissions on the `xenon` database (also 
 specified in dotenv file).
 
 2. Run RedisInsight
@@ -122,7 +122,7 @@ Open `localhost:8001` and connect to existing database with these values:
 
 - **Host:** Host-IP (`ifconfig -a`)
 - **Port:** 6379
-- **Name:** nhb-redis
+- **Name:** xenon-redis
 - **Username:** default
 - **Password:** Value from `.env` file
 

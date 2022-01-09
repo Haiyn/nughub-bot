@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  nhb-mongodb:
+  xenon-mongodb:
     image: mongo
     container_name: mongodb
     ports:
@@ -16,9 +16,9 @@ services:
       MONGO_PASSWORD: ${MONGODB_PASS}
       MONGO_DATABASE: ${MONGODB_NAME}
     networks:
-      nhb-network:
+      xenon-network:
 
-  nhb-redis:
+  xenon-redis:
     container_name: redis
     image: "redis:alpine"
     command: redis-server --requirepass ${REDIS_PASS}
@@ -30,21 +30,21 @@ services:
     environment:
       - REDIS_REPLICATION_MODE=master
     networks:
-      nhb-network:
+      xenon-network:
 
-  nhb-bot:
+  xenon-bot:
     container_name: bot
-    image: haiyn/nughub-bot:${RELEASE_VERSION}
+    image: haiyn/xenon-bot:${RELEASE_VERSION}
     env_file:
       - .env
     restart: on-failure
     ports:
       -  8089:8089
     networks:
-      nhb-network:
+      xenon-network:
 
 networks:
-  nhb-network:
+  xenon-network:
     driver: bridge
 
 volumes:

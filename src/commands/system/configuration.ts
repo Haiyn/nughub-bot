@@ -53,7 +53,8 @@ export class Configuration extends Command {
         if (!(await this.configuration.exists(keyToEdit)))
             throw new CommandValidationError(
                 `Key '${keyToEdit}' does not exist in db.`,
-                `I could not find the key '${keyToEdit}'. Are you sure it is correct?`
+                `I could not find the key '${keyToEdit}' in the database. Are you sure it is correct?`,
+                true
             );
 
         if (options.getSubcommand() === 'get') return;
@@ -69,7 +70,8 @@ export class Configuration extends Command {
         if (givenValueParameters.length != 1)
             throw new CommandValidationError(
                 `User has given ${givenValueParameters.length} value parameters.`,
-                'Please make sure to supply exactly ONE value parameter.'
+                'Please make sure to supply exactly ONE value parameter.',
+                true
             );
 
         const value = givenValueParameters[0];
@@ -85,7 +87,8 @@ export class Configuration extends Command {
             )
                 throw new CommandValidationError(
                     `Trying to ${editType} invalid ID for ${keyToEdit}: ${value}`,
-                    `The key you are trying to edit to needs a valid Channel, User, Role or Discord ID as a value!`
+                    `The key you are trying to edit to needs a valid Channel, User, Role or Discord ID as a value!`,
+                    true
                 );
         }
 
@@ -93,7 +96,8 @@ export class Configuration extends Command {
             if (!(await this.configuration.isSet(keyToEdit)))
                 throw new CommandValidationError(
                     `Trying to add to non-set key ${keyToEdit}`,
-                    `${keyToEdit} can only have one value, you cannot add to it. Try replace instead.`
+                    `${keyToEdit} can only have one value, you cannot add to it. Try replace instead.`,
+                    true
                 );
         }
 
@@ -101,7 +105,8 @@ export class Configuration extends Command {
             if (await this.configuration.isSet(keyToEdit))
                 throw new CommandValidationError(
                     `Trying to replace entire set ${keyToEdit}`,
-                    `You cannot replace all entries for ${keyToEdit}! Either add a value with add or remove one with remove.`
+                    `You cannot replace all entries for ${keyToEdit}! Either add a value with add or remove one with remove.`,
+                    true
                 );
         }
 
@@ -109,7 +114,8 @@ export class Configuration extends Command {
             if (!(await this.configuration.isSet(keyToEdit)))
                 throw new CommandValidationError(
                     `Trying to remove from non-set key ${keyToEdit}`,
-                    `You cannot remove values from ${keyToEdit} because it only has one value. Use replace instead.`
+                    `You cannot remove values from ${keyToEdit} because it only has one value. Use replace instead.`,
+                    true
                 );
         }
     }

@@ -1,5 +1,5 @@
 Group;Key;Value
-Ping;STRINGS.COMMAND.PING.SUCCESS;(Squeaks regally)
+Ping;STRINGS.COMMAND.PING.SUCCESS;Oh, what is it now?
 Ping;STRINGS.COMMAND.PING.PENDING;Checking...
 Session Finish;STRINGS.COMMAND.SESSION-FINISH.VALIDATION.NO-ONGOING-RP;There is no ongoing RP session in <#{0}>!
 Session Finish;STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-NOT-DELETED;I couldn't delete the session post from <#{0}> but the session is still finished! Please check if the session message was removed.

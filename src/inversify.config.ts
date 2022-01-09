@@ -21,6 +21,7 @@ import { ReactionService } from '@services/reaction-service';
 import { ScheduleService } from '@services/schedule-service';
 import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { MessageService } from '@services/message-service';
+import { Strings } from '@commands/system/strings';
 
 const container = new Container();
 
@@ -128,5 +129,6 @@ container.bind<SessionStart>('Start').to(SessionStart).inRequestScope();
 container.bind<SessionFinish>('Finish').to(SessionFinish).inRequestScope();
 container.bind<SessionNext>('Next').to(SessionNext).inRequestScope();
 container.bind<Configuration>('Configuration').to(Configuration).inRequestScope();
+container.bind<Strings>('Strings').to(Strings).inRequestScope();
 
 export default container;
