@@ -42,7 +42,7 @@ export class StringProvider extends Provider {
         let result = await this.redisClient.get(key);
         if (!result) {
             // Since strings are used in message sending, make sure that they are not null
-            this.logger.warn(`Failed to get string with key STRINGS.${key}`);
+            this.logger.warn(`Failed to get string with key STRINGS.${key} on GET request.`);
             return key;
         }
 
@@ -60,5 +60,23 @@ export class StringProvider extends Provider {
             }
         }
         return result;
+    }
+
+    /**
+     * Sets a string key
+     *
+     * @param key the key to set
+     * @param newValue the new value to set
+     * @returns true when successful, false otherwise
+     */
+    public async set(key: string, newValue: string): Promise<boolean> {
+        const result = await this.redisClient.get(key);
+        if (!result) {
+            this.logger.warn(`Failed to get string with key STRINGS.${key} on SET request.`);
+            return false;
+        }
+
+        const successful = await this.redisClient.set(key, newValue);
+        return successful === 'OK';
     }
 }

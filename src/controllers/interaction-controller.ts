@@ -195,13 +195,21 @@ export class InteractionController extends Controller {
      */
     private async handleInteractionError(interaction: CommandInteraction, error: unknown) {
         let userMessage;
+        let embedType = EmbedType.Minimal;
+        let embedLevel = EmbedLevel.Error;
+        let title = '';
         // Check which type of error was thrown to avoid producing more errors in catch clause
         if (error instanceof CommandValidationError) {
             // Further user input validation failed
             this.logger.info(
                 `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} validation at runtime failed: ${error.internalMessage}`
             );
+            embedLevel = EmbedLevel.Warning;
+            title = 'Warning';
             userMessage = error.userMessage;
+            if (error.isInternal) {
+                embedType = EmbedType.Technical;
+            }
         } else if (error instanceof CommandError) {
             // Command failed with caught error
             this.logger.error(
@@ -227,7 +235,8 @@ export class InteractionController extends Controller {
 
         // Reply to the user if it hasn't happened already
         if (!interaction.replied) {
-            const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Error, {
+            const embedReply = await this.embedProvider.get(embedType, embedLevel, {
+                title: title,
                 content: userMessage,
             });
             await this.interactionService.reply(interaction, {

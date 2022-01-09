@@ -1,6 +1,6 @@
 {
-  "name": "nughub-bot",
-  "version": "0.1.0",
+  "name": "xenon-bot",
+  "version": "0.1.1",
   "description": "A Discord.js bot for The Nug Hub.",
   "main": "index.js",
   "scripts": {
