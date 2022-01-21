@@ -1,9 +1,13 @@
 import { Controller } from '@controllers/controller';
 import { Reminder } from '@models/jobs/reminder';
 import { IReminderSchema, ReminderModel } from '@models/jobs/reminder-schema';
+import { SkipPromptAction } from '@models/jobs/skip-prompt-action';
+import { ButtonType } from '@models/ui/button-type';
 import { MessageService } from '@services/message-service';
 import { ScheduleService } from '@services/schedule-service';
-import { EmbedLevel, EmbedType } from '@src/models';
+import { SessionNext } from '@src/commands';
+import container from '@src/inversify.config';
+import { EmbedLevel, EmbedType, SessionModel } from '@src/models';
 import {
     ConfigurationProvider,
     EmbedProvider,
@@ -12,7 +16,7 @@ import {
 } from '@src/providers';
 import { ChannelService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
-import { Client } from 'discord.js';
+import { ButtonInteraction, Client, MessageActionRow, MessageButton } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
@@ -108,20 +112,21 @@ export class JobRuntimeController extends Controller {
             this.logger.info(`Sending reminder ${reminder.name}...`);
             try {
                 // Construct message
+                let footer = '';
+                switch (reminder.iteration) {
+                    case 0:
+                        footer = `This is your first reminder.`;
+                        break;
+                    case 1:
+                        footer = `This is your second reminder. You will be skipped in 24 hours.`;
+                        break;
+                }
                 const message = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
                     title: await this.stringProvider.get('JOB.REMINDER.TITLE'),
                     content: `*${reminder.characterName}* in <#${reminder.channel.id}>`,
                     authorName: reminder.user.username,
                     authorIcon: reminder.user.avatarURL(),
-                    footer: `This is your ${reminder.iteration + 1}${
-                        reminder.iteration === 0
-                            ? 'st'
-                            : reminder.iteration === 1
-                            ? 'nd'
-                            : reminder.iteration === 2
-                            ? 'rd'
-                            : 'th'
-                    } reminder.`,
+                    footer: footer,
                 });
 
                 // Send message to reminder channel
@@ -141,35 +146,10 @@ export class JobRuntimeController extends Controller {
                 );
 
                 // If it is not the first reminder, send an internal message
-                if (reminder.iteration > 0) {
-                    const embed = await this.embedProvider.get(
-                        EmbedType.Technical,
-                        EmbedLevel.Warning,
-                        {
-                            title: 'Reminder Warning',
-                            content:
-                                `User **${reminder.user.username}** has not replied after the first reminder:\n*${reminder.characterName}* in <#${reminder.channel.id}>\n\n` +
-                                `This is their ${reminder.iteration + 1}${
-                                    reminder.iteration === 0
-                                        ? 'st'
-                                        : reminder.iteration === 1
-                                        ? 'nd'
-                                        : reminder.iteration === 2
-                                        ? 'rd'
-                                        : 'th'
-                                } reminder.`,
-                        }
-                    );
-
-                    await this.messageService.sendInternalMessage({ embeds: [embed] });
-                }
 
                 // Reschedule with the new time if it is under the limit for reminder iterations
                 reminder.iteration++;
-                const reminderCount = Number.parseInt(
-                    await this.configuration.getString(`Schedule_Reminder_Count`)
-                );
-                if (reminder.iteration < reminderCount) {
+                if (reminder.iteration < 2) {
                     const validIterationForConfig = (await this.configuration.exists(
                         `Schedule_Reminder_${reminder.iteration}_Hours`
                     ))
@@ -195,13 +175,31 @@ export class JobRuntimeController extends Controller {
                     this.logger.info(
                         `Successfully rescheduled reminder #${reminder.iteration} for ${reminder.name}.`
                     );
-                } else {
-                    // Delete the job from the database
-                    await ReminderModel.findOneAndDelete({
-                        channelId: reminder.channel.id,
-                    }).exec();
-                    this.logger.info(`Finished reminder job ${reminder.name}.`);
+                    return;
                 }
+
+                // Delete the job from the database
+                await ReminderModel.findOneAndDelete({
+                    channelId: reminder.channel.id,
+                }).exec();
+                this.logger.info(`Finished reminder job ${reminder.name}.`);
+
+                // Last reminder before skip, send warning and set up skip prompt scheduling
+                const embed = await this.embedProvider.get(
+                    EmbedType.Technical,
+                    EmbedLevel.Warning,
+                    {
+                        title: 'Reminder Warning',
+                        content:
+                            `**User:** ${reminder.user.username} (<@${reminder.user.id}>)\n**Channel:** <#${reminder.channel.id}>\n\n` +
+                            `${reminder.user.username} has not replied after the first reminder:\n*${reminder.characterName}* in <#${reminder.channel.id}>`,
+                    }
+                );
+
+                await this.messageService.sendInternalMessage({ embeds: [embed] });
+
+                // Schedule skip prompt
+                await this.scheduleSkipPrompt(reminder);
             } catch (error) {
                 this.logger.error(
                     `Failed to send reminder #${reminder.iteration} for ${reminder.name}: `,
@@ -234,5 +232,118 @@ export class JobRuntimeController extends Controller {
                 this.logger.error(`Failed to save to MongoDB: `, this.logger.prettyError(error));
             }
         }
+    }
+
+    /**
+     * Schedules sending a skip prompt for moderators after the last reminder
+     *
+     * @param reminder The last reminder
+     * @returns when done
+     */
+    public async scheduleSkipPrompt(reminder: Reminder): Promise<void> {
+        this.logger.debug(`Scheduling skip prompt following ${reminder.name}...`);
+        // Parse time for skip prompt
+        const skipPromptMinutes = Number.parseInt(
+            await this.configuration.getString(`Schedule_SkipPrompt_Minutes`)
+        );
+        const skipPromptHours = Number.parseInt(
+            await this.configuration.getString(`Schedule_SkipPrompt_Hours`)
+        );
+        const newSkipPromptDate = new Date(new Date().getTime());
+        newSkipPromptDate.setHours(
+            newSkipPromptDate.getHours() + skipPromptHours,
+            newSkipPromptDate.getMinutes() + skipPromptMinutes
+        );
+
+        // Define the skip prompt send action
+        const sendSkipPrompt = async (): Promise<void> => {
+            this.logger.debug(`Sending skip prompt for ${reminder.name}...`);
+            let message = `**User:** ${reminder.user.username} (<@${reminder.user.id}>)\n**Channel:** ${reminder.channel}\n\n`;
+            message += `${reminder.user.username} has not replied in the `;
+            message +=
+                skipPromptMinutes != 0
+                    ? `${skipPromptHours} hours and ${skipPromptMinutes} minutes `
+                    : `${skipPromptHours} hours `;
+            message += `since the last reminder. They can now be skipped.`;
+            const embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Info, {
+                title: 'Skip Warning',
+                content: message,
+            });
+
+            const components = new MessageActionRow().addComponents([
+                new MessageButton()
+                    .setCustomId(
+                        `${ButtonType.SkipPrompt}:${SkipPromptAction.Skip}:${reminder.channel.id}`
+                    )
+                    .setLabel('Skip now')
+                    .setStyle('DANGER'),
+                new MessageButton()
+                    .setCustomId(
+                        `${ButtonType.SkipPrompt}:${SkipPromptAction.Dismiss}:${reminder.channel.id}`
+                    )
+                    .setLabel('Dismiss')
+                    .setStyle('SECONDARY'),
+            ]);
+
+            await this.messageService.sendInternalMessage({
+                embeds: [embed],
+                components: [components],
+            });
+        };
+
+        // Schedule the job
+        this.scheduleService.scheduleJob(
+            reminder.name + ' Skip Prompt',
+            newSkipPromptDate,
+            sendSkipPrompt
+        );
+    }
+
+    /**
+     * Handles when a skip prompt button is clicked
+     *
+     * @param interaction The button interaction
+     * @returns when done
+     */
+    public async handleSkipPromptInteraction(interaction: ButtonInteraction): Promise<void> {
+        const action = interaction.customId.split(':')[1];
+        const channelId = interaction.customId.split(':')[2];
+
+        let embed;
+
+        const session = await SessionModel.findOne({ channelId: channelId }).exec();
+
+        if (action === SkipPromptAction.Skip) {
+            this.logger.debug(`Skipping on ${interaction.customId}...`);
+            const command: SessionNext = container.get('Next');
+            const result = await command.runInternally(channelId);
+            if (!result) {
+                this.logger.error(`Failed to skip for channel id ${channelId}`);
+                embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Error, {
+                    title: `Skip Warning (failed)`,
+                    content:
+                        `**User**: ${session.currentTurn.name} (<@${session.currentTurn.userId}>)\n**Channel**: <#${session.channelId}>\n\n` +
+                        `Failed to skip. Please skip them manually!`,
+                });
+            } else {
+                embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Success, {
+                    title: `Skip Warning (skipped)`,
+                    content:
+                        `**User:** ${session.currentTurn.name} (<@${session.currentTurn.userId}>)\n**Channel:** <#${session.channelId}>\n\n` +
+                        `User was skipped by <@${interaction.member.user.id}>.\nThe next person in the turn order for <#${channelId}> was notified.`,
+                });
+            }
+        } else {
+            this.logger.debug(`Dismissing ${interaction.customId}...`);
+            embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Info, {
+                title: `Skip Warning (dismissed)`,
+                content:
+                    `**User:** ${session.currentTurn.name} (<@${session.currentTurn.userId}>)\n**Channel:** <#${session.channelId}>\n\n` +
+                    `The skip prompt was dismissed by <@${interaction.member.user.id}>.`,
+            });
+        }
+
+        await interaction.update({ embeds: [embed], components: [] });
+        this.logger.info(`Handled skip prompt interaction.`);
     }
 }

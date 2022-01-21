@@ -66,6 +66,35 @@ export class SessionNext extends Command {
         };
     }
 
+    /**
+     * Runs the next command internally instead of triggered by a command interaction
+     *
+     * @param channelId The channelId where the next command should be executed
+     * @returns true when successful false otherwise
+     */
+    public async runInternally(channelId: string): Promise<boolean> {
+        this.logger.debug('Running next command internally...');
+
+        const session: ISessionSchema = await SessionModel.findOne({ channelId: channelId });
+
+        this.logger.debug('Updating user turn in database...');
+        const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
+
+        this.logger.debug('Updating user turn in sessions channel...');
+        await this.updateTurnOrderInSessionsChannel(newSession);
+
+        this.logger.debug('Notifying next user...');
+        await this.notifyNextUser(session.currentTurn, newSession, undefined, true);
+
+        this.logger.debug('Parsing reminder...');
+        const reminder: Reminder = await this.parseReminder(newSession);
+
+        this.logger.debug('Scheduling reminder...');
+        await this.jobRuntime.scheduleReminder(reminder, true);
+
+        return true;
+    }
+
     public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
         const channel = options.getChannel('channel');
         if (!channel) return Promise.resolve(); // It is valid to provide no channel, the interaction channel will be checked instead
@@ -205,12 +234,14 @@ export class SessionNext extends Command {
      * @param previousTurn The user that previously had the turn
      * @param newSession The session after the turn order update
      * @param userMessage The message the previous user left
+     * @param isSkip Whether it was a skip that triggered the next command or not
      * @returns Resolves when notification sent
      */
     private async notifyNextUser(
         previousTurn: ICharacterSchema,
         newSession: ISessionSchema,
-        userMessage?: string
+        userMessage?: string,
+        isSkip = false
     ): Promise<void> {
         let content = `*${newSession.currentTurn.name}* in <#${newSession.channelId}>`;
         if (userMessage) content += `\n\n<@${previousTurn.userId}> said: \\"${userMessage}\\"`;
@@ -220,6 +251,7 @@ export class SessionNext extends Command {
             content: content,
             authorName: user.username,
             authorIcon: user.avatarURL(),
+            footer: isSkip ? `The previous user was skipped.` : '',
         });
         const ping = `<@${newSession.currentTurn.userId}>`;
         const notificationChannel: TextChannel =

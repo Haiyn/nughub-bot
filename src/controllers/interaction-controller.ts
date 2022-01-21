@@ -1,10 +1,12 @@
 import { Command } from '@commands/command';
 import commandDefinitions from '@commands/definitions';
 import { Controller } from '@controllers/controller';
+import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { REST, RouteLike } from '@discordjs/rest';
 import { CommandError } from '@models/commands/command-error';
 import { CommandValidationError } from '@models/commands/command-validation-error';
 import { ConfigurationError } from '@models/config/configuration-error';
+import { ButtonType } from '@models/ui/button-type';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import container from '@src/inversify.config';
@@ -12,7 +14,7 @@ import { ConfigurationProvider, EmbedProvider, PermissionProvider } from '@src/p
 import { InteractionService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Routes } from 'discord-api-types/v9';
-import { Client, CommandInteraction, Interaction } from 'discord.js';
+import { ButtonInteraction, Client, CommandInteraction, Interaction } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
@@ -20,6 +22,7 @@ import { Logger } from 'tslog';
 @injectable()
 export class InteractionController extends Controller {
     readonly interactionService: InteractionService;
+    readonly jobRuntimeController: JobRuntimeController;
 
     constructor(
         @inject(TYPES.InteractionService) interactionService: InteractionService,
@@ -29,10 +32,12 @@ export class InteractionController extends Controller {
         @inject(TYPES.Token) token: string,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider
+        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider,
+        @inject(TYPES.JobRuntimeController) jobRuntimeController: JobRuntimeController
     ) {
         super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
         this.interactionService = interactionService;
+        this.jobRuntimeController = jobRuntimeController;
     }
 
     /**
@@ -153,6 +158,14 @@ export class InteractionController extends Controller {
                 }
             );
         }
+        if (interaction.isButton()) {
+            await this.handleButtonInteraction(interaction as ButtonInteraction).catch((error) => {
+                this.logger.error(
+                    `Unhandled Button Interaction error: `,
+                    this.logger.prettyError(error.error)
+                );
+            });
+        }
     }
 
     /**
@@ -185,6 +198,21 @@ export class InteractionController extends Controller {
             .catch((error) => {
                 this.handleInteractionError(interaction, error);
             });
+    }
+
+    /**
+     * Handles all button interactions
+     *
+     * @param interaction The incoming button interaction
+     * @returns when done
+     */
+    private async handleButtonInteraction(interaction: ButtonInteraction): Promise<void> {
+        this.logger.trace(interaction);
+        const buttonType = interaction.customId.slice(0, interaction.customId.indexOf(':'));
+        switch (buttonType) {
+            case ButtonType.SkipPrompt:
+                await this.jobRuntimeController.handleSkipPromptInteraction(interaction);
+        }
     }
 
     /**

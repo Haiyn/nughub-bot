@@ -1,5 +1,5 @@
 Group;Key;Value
-Ping;STRINGS.COMMAND.PING.SUCCESS;Oh, what is it now?
+Ping;STRINGS.COMMAND.PING.SUCCESS;(Manic cackling.)
 Ping;STRINGS.COMMAND.PING.PENDING;Checking...
 Session Finish;STRINGS.COMMAND.SESSION-FINISH.VALIDATION.NO-ONGOING-RP;There is no ongoing RP session in <#{0}>!
 Session Finish;STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-NOT-DELETED;I couldn't delete the session post from <#{0}> but the session is still finished! Please check if the session message was removed.
@@ -20,9 +20,9 @@ Session Start;STRINGS.COMMAND.SESSION-START.ERROR.SAVE-TO-SESSION-CHANNEL-FAILED
 Session Start;STRINGS.COMMAND.SESSION-START.ERROR.COULD-NOT-INITIALIZE-CHANNEL;I can't post the session in <#{0}> because there are messages in it that aren't from me!
 Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-TITLE;Ongoing RP Sessions
 Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION;You can find all currently running RPs here - including their turn order.
-Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER;(squeaks regally)
+Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER;(Manic cackling.)
 Session Start;STRINGS.COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED;Uh-oh, I ran into some trouble while trying to initialize the sessions channel!
-Session Start;STRINGS.COMMAND.SESSION-START.SUCCESS;I successfully started a new RP session in <#${sessionToSave.channel.id}>!
+Session Start;STRINGS.COMMAND.SESSION-START.SUCCESS;I successfully started a new RP session in <#{0}>!
 System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR;Internal Error: `Command validation failed unexpectedly.`
 System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR;Internal Error: `Command execution failed unexpectedly.`
 System;SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT;Internal Error: `Database rejection`
