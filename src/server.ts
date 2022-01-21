@@ -4,6 +4,7 @@ import { ReactionController } from '@controllers/reaction-controller';
 import { TYPES } from '@src/types';
 import {
     Client,
+    Guild,
     Interaction,
     Message,
     MessageReaction,
@@ -63,6 +64,12 @@ export class Server {
      * @returns Successful or not
      */
     public listen(): Promise<string> {
+        /** Bot joined new guild, refresh the state */
+        this.client.on('guildCreate', async (guild: Guild) => {
+            this.logger.trace(`New Guild join event: ${guild.id} - ${guild.name}`);
+            await this.readyRoutine();
+        });
+
         /** A new message was created */
         this.client.on('messageCreate', async (message: Message) => {
             this.logger.trace(
