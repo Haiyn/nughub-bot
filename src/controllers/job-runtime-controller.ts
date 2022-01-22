@@ -1,13 +1,15 @@
 import { Controller } from '@controllers/controller';
+import { ButtonType } from '@models/components/button-type';
+import { SkipPromptActions } from '@models/components/skip-prompt-actions';
+import { TimestampActions } from '@models/components/timestamp-actions';
 import { Reminder } from '@models/jobs/reminder';
 import { IReminderSchema, ReminderModel } from '@models/jobs/reminder-schema';
-import { SkipPromptAction } from '@models/jobs/skip-prompt-action';
-import { ButtonType } from '@models/ui/button-type';
+import { TimestampStatus } from '@models/ui/timestamp-status';
 import { MessageService } from '@services/message-service';
 import { ScheduleService } from '@services/schedule-service';
-import { SessionNext } from '@src/commands';
+import { SessionFinish, SessionNext } from '@src/commands';
 import container from '@src/inversify.config';
-import { EmbedLevel, EmbedType, SessionModel } from '@src/models';
+import { EmbedLevel, EmbedType, ISessionSchema, SessionModel } from '@src/models';
 import {
     ConfigurationProvider,
     EmbedProvider,
@@ -145,7 +147,13 @@ export class JobRuntimeController extends Controller {
                     `Successfully sent reminder #${reminder.iteration} for ${reminder.name}.`
                 );
 
-                // If it is not the first reminder, send an internal message
+                // Update the timestamp that the first reminder was sent
+                await this.messageService.editTimestamp(
+                    reminder.channel.id,
+                    reminder.iteration === 0
+                        ? TimestampStatus.FirstReminder
+                        : TimestampStatus.SecondReminder
+                );
 
                 // Reschedule with the new time if it is under the limit for reminder iterations
                 reminder.iteration++;
@@ -265,7 +273,7 @@ export class JobRuntimeController extends Controller {
                     ? `${skipPromptHours} hours and ${skipPromptMinutes} minutes `
                     : `${skipPromptHours} hours `;
             message += `since the last reminder. They can now be skipped.`;
-            const embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Info, {
+            const embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
                 title: 'Skip Warning',
                 content: message,
             });
@@ -273,13 +281,13 @@ export class JobRuntimeController extends Controller {
             const components = new MessageActionRow().addComponents([
                 new MessageButton()
                     .setCustomId(
-                        `${ButtonType.SkipPrompt}:${SkipPromptAction.Skip}:${reminder.channel.id}`
+                        `${ButtonType.SkipPrompt}:${SkipPromptActions.Skip}:${reminder.channel.id}`
                     )
                     .setLabel('Skip now')
                     .setStyle('DANGER'),
                 new MessageButton()
                     .setCustomId(
-                        `${ButtonType.SkipPrompt}:${SkipPromptAction.Dismiss}:${reminder.channel.id}`
+                        `${ButtonType.SkipPrompt}:${SkipPromptActions.Dismiss}:${reminder.channel.id}`
                     )
                     .setLabel('Dismiss')
                     .setStyle('SECONDARY'),
@@ -289,6 +297,11 @@ export class JobRuntimeController extends Controller {
                 embeds: [embed],
                 components: [components],
             });
+
+            await this.messageService.editTimestamp(
+                reminder.channel.id,
+                TimestampStatus.SkipPromptActive
+            );
         };
 
         // Schedule the job
@@ -313,7 +326,7 @@ export class JobRuntimeController extends Controller {
 
         const session = await SessionModel.findOne({ channelId: channelId }).exec();
 
-        if (action === SkipPromptAction.Skip) {
+        if (action === SkipPromptActions.Skip) {
             this.logger.debug(`Skipping on ${interaction.customId}...`);
             const command: SessionNext = container.get('Next');
             const result = await command.runInternally(channelId);
@@ -325,6 +338,10 @@ export class JobRuntimeController extends Controller {
                         `**User**: ${session.currentTurn.name} (<@${session.currentTurn.userId}>)\n**Channel**: <#${session.channelId}>\n\n` +
                         `Failed to skip. Please skip them manually!`,
                 });
+                await this.messageService.editTimestamp(
+                    session.channelId,
+                    TimestampStatus.SkipFailed
+                );
             } else {
                 embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Success, {
                     title: `Skip Warning (skipped)`,
@@ -341,9 +358,48 @@ export class JobRuntimeController extends Controller {
                     `**User:** ${session.currentTurn.name} (<@${session.currentTurn.userId}>)\n**Channel:** <#${session.channelId}>\n\n` +
                     `The skip prompt was dismissed by <@${interaction.member.user.id}>.`,
             });
+            await this.messageService.editTimestamp(
+                session.channelId,
+                TimestampStatus.SkipDismissed
+            );
         }
 
         await interaction.update({ embeds: [embed], components: [] });
         this.logger.info(`Handled skip prompt interaction.`);
+    }
+
+    /**
+     * Handles a button interaction on a timestamp post
+     *
+     * @param interaction The button interaction
+     * @returns when done
+     */
+    public async handleTimestampInteraction(interaction: ButtonInteraction): Promise<void> {
+        const action = interaction.customId.split(':')[1];
+        const channelId = interaction.customId.split(':')[2];
+
+        let content;
+        if (action === TimestampActions.AdvanceTurn) {
+            this.logger.info(`Received skip request from timestamp interaction. Skipping...`);
+            const command: SessionNext = container.get('Next');
+            await command.runInternally(channelId);
+            content = await this.stringProvider.get('COMMAND.SESSION-NEXT.SUCCESS');
+        } else if (action === TimestampActions.Finish) {
+            this.logger.info(`Received finish request from timestamp interaction. Finishing...`);
+            const command: SessionFinish = container.get('Finish');
+            const session: ISessionSchema = await SessionModel.findOne({
+                channelId: channelId,
+            }).exec();
+            await command.runInternally(session);
+            content = await this.stringProvider.get('COMMAND.SESSION-FINISH.SUCCESS.POST-DELETED', [
+                channelId,
+            ]);
+        }
+
+        const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
+            content: content,
+        });
+        await interaction.reply({ embeds: [embed], ephemeral: true });
+        this.logger.info(`Handled timestamp post interaction.`);
     }
 }

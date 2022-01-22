@@ -22,6 +22,12 @@ export class SessionFinish extends Command {
         );
         const session: ISessionSchema = await this.getSessionFromDatabase(channel.id);
 
+        if (session.timestampPostId) {
+            // If there is a timestamp post ID, there is a reminder and a timestamp to delete
+            await this.scheduleService.cancelJob(`reminder:${session.channelId}`);
+            await this.messageService.deleteTimestamp(session.channelId);
+        }
+
         await this.deleteSessionFromDatabase(channel.id);
 
         await this.deleteSessionPostFromSessionsChannel(sessionChannel, session.sessionPostId);
@@ -46,6 +52,12 @@ export class SessionFinish extends Command {
         const rpSessionChannel = this.channelService.getTextChannelByChannelId(
             sessionToFinish.channelId
         );
+
+        if (sessionToFinish.timestampPostId) {
+            // If there is a timestamp post ID, there is a reminder and a timestamp to delete
+            await this.scheduleService.cancelJob(`reminder:${sessionToFinish.channelId}`);
+            await this.messageService.deleteTimestamp(sessionToFinish.channelId);
+        }
 
         await this.deleteSessionFromDatabase(rpSessionChannel.id);
 

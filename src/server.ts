@@ -71,8 +71,8 @@ export class Server {
         this.client.on('messageDelete', async (message: Message) => {
             this.logger.trace(
                 `Message ID ${message.id} deleted\nAuthor ID: ${
-                    message.author.id
-                }\nContent length: ${message.content.length}\nContent: ${message.content.substr(
+                    message.author?.id
+                }\nContent length: ${message.content?.length}\nContent: ${message.content?.substr(
                     0,
                     100
                 )}`

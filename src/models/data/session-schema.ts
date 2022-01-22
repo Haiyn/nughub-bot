@@ -14,6 +14,9 @@ export interface ISessionSchema {
 
     /** The ID of the discord message in the current sessions for this RP session */
     sessionPostId: string;
+
+    /** The ID of the discord message in the timestamps channel. Only set after the first notification */
+    timestampPostId: string;
 }
 
 /** The mongoose schema of the session database object */
@@ -23,6 +26,7 @@ const sessionSchema = new Schema<ISessionSchema>(
         turnOrder: { type: [characterSchema], required: true },
         currentTurn: { type: characterSchema, required: true },
         sessionPostId: { type: String, required: true },
+        timestampPostId: { type: String, required: false },
     },
     { collection: 'Sessions' }
 );

@@ -5,8 +5,8 @@ import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { REST, RouteLike } from '@discordjs/rest';
 import { CommandError } from '@models/commands/command-error';
 import { CommandValidationError } from '@models/commands/command-validation-error';
+import { ButtonType } from '@models/components/button-type';
 import { ConfigurationError } from '@models/config/configuration-error';
-import { ButtonType } from '@models/ui/button-type';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import container from '@src/inversify.config';
@@ -212,6 +212,10 @@ export class InteractionController extends Controller {
         switch (buttonType) {
             case ButtonType.SkipPrompt:
                 await this.jobRuntimeController.handleSkipPromptInteraction(interaction);
+                break;
+            case ButtonType.Timestamp:
+                await this.jobRuntimeController.handleTimestampInteraction(interaction);
+                break;
         }
     }
 
