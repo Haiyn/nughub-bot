@@ -51,6 +51,11 @@ export class MessageService extends Service {
             channelId: sessionTimestamp.channelId,
         }).exec();
 
+        if (!session) {
+            this.logger.error(`Couldn't find session for sessionTimestamp: ${sessionTimestamp}`);
+            return '';
+        }
+
         // Construct message
         let content = `**Channel:**\t<#${sessionTimestamp.channelId}>\n**User:**\t<@${session.currentTurn.userId}>\n**Character:**\t${session.currentTurn.name}\n\n`;
         content += `**Last Reply:** <t:${sessionTimestamp.timestamp}:F> (<t:${sessionTimestamp.timestamp}:R>)\n`;

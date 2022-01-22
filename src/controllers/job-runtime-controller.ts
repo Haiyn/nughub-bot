@@ -117,10 +117,10 @@ export class JobRuntimeController extends Controller {
                 let footer = '';
                 switch (reminder.iteration) {
                     case 0:
-                        footer = `This is your first reminder.`;
+                        footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.FIRST');
                         break;
                     case 1:
-                        footer = `This is your second reminder. You will be skipped in 24 hours.`;
+                        footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.SECOND');
                         break;
                 }
                 const message = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
@@ -325,6 +325,13 @@ export class JobRuntimeController extends Controller {
         let embed;
 
         const session = await SessionModel.findOne({ channelId: channelId }).exec();
+
+        if (!session) {
+            this.logger.error(
+                `Couldn't find a session for ${channelId} on the skip prompt interaction (Action: ${action}.`
+            );
+            return;
+        }
 
         if (action === SkipPromptActions.Skip) {
             this.logger.debug(`Skipping on ${interaction.customId}...`);
