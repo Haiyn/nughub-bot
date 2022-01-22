@@ -1,5 +1,5 @@
 /** The types of actions a skip prompt can handle */
-export enum SkipPromptAction {
+export enum SkipPromptActions {
     Skip = 'SKIP',
     Dismiss = 'DISMISS',
 }

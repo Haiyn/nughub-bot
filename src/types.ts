@@ -15,7 +15,6 @@ export const TYPES = {
     // Controllers
     MessageController: Symbol('MessageController'),
     InteractionController: Symbol('InteractionController'),
-    ReactionController: Symbol('ReactionController'),
     JobRuntimeController: Symbol('JobRuntimeController'),
 
     // Providers
@@ -30,7 +29,6 @@ export const TYPES = {
     UserService: Symbol('UserService'),
     ChannelService: Symbol('ChannelService'),
     InteractionService: Symbol('InteractionService'),
-    ReactionService: Symbol('ReactionService'),
     ScheduleService: Symbol('ScheduleService'),
     MessageService: Symbol('MessageService'),
 

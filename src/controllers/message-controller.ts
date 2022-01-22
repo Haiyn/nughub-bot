@@ -39,9 +39,9 @@ export class MessageController extends Controller {
      * @returns Resolves when done
      */
     async handleDeletion(message: Message): Promise<void> {
-        if (message.author.id != this.client.user.id) {
+        if (message.author?.id != this.client.user.id) {
             this.logger.trace(
-                `Deleted message is not a bot message from the client (Author ID: ${message.author.id}, Client ID: ${this.client.user.id}).`
+                `Deleted message is not a bot message from the client (Author ID: ${message.author?.id}, Client ID: ${this.client.user.id}).`
             );
             return;
         }

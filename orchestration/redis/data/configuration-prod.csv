@@ -2,7 +2,7 @@ Key;Value;Type;Description
 CONFIGURATION_Channels_CurrentSessionsChannelId;890287079756554282;STRING;The ID of the channel where the turn orders should be posted
 CONFIGURATION_Channels_InternalChannelId;890287022701412352;STRING;The ID of the channel where the bot should send internal messages (errors, updates, warnings)
 CONFIGURATION_Channels_NotificationChannelId;890287049368797244;STRING;The ID of the channel where next turn notifications should be posted
-CONFIGURATION_Channels_OcIntroductionsChannelId;915682892192051250;STRING;The ID of the channel where OC introductions are being posted
+CONFIGURATION_Channels_TimestampsChannelId;934227537767305216;STRING;The ID of the channel where timestamp channels are sent to
 CONFIGURATION_Channels_RpChannelIds;890287133376528446;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Channels_RpChannelIds;890287167421681665;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Guild_Color_4;#de9997;STRING;The color of the guild in HEX

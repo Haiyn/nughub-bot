@@ -29,6 +29,7 @@ export class ScheduleService extends Service {
             this.logger.warn(`Trying to run non-existent job (${name})`);
             return false;
         }
+        this.logger.debug(`Running job (${name})...`);
         job.invoke();
         return true;
     }
@@ -45,6 +46,7 @@ export class ScheduleService extends Service {
             this.logger.warn(`Trying to cancel non-existent job (${name})`);
             return false;
         }
+        this.logger.debug(`Cancelling job (${name})...`);
         job.cancel();
         return true;
     }

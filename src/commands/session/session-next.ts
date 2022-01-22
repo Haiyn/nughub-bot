@@ -7,6 +7,8 @@ import { Reminder } from '@models/jobs/reminder';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
+import { TimestampStatus } from '@models/ui/timestamp-status';
+import { SessionTimestamp } from '@src/models';
 import { CommandValidationError } from '@src/models/commands/command-validation-error';
 import {
     CommandInteraction,
@@ -53,6 +55,9 @@ export class SessionNext extends Command {
         this.logger.debug('Scheduling reminder...');
         await this.jobRuntime.scheduleReminder(reminder, true);
 
+        this.logger.debug('Sending timestamp message...');
+        await this.sendTimestamp(newSession);
+
         const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-NEXT.SUCCESS'),
         });
@@ -91,6 +96,9 @@ export class SessionNext extends Command {
 
         this.logger.debug('Scheduling reminder...');
         await this.jobRuntime.scheduleReminder(reminder, true);
+
+        this.logger.debug('Sending timestamp message...');
+        await this.sendTimestamp(newSession);
 
         return true;
     }
@@ -324,5 +332,20 @@ export class SessionNext extends Command {
         );
 
         return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
+    }
+
+    public async sendTimestamp(session: ISessionSchema): Promise<void> {
+        const timestamp = Math.floor(Date.now() / 1000);
+        if (!session.timestampPostId) {
+            const sessionTimestamp: SessionTimestamp = {
+                channelId: session.channelId,
+                userId: session.currentTurn.userId,
+                timestamp: timestamp,
+            };
+            await this.messageService.sendTimestamp(sessionTimestamp);
+        }
+        let content = `**Channel:**\t<#${session.channelId}>\n**User:**\t<@${session.currentTurn.userId}>\n**Character:**\t${session.currentTurn.name}\n\n`;
+        content += `**Last Reply:** <t:${timestamp}:F> (<t:${timestamp}:R>)\n`;
+        await this.messageService.editTimestamp(session.channelId, TimestampStatus.InTime, content);
     }
 }

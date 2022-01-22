@@ -28,3 +28,6 @@ System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR;Internal Error: `Command exe
 System;SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT;Internal Error: `Database rejection`
 System;STRINGS.SYSTEM.DECORATORS.SEPARATOR;༺═──────────────═༻
 Job;STRINGS.JOB.REMINDER.TITLE;Reminder: It's your turn!
+Job;STRINGS.JOB.REMINDER.FOOTER.FIRST;This is your first reminder.
+Job;STRINGS.JOB.REMINDER.FOOTER.SECOND;This is your second reminder. You will be skipped in 24 hours.
+
