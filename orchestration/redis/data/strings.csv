@@ -34,4 +34,10 @@ System;SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT;Internal Error: `Database rejection
 System;STRINGS.SYSTEM.DECORATORS.SEPARATOR;༺═──────────────═༻
 Job;STRINGS.JOB.REMINDER.TITLE;Reminder: It's your turn!
 Job;STRINGS.JOB.REMINDER.FOOTER.FIRST;This is your first reminder.
+Job;STRINGS.JOB.REMINDER.DESCRIPTION.HIATUS;⏳ You are on hiatus and get 2 weeks to reply.
 Job;STRINGS.JOB.REMINDER.FOOTER.SECOND;This is your second reminder. You will be skipped in 24 hours.
+Job;STRINGS.JOB.REMINDER.WARNING.TITLE;⚠️ Reminder Warning
+Job;STRINGS.JOB.SKIP-PROMPT.TITLE;⚠️ Skip Warning
+Job;STRINGS.JOB.SKIP-PROMPT.TITLE.SKIPPED;⏭️ Skip Warning (skipped)
+Job;STRINGS.JOB.SKIP-PROMPT.TITLE.DISMISSED;⏸️ Skip Warning (dismissed)
+Job;STRINGS.JOB.SKIP-PROMPT.TITLE.DISMISSED;❌ Skip Warning (failed)

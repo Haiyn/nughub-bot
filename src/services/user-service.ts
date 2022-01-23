@@ -35,4 +35,15 @@ export class UserService extends Service {
         }
         return HiatusStatus.ActiveIndefiniteHiatus;
     }
+
+    /**
+     * Checks if user has an active hiatus
+     *
+     * @param userId the user id of the user to check
+     * @returns true if hiatus exists, false otherwise
+     */
+    public async userHasActiveHiatus(userId: string): Promise<boolean> {
+        const hiatus = await HiatusModel.findOne({ userId: userId }).exec();
+        return hiatus != null;
+    }
 }

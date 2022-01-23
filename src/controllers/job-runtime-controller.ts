@@ -119,17 +119,21 @@ export class JobRuntimeController extends Controller {
             try {
                 // Construct message
                 let footer = '';
-                switch (reminder.iteration) {
-                    case 0:
-                        footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.FIRST');
-                        break;
-                    case 1:
-                        footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.SECOND');
-                        break;
+                let content = `*${reminder.characterName}* in <#${reminder.channel.id}>`;
+                if (reminder.iteration === 0) {
+                    footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.FIRST');
+                    if (await this.userService.userHasActiveHiatus(reminder.user.id)) {
+                        content +=
+                            `\n\n` +
+                            (await this.stringProvider.get('JOB.REMINDER.DESCRIPTION.HIATUS'));
+                    }
+                } else if (reminder.iteration === 1) {
+                    footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.SECOND');
                 }
+
                 const message = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
                     title: await this.stringProvider.get('JOB.REMINDER.TITLE'),
-                    content: `*${reminder.characterName}* in <#${reminder.channel.id}>`,
+                    content: content,
                     authorName: reminder.user.username,
                     authorIcon: reminder.user.avatarURL(),
                     footer: footer,
@@ -205,7 +209,7 @@ export class JobRuntimeController extends Controller {
                     EmbedType.Technical,
                     EmbedLevel.Warning,
                     {
-                        title: 'Reminder Warning',
+                        title: await this.stringProvider.get('JOB.REMINDER.WARNING.TITLE'),
                         content:
                             `**User:** ${reminder.user.username} (<@${reminder.user.id}>)\n**Channel:** <#${reminder.channel.id}>\n\n` +
                             `${await this.userService.getUserHiatusStatus(reminder.user.id)}`,
@@ -282,7 +286,7 @@ export class JobRuntimeController extends Controller {
                     : `${skipPromptHours} hours `;
             message += `since the last reminder. They can now be skipped.`;
             const embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
-                title: 'Skip Warning',
+                title: await this.stringProvider.get('JOB.SKIP-PROMPT.TITLE'),
                 content: message,
             });
 
@@ -349,7 +353,7 @@ export class JobRuntimeController extends Controller {
             if (!result) {
                 this.logger.error(`Failed to skip for channel id ${channelId}`);
                 embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Error, {
-                    title: `Skip Warning (failed)`,
+                    title: await this.stringProvider.get('JOB.SKIP-PROMPT.TITLE.FAILED'),
                     content:
                         `**User**: ${user.username} (<@${session.currentTurn.userId}>)\n**Channel**: <#${session.channelId}>\n\n` +
                         `Failed to skip. Please skip them manually!`,
@@ -360,7 +364,7 @@ export class JobRuntimeController extends Controller {
                 );
             } else {
                 embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Success, {
-                    title: `Skip Warning (skipped)`,
+                    title: await this.stringProvider.get('JOB.SKIP-PROMPT.TITLE.SKIPPED'),
                     content:
                         `**User:** ${user.username} (<@${session.currentTurn.userId}>)\n**Channel:** <#${session.channelId}>\n\n` +
                         `User was skipped by <@${interaction.member.user.id}>.\nThe next person in the turn order for <#${channelId}> was notified.`,
@@ -369,7 +373,7 @@ export class JobRuntimeController extends Controller {
         } else {
             this.logger.debug(`Dismissing ${interaction.customId}...`);
             embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Info, {
-                title: `Skip Warning (dismissed)`,
+                title: await this.stringProvider.get('JOB.SKIP-PROMPT.TITLE.DISMISSED'),
                 content:
                     `**User:** ${user.username} (<@${session.currentTurn.userId}>)\n**Channel:** <#${session.channelId}>\n\n` +
                     `The skip prompt was dismissed by <@${interaction.member.user.id}>.`,
