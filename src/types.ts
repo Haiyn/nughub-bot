@@ -39,6 +39,7 @@ export const TYPES = {
     SessionNext: Symbol('Next'),
     Configuration: Symbol('Configuration'),
     Strings: Symbol('Strings'),
+    Hiatus: Symbol('Hiatus'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

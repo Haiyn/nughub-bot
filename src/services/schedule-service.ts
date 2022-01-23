@@ -1,6 +1,6 @@
 import { Service } from '@services/service';
 import { injectable } from 'inversify';
-import { scheduledJobs, scheduleJob } from 'node-schedule';
+import { Job, rescheduleJob, scheduledJobs, scheduleJob } from 'node-schedule';
 
 /** Handles different functions in relation to the scheduling and time */
 @injectable()
@@ -15,6 +15,21 @@ export class ScheduleService extends Service {
     public scheduleJob(name: string, date: Date, callback: () => void): void {
         scheduleJob(name, this.dateToCron(date), callback);
         this.logger.debug(`Scheduled job (${name}) for ${date}`);
+    }
+
+    /**
+     * Reschedules an existing job to another date
+     *
+     * @param name the name of the job to reschedule
+     * @param date the new date
+     */
+    public rescheduleJob(name: string, date: Date): void {
+        rescheduleJob(name, this.dateToCron(date));
+        this.logger.debug(`Rescheduled job (${name}) to ${date}.`);
+    }
+
+    public getJob(name: string): Job | null {
+        return scheduledJobs[name];
     }
 
     /**
@@ -84,13 +99,14 @@ export class ScheduleService extends Service {
      * @returns The cron object (string)
      */
     public dateToCron(date: Date): string {
+        const seconds = date.getSeconds();
         const minutes = date.getMinutes();
         const hours = date.getHours();
         const days = date.getDate();
         const months = date.getMonth() + 1;
         const weekday = date.getDay();
 
-        const cron = `${minutes} ${hours} ${days} ${months} ${weekday}`;
+        const cron = `${seconds} ${minutes} ${hours} ${days} ${months} ${weekday}`;
 
         this.logger.trace(`Converted date (${date}) to cron (${cron})`);
 

@@ -17,6 +17,7 @@ import {
     TextChannel,
 } from 'discord.js';
 import { injectable } from 'inversify';
+import moment = require('moment');
 
 @injectable()
 export class SessionNext extends Command {
@@ -334,9 +335,16 @@ export class SessionNext extends Command {
         return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
     }
 
+    /**
+     * Sends a timestamp to the timestamp channel or edits it if it already exists for this session
+     *
+     * @param session the session for which the timestamp should be sent/edited
+     * @returns when done
+     */
     public async sendTimestamp(session: ISessionSchema): Promise<void> {
-        const timestamp = Math.floor(Date.now() / 1000);
+        const timestamp = moment.utc().unix();
         if (!session.timestampPostId) {
+            // If there is no timestamp pots yet, send one
             const sessionTimestamp: SessionTimestamp = {
                 channelId: session.channelId,
                 userId: session.currentTurn.userId,
@@ -344,8 +352,16 @@ export class SessionNext extends Command {
             };
             await this.messageService.sendTimestamp(sessionTimestamp);
         }
+
+        // See if the current turn user is on hiatus, if so add a footer
+        const footer = await this.userService.getUserHiatusStatus(session.currentTurn.userId);
         let content = `**Channel:**\t<#${session.channelId}>\n**User:**\t<@${session.currentTurn.userId}>\n**Character:**\t${session.currentTurn.name}\n\n`;
         content += `**Last Reply:** <t:${timestamp}:F> (<t:${timestamp}:R>)\n`;
-        await this.messageService.editTimestamp(session.channelId, TimestampStatus.InTime, content);
+        await this.messageService.editTimestamp(
+            session.channelId,
+            TimestampStatus.InTime,
+            content,
+            footer
+        );
     }
 }

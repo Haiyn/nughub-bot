@@ -23,11 +23,21 @@ Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION;You can
 Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER;(Manic cackling.)
 Session Start;STRINGS.COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED;Uh-oh, I ran into some trouble while trying to initialize the sessions channel!
 Session Start;STRINGS.COMMAND.SESSION-START.SUCCESS;I successfully started a new RP session in <#{0}>!
+Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.REASON-TOO-LONG;The reason you've given me is too long! Please keep it under 3500 characters.
+Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.INVALID-DATE;The date you've given me is not valid! Try to use a DD/MM format or something readable like 01 January.
+Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.DATE-IN-PAST;The date you've given me is in the past! Please pick a date in the future.
+Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.HIATUS-ALREADY-ACTIVE;You already have an active reminder! Use the `/hiatus` command if you want to change the date.
+Hiatus;STRINGS.COMMAND.HIATUS.SUCCESS;I've successfully set a hiatus for you.
 System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR;Internal Error: `Command validation failed unexpectedly.`
 System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR;Internal Error: `Command execution failed unexpectedly.`
 System;SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT;Internal Error: `Database rejection`
 System;STRINGS.SYSTEM.DECORATORS.SEPARATOR;༺═──────────────═༻
 Job;STRINGS.JOB.REMINDER.TITLE;Reminder: It's your turn!
 Job;STRINGS.JOB.REMINDER.FOOTER.FIRST;This is your first reminder.
+Job;STRINGS.JOB.REMINDER.DESCRIPTION.HIATUS;⏳ You are on hiatus and get 2 weeks to reply.
 Job;STRINGS.JOB.REMINDER.FOOTER.SECOND;This is your second reminder. You will be skipped in 24 hours.
-
+Job;STRINGS.JOB.REMINDER.WARNING.TITLE;⚠️ Reminder Warning
+Job;STRINGS.JOB.SKIP-PROMPT.TITLE;⚠️ Skip Warning
+Job;STRINGS.JOB.SKIP-PROMPT.TITLE.SKIPPED;⏭️ Skip Warning (skipped)
+Job;STRINGS.JOB.SKIP-PROMPT.TITLE.DISMISSED;⏸️ Skip Warning (dismissed)
+Job;STRINGS.JOB.SKIP-PROMPT.TITLE.DISMISSED;❌ Skip Warning (failed)

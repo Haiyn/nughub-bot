@@ -48,7 +48,10 @@ export class SessionFinish extends Command {
         };
     }
 
-    async runInternally(sessionToFinish: ISessionSchema): Promise<void> {
+    async runInternally(
+        sessionToFinish: ISessionSchema,
+        triggeredByDeletion = true
+    ): Promise<void> {
         const rpSessionChannel = this.channelService.getTextChannelByChannelId(
             sessionToFinish.channelId
         );
@@ -63,14 +66,16 @@ export class SessionFinish extends Command {
 
         await this.sendSeparatorInRpChannel(rpSessionChannel);
 
-        await this.messageService.sendInternalMessage({
-            embeds: [
-                await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
-                    title: 'Session post deleted',
-                    content: `The session post for the session in <#${rpSessionChannel.id}> was deleted. I have finished the session for you.`,
-                }),
-            ],
-        });
+        if (triggeredByDeletion) {
+            await this.messageService.sendInternalMessage({
+                embeds: [
+                    await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
+                        title: 'Session post deleted',
+                        content: `The session post for the session in <#${rpSessionChannel.id}> was deleted. I have finished the session for you.`,
+                    }),
+                ],
+            });
+        }
     }
 
     public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
