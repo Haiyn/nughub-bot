@@ -20,6 +20,7 @@ import { ScheduleService } from '@services/schedule-service';
 import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { MessageService } from '@services/message-service';
 import { Strings } from '@commands/system/strings';
+import { Hiatus } from '@commands/hiatus/hiatus';
 
 const container = new Container();
 
@@ -123,5 +124,6 @@ container.bind<SessionFinish>('Finish').to(SessionFinish).inRequestScope();
 container.bind<SessionNext>('Next').to(SessionNext).inRequestScope();
 container.bind<Configuration>('Configuration').to(Configuration).inRequestScope();
 container.bind<Strings>('Strings').to(Strings).inRequestScope();
+container.bind<Hiatus>('Hiatus').to(Hiatus).inRequestScope();
 
 export default container;

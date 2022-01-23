@@ -2,6 +2,7 @@ import { Controller } from '@controllers/controller';
 import { ButtonType } from '@models/components/button-type';
 import { SkipPromptActions } from '@models/components/skip-prompt-actions';
 import { TimestampActions } from '@models/components/timestamp-actions';
+import { HiatusModel } from '@models/jobs/hiatus-schema';
 import { Reminder } from '@models/jobs/reminder';
 import { IReminderSchema, ReminderModel } from '@models/jobs/reminder-schema';
 import { TimestampStatus } from '@models/ui/timestamp-status';
@@ -21,6 +22,7 @@ import { TYPES } from '@src/types';
 import { ButtonInteraction, Client, MessageActionRow, MessageButton } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
+import moment = require('moment');
 
 /** Handles all jobs */
 @injectable()
@@ -52,6 +54,8 @@ export class JobRuntimeController extends Controller {
         this.messageService = messageService;
         this.stringProvider = stringProvider;
     }
+
+    // region REMINDERS
 
     /**
      * Restores all active reminders from the Reminders collection in the Mongodb
@@ -157,28 +161,32 @@ export class JobRuntimeController extends Controller {
 
                 // Reschedule with the new time if it is under the limit for reminder iterations
                 reminder.iteration++;
-                if (reminder.iteration < 2) {
-                    const validIterationForConfig = (await this.configuration.exists(
-                        `Schedule_Reminder_${reminder.iteration}_Hours`
-                    ))
-                        ? reminder.iteration
-                        : 0;
-                    const newDate = new Date(new Date().getTime());
-                    const reminderHours = Number.parseInt(
-                        await this.configuration.getString(
-                            `Schedule_Reminder_${validIterationForConfig}_Hours`
+                if (reminder.iteration === 1) {
+                    let newDate = moment()
+                        .add(
+                            await this.configuration.getNumber(`Schedule_Reminder_1_Hours`),
+                            'hours'
                         )
-                    );
-                    const reminderMinutes = Number.parseInt(
-                        await this.configuration.getString(
-                            `Schedule_Reminder_${validIterationForConfig}_Minutes`
-                        )
-                    );
-                    newDate.setHours(
-                        newDate.getHours() + reminderHours,
-                        newDate.getMinutes() + reminderMinutes
-                    );
-                    reminder.date = newDate;
+                        .add(
+                            await this.configuration.getNumber(`Schedule_Reminder_1_Minutes`),
+                            'minutes'
+                        );
+
+                    // Check if user is on hiatus
+                    const hiatus = await HiatusModel.findOne({ userId: reminder.user.id }).exec();
+                    if (hiatus) {
+                        newDate = newDate
+                            .add(
+                                await this.configuration.getNumber(`Schedule_Hiatus_Hours`),
+                                'hours'
+                            )
+                            .add(
+                                await this.configuration.getNumber(`Schedule_Hiatus_Minutes`),
+                                'minutes'
+                            );
+                    }
+
+                    reminder.date = newDate.toDate();
                     await this.scheduleReminder(reminder, true);
                     this.logger.info(
                         `Successfully rescheduled reminder #${reminder.iteration} for ${reminder.name}.`
@@ -200,7 +208,7 @@ export class JobRuntimeController extends Controller {
                         title: 'Reminder Warning',
                         content:
                             `**User:** ${reminder.user.username} (<@${reminder.user.id}>)\n**Channel:** <#${reminder.channel.id}>\n\n` +
-                            `${reminder.user.username} has not replied after the first reminder:\n*${reminder.characterName}* in <#${reminder.channel.id}>`,
+                            `${await this.userService.getUserHiatusStatus(reminder.user.id)}`,
                     }
                 );
 
@@ -242,6 +250,10 @@ export class JobRuntimeController extends Controller {
         }
     }
 
+    // endregion
+
+    // region SKIP PROMPT
+
     /**
      * Schedules sending a skip prompt for moderators after the last reminder
      *
@@ -251,22 +263,18 @@ export class JobRuntimeController extends Controller {
     public async scheduleSkipPrompt(reminder: Reminder): Promise<void> {
         this.logger.debug(`Scheduling skip prompt following ${reminder.name}...`);
         // Parse time for skip prompt
-        const skipPromptMinutes = Number.parseInt(
-            await this.configuration.getString(`Schedule_SkipPrompt_Minutes`)
-        );
-        const skipPromptHours = Number.parseInt(
-            await this.configuration.getString(`Schedule_SkipPrompt_Hours`)
-        );
-        const newSkipPromptDate = new Date(new Date().getTime());
-        newSkipPromptDate.setHours(
-            newSkipPromptDate.getHours() + skipPromptHours,
-            newSkipPromptDate.getMinutes() + skipPromptMinutes
-        );
+        const skipPromptHours = await this.configuration.getNumber(`Schedule_SkipPrompt_Hours`);
+        const skipPromptMinutes = await this.configuration.getNumber(`Schedule_SkipPrompt_Minutes`);
+        const newSkipPromptDate = moment()
+            .add(skipPromptHours, 'hours')
+            .add(skipPromptMinutes, 'minutes')
+            .toDate();
 
         // Define the skip prompt send action
         const sendSkipPrompt = async (): Promise<void> => {
             this.logger.debug(`Sending skip prompt for ${reminder.name}...`);
-            let message = `**User:** ${reminder.user.username} (<@${reminder.user.id}>)\n**Channel:** ${reminder.channel}\n\n`;
+            let message = `**User:** ${reminder.user.username} (<@${reminder.user.id}>)\n**Channel:** ${reminder.channel}\n`;
+            message += `${await this.userService.getUserHiatusStatus(reminder.user.id, true)}\n\n`;
             message += `${reminder.user.username} has not replied in the `;
             message +=
                 skipPromptMinutes != 0
@@ -332,6 +340,7 @@ export class JobRuntimeController extends Controller {
             );
             return;
         }
+        const user = await this.userService.getUserById(session.currentTurn.userId);
 
         if (action === SkipPromptActions.Skip) {
             this.logger.debug(`Skipping on ${interaction.customId}...`);
@@ -342,7 +351,7 @@ export class JobRuntimeController extends Controller {
                 embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Error, {
                     title: `Skip Warning (failed)`,
                     content:
-                        `**User**: ${session.currentTurn.name} (<@${session.currentTurn.userId}>)\n**Channel**: <#${session.channelId}>\n\n` +
+                        `**User**: ${user.username} (<@${session.currentTurn.userId}>)\n**Channel**: <#${session.channelId}>\n\n` +
                         `Failed to skip. Please skip them manually!`,
                 });
                 await this.messageService.editTimestamp(
@@ -353,7 +362,7 @@ export class JobRuntimeController extends Controller {
                 embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Success, {
                     title: `Skip Warning (skipped)`,
                     content:
-                        `**User:** ${session.currentTurn.name} (<@${session.currentTurn.userId}>)\n**Channel:** <#${session.channelId}>\n\n` +
+                        `**User:** ${user.username} (<@${session.currentTurn.userId}>)\n**Channel:** <#${session.channelId}>\n\n` +
                         `User was skipped by <@${interaction.member.user.id}>.\nThe next person in the turn order for <#${channelId}> was notified.`,
                 });
             }
@@ -362,7 +371,7 @@ export class JobRuntimeController extends Controller {
             embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Info, {
                 title: `Skip Warning (dismissed)`,
                 content:
-                    `**User:** ${session.currentTurn.name} (<@${session.currentTurn.userId}>)\n**Channel:** <#${session.channelId}>\n\n` +
+                    `**User:** ${user.username} (<@${session.currentTurn.userId}>)\n**Channel:** <#${session.channelId}>\n\n` +
                     `The skip prompt was dismissed by <@${interaction.member.user.id}>.`,
             });
             await this.messageService.editTimestamp(
@@ -375,6 +384,10 @@ export class JobRuntimeController extends Controller {
         this.logger.info(`Handled skip prompt interaction.`);
     }
 
+    // endregion
+
+    // region TIMESTAMP
+
     /**
      * Handles a button interaction on a timestamp post
      *
@@ -385,28 +398,22 @@ export class JobRuntimeController extends Controller {
         const action = interaction.customId.split(':')[1];
         const channelId = interaction.customId.split(':')[2];
 
-        let content;
         if (action === TimestampActions.AdvanceTurn) {
             this.logger.info(`Received skip request from timestamp interaction. Skipping...`);
             const command: SessionNext = container.get('Next');
             await command.runInternally(channelId);
-            content = await this.stringProvider.get('COMMAND.SESSION-NEXT.SUCCESS');
         } else if (action === TimestampActions.Finish) {
             this.logger.info(`Received finish request from timestamp interaction. Finishing...`);
             const command: SessionFinish = container.get('Finish');
             const session: ISessionSchema = await SessionModel.findOne({
                 channelId: channelId,
             }).exec();
-            await command.runInternally(session);
-            content = await this.stringProvider.get('COMMAND.SESSION-FINISH.SUCCESS.POST-DELETED', [
-                channelId,
-            ]);
+            await command.runInternally(session, false);
         }
 
-        const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
-            content: content,
-        });
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.deferUpdate();
         this.logger.info(`Handled timestamp post interaction.`);
     }
+
+    // endregion
 }

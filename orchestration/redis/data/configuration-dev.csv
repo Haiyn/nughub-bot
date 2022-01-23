@@ -2,7 +2,8 @@ Key;Value;Type;Description
 CONFIGURATION_Channels_CurrentSessionsChannelId;890287079756554282;STRING;The ID of the channel where the turn orders should be posted
 CONFIGURATION_Channels_InternalChannelId;890287022701412352;STRING;The ID of the channel where the bot should send internal messages (errors, updates, warnings)
 CONFIGURATION_Channels_NotificationChannelId;890287049368797244;STRING;The ID of the channel where next turn notifications should be posted
-CONFIGURATION_Channels_TimestampsChannelId;934227537767305216;STRING;The ID of the channel where timestamp channels are sent to
+CONFIGURATION_Channels_TimestampsChannelId;934227537767305216;STRING;The ID of the channel where timestamp are sent to
+CONFIGURATION_Channels_HiatusChannelId;934546940077690930;STRING;The ID of the channel where hiatuses are sent to
 CONFIGURATION_Channels_RpChannelIds;890287133376528446;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Channels_RpChannelIds;890287167421681665;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Guild_Color_4;#de9997;STRING;The color of the guild in HEX
@@ -22,3 +23,5 @@ CONFIGURATION_Schedule_Reminder_1_Hours;0;STRING;The number of hours that should
 CONFIGURATION_Schedule_Reminder_1_Minutes;1;STRING;The number of minutes that should pass before the second reminder is sent
 CONFIGURATION_Schedule_SkipPrompt_Hours;0;STRING;The number of hours that should pass since the last reminder until the skip prompt is shown
 CONFIGURATION_Schedule_SkipPrompt_Minutes;1;STRING;The number of minutes that should pass since the last reminder until the skip prompt is shown
+CONFIGURATION_Schedule_Hiatus_Minutes;1;STRING;The number of minutes that a user gets extra to reply when they are on a hiatus
+CONFIGURATION_Schedule_Hiatus_Hours;0;STRING;The number of minutes that a user gets extra to reply when they are on a hiatus

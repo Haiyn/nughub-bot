@@ -30,6 +30,31 @@ export class ConfigurationProvider extends Provider {
         );
     }
 
+    // region NUMBER
+
+    /**
+     * Gets a string and returns it as parsed number
+     *
+     * @param key the key to parse as number
+     * @returns parsed value as number
+     */
+    public async getNumber(key: string): Promise<number> {
+        const result = await this.redisClient.get(key);
+        if (!result) throw new ConfigurationError(`Value for key ${key} does not exist`);
+        if (result === '0') {
+            // '0' is falsy  and can't be parsed
+            return 0;
+        }
+        const number = Number.parseInt(result);
+        if (!number)
+            throw new ConfigurationError(
+                `Value for key ${key} is not a parsable number: ${result}`
+            );
+        return number;
+    }
+
+    // endregion
+
     // region SET
 
     /**

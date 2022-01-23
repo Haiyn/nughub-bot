@@ -1,7 +1,8 @@
 import { TimestampActions } from '@models/components/timestamp-actions';
+import { Hiatus } from '@models/jobs/hiatus';
 import { TimestampStatus } from '@models/ui/timestamp-status';
 import { ConfigurationProvider } from '@providers/configuration-provider';
-import { ChannelService } from '@services/index';
+import { ChannelService, UserService } from '@services/index';
 import { Service } from '@services/service';
 import { ButtonType, EmbedLevel, EmbedType, SessionModel, SessionTimestamp } from '@src/models';
 import { EmbedProvider } from '@src/providers';
@@ -13,19 +14,22 @@ import { Logger } from 'tslog';
 /** Handles different functions in relation to the Discord Message objects */
 @injectable()
 export class MessageService extends Service {
-    private readonly channelService: ChannelService;
     private readonly embedProvider: EmbedProvider;
+    private readonly channelService: ChannelService;
+    private readonly userService: UserService;
 
     constructor(
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.CommandLogger) logger: Logger,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.ChannelService) channelService: ChannelService
+        @inject(TYPES.ChannelService) channelService: ChannelService,
+        @inject(TYPES.ChannelService) userService: UserService
     ) {
         super(client, logger, configuration);
-        this.channelService = channelService;
         this.embedProvider = embedProvider;
+        this.channelService = channelService;
+        this.userService = userService;
     }
 
     /**
@@ -39,6 +43,8 @@ export class MessageService extends Service {
         const channel = await this.channelService.getTextChannelByChannelId(internalChannelId);
         await channel.send(message);
     }
+
+    // region TIMESTAMPS
 
     /**
      * Sends an internal timestamp post to the timestamp channel
@@ -59,7 +65,7 @@ export class MessageService extends Service {
         // Construct message
         let content = `**Channel:**\t<#${sessionTimestamp.channelId}>\n**User:**\t<@${session.currentTurn.userId}>\n**Character:**\t${session.currentTurn.name}\n\n`;
         content += `**Last Reply:** <t:${sessionTimestamp.timestamp}:F> (<t:${sessionTimestamp.timestamp}:R>)\n`;
-        const embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Info, {
+        const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: TimestampStatus.InTime,
             content: content,
         });
@@ -100,12 +106,14 @@ export class MessageService extends Service {
      * @param channelId The channelId for which the timestamp is posted
      * @param newStatus The new Timestamp status
      * @param newContent The new content for the embed description
+     * @param newFooter The new content for the embed footer
      * @returns when done
      */
     public async editTimestamp(
         channelId: string,
-        newStatus: string,
-        newContent?: string
+        newStatus?: string,
+        newContent?: string,
+        newFooter?: string
     ): Promise<void> {
         const session = await SessionModel.findOne({ channelId: channelId }).exec();
 
@@ -118,8 +126,10 @@ export class MessageService extends Service {
         );
         const channel = await this.channelService.getTextChannelByChannelId(timestampChannelId);
         const message = await channel.messages.fetch(session.timestampPostId);
-        const updatedEmbed = new MessageEmbed(message.embeds[0]).setTitle(newStatus);
+        const updatedEmbed = new MessageEmbed(message.embeds[0]);
+        if (newStatus) updatedEmbed.setTitle(newStatus);
         if (newContent) updatedEmbed.setDescription(newContent);
+        if (newFooter || newFooter === '') updatedEmbed.setFooter(newFooter);
         message.edit({ embeds: [updatedEmbed] });
     }
 
@@ -151,4 +161,31 @@ export class MessageService extends Service {
             return;
         }
     }
+
+    // endregion
+
+    // region HIATUS
+
+    public async sendHiatus(hiatus: Hiatus): Promise<string> {
+        let content = `**User:** <@${hiatus.user.id}>\n`;
+        hiatus.expires
+            ? (content += `**Until:** <t:${hiatus.expires}:D> (<t:${hiatus.expires}:R>)\n\n`)
+            : '\n\n';
+        content += `**Reason:** ${hiatus.reason}`;
+
+        const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
+            authorName: hiatus.user.username,
+            authorIcon: hiatus.user.avatarURL(),
+            content: content,
+        });
+
+        const hiatusChannel = await this.channelService.getTextChannelByChannelId(
+            await this.configuration.getString('Channels_HiatusChannelId')
+        );
+
+        const message = await hiatusChannel.send({ embeds: [embed] });
+        return message.id;
+    }
+
+    // endregion
 }
