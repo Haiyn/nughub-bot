@@ -1,7 +1,7 @@
 import { Command } from '@commands/command';
 import { CommandResult } from '@models/commands/command-result';
 import { Hiatus as HiatusData } from '@models/jobs/hiatus';
-import { HiatusModel } from '@models/jobs/hiatus-schema';
+import { HiatusModel, IHiatusSchema } from '@models/jobs/hiatus-schema';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import {
     CommandError,
@@ -25,6 +25,12 @@ export class Hiatus extends Command {
         switch (subcommand) {
             case 'create':
                 await this.create(interaction);
+                break;
+            case 'edit':
+                await this.edit(interaction);
+                break;
+            case 'end':
+                await this.end(interaction);
                 break;
             default:
                 throw new CommandError(
@@ -57,7 +63,7 @@ export class Hiatus extends Command {
             );
         }
 
-        if (moment().isAfter(date)) {
+        if (moment().utc().isAfter(date)) {
             throw new CommandValidationError(
                 `User provided a date that is in the past: ${dateString}.`,
                 await this.stringProvider.get('COMMAND.HIATUS.VALIDATION.DATE-IN-PAST')
@@ -85,8 +91,9 @@ export class Hiatus extends Command {
         const hiatus: HiatusData = {
             user: await this.userService.getUserById(interaction.member.user.id),
             reason: interaction.options.getString('reason'),
-            expires: moment.utc(interaction.options.getString('until')).unix() + 12 * 60 * 60,
         };
+        const expires = interaction.options.getString('until');
+        if (expires) hiatus.expires = moment.utc(expires).unix() + 12 * 60 * 60;
 
         const currentTurnsForUser: ISessionSchema[] = await SessionModel.find({
             'currentTurn.userId': hiatus.user.id,
@@ -106,8 +113,79 @@ export class Hiatus extends Command {
         this.logger.debug(`Saving hiatus to database...`);
         await this.saveHiatusToDatabase(hiatus);
 
+        if (hiatus.expires) await this.jobRuntime.scheduleHiatusFinish(hiatus);
+
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
-            content: await this.stringProvider.get('COMMAND.HIATUS.SUCCESS'),
+            content: await this.stringProvider.get('COMMAND.HIATUS.CREATE.SUCCESS'),
+        });
+        await this.interactionService.reply(interaction, { embeds: [embed] });
+    }
+
+    public async edit(interaction: CommandInteraction): Promise<void> {
+        const activeHiatus = await HiatusModel.findOne({
+            userId: interaction.member.user.id,
+        }).exec();
+        if (!activeHiatus) {
+            throw new CommandValidationError(
+                `User tried to edit non-existent hiatus.`,
+                await this.stringProvider.get('COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-EDIT')
+            );
+        }
+
+        this.logger.debug(`Editing hiatus with new date...`);
+        const oldDate = activeHiatus.expires;
+        const newDate = moment.utc(interaction.options.getString('until')).unix() + 12 * 60 * 60;
+        activeHiatus.expires = newDate;
+
+        // Save to database
+        await activeHiatus.save();
+
+        // Edit the hiatus post
+        const hiatusData = await this.mapHiatusModelToHiatusData(activeHiatus);
+        await this.messageService.editHiatus(hiatusData);
+
+        // (Re)schedule hiatus with new date
+        const jobName = `hiatus:${activeHiatus.userId}`;
+        if (this.scheduleService.jobExists(jobName)) {
+            this.scheduleService.getJob(jobName).reschedule(newDate);
+        } else {
+            await this.jobRuntime.scheduleHiatusFinish(hiatusData);
+        }
+
+        const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
+            content: await this.stringProvider.get('COMMAND.HIATUS.EDIT.SUCCESS'),
+        });
+        await this.interactionService.reply(interaction, { embeds: [embed] });
+    }
+
+    public async end(interaction: CommandInteraction): Promise<void> {
+        const activeHiatus = await HiatusModel.findOne({
+            userId: interaction.member.user.id,
+        }).exec();
+        if (!activeHiatus) {
+            throw new CommandValidationError(
+                `User tried to edit non-existent hiatus.`,
+                await this.stringProvider.get('COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-END')
+            );
+        }
+
+        if (!this.scheduleService.jobExists(`hiatus:${activeHiatus.userId}`)) {
+            const hiatus: HiatusData = {
+                user: await this.userService.getUserById(activeHiatus.userId),
+                reason: activeHiatus.reason,
+                expires: moment().add(1, 'seconds').unix(),
+                hiatusPostId: activeHiatus.hiatusPostId,
+            };
+            await this.jobRuntime.scheduleHiatusFinish(hiatus);
+        } else {
+            this.scheduleService.rescheduleJob(
+                `hiatus:${activeHiatus.userId}`,
+                moment().add(1, 'seconds').toDate()
+            );
+        }
+
+        const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
+            content: await this.stringProvider.get('COMMAND.HIATUS.DELETE.SUCCESS'),
         });
         await this.interactionService.reply(interaction, { embeds: [embed] });
     }
@@ -123,8 +201,11 @@ export class Hiatus extends Command {
         // workaround for shitty node-schedule return: typed as Date but returns cron date without time accuracy
         const invocation = this.scheduleService.getJob(name)?.nextInvocation();
         const date = new Date(invocation);
-        if (!date) {
-            throw new CommandError(`Tried to get nonexistent job ${name}.`);
+        if (!date || isNaN(date.getTime())) {
+            this.logger.warn(
+                `Trying to get nonexistent job ${name} while trying to reschedule reminder for hiatus creation.`
+            );
+            return;
         }
         // add the the time to the date
         const newDate = moment(date)
@@ -176,5 +257,16 @@ export class Hiatus extends Command {
                 error
             );
         }
+    }
+
+    private async mapHiatusModelToHiatusData(hiatusModel: IHiatusSchema): Promise<HiatusData> {
+        const hiatusData: HiatusData = {
+            user: await this.userService.getUserById(hiatusModel.userId),
+            reason: hiatusModel.reason,
+            hiatusPostId: hiatusModel.hiatusPostId,
+        };
+        if (hiatusModel.expires) hiatusData.expires = hiatusModel.expires;
+
+        return hiatusData;
     }
 }

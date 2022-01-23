@@ -7,9 +7,17 @@ import { Service } from '@services/service';
 import { ButtonType, EmbedLevel, EmbedType, SessionModel, SessionTimestamp } from '@src/models';
 import { EmbedProvider } from '@src/providers';
 import { TYPES } from '@src/types';
-import { Client, MessageActionRow, MessageButton, MessageEmbed, MessageOptions } from 'discord.js';
+import {
+    Client,
+    MessageActionRow,
+    MessageButton,
+    MessageEmbed,
+    MessageOptions,
+    TextChannel,
+} from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
+import moment = require('moment');
 
 /** Handles different functions in relation to the Discord Message objects */
 @injectable()
@@ -166,6 +174,12 @@ export class MessageService extends Service {
 
     // region HIATUS
 
+    /**
+     * Sends a hiatus post to the hiatus channel
+     *
+     * @param hiatus the hiatus data
+     * @returns the message id
+     */
     public async sendHiatus(hiatus: Hiatus): Promise<string> {
         let content = `**User:** <@${hiatus.user.id}>\n`;
         hiatus.expires
@@ -186,6 +200,37 @@ export class MessageService extends Service {
         const message = await hiatusChannel.send({ embeds: [embed] });
         return message.id;
     }
+
+    /**
+     * Edits an existing hiatus post with the new data
+     *
+     * @param hiatus the new hiatus data
+     * @returns when done
+     */
+    public async editHiatus(hiatus: Hiatus): Promise<void> {
+        let content = `**User:** <@${hiatus.user.id}>\n`;
+        hiatus.expires
+            ? (content += `**Until:** <t:${hiatus.expires}:D> (<t:${hiatus.expires}:R>)\n\n`)
+            : '\n\n';
+        content += `**Reason:** ${hiatus.reason}`;
+        const footer = `✏️ Hiatus was edited on ${moment().utc().format('MMMM Do YYYY, h:mm A')}`;
+
+        const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
+            authorName: hiatus.user.username,
+            authorIcon: hiatus.user.avatarURL(),
+            content: content,
+            footer: footer,
+        });
+
+        const hiatusChannel: TextChannel = await this.channelService.getTextChannelByChannelId(
+            await this.configuration.getString('Channels_HiatusChannelId')
+        );
+
+        const hiatusPost = await hiatusChannel.messages.fetch(hiatus.hiatusPostId);
+        await hiatusPost.edit({ embeds: [embed] });
+    }
+
+    public async deleteHiatus(userId: string): Promise<void> {}
 
     // endregion
 }

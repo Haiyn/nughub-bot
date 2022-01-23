@@ -26,8 +26,12 @@ Session Start;STRINGS.COMMAND.SESSION-START.SUCCESS;I successfully started a new
 Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.REASON-TOO-LONG;The reason you've given me is too long! Please keep it under 3500 characters.
 Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.INVALID-DATE;The date you've given me is not valid! Try to use a DD/MM format or something readable like 01 January.
 Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.DATE-IN-PAST;The date you've given me is in the past! Please pick a date in the future.
-Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.HIATUS-ALREADY-ACTIVE;You already have an active reminder! Use the `/hiatus` command if you want to change the date.
-Hiatus;STRINGS.COMMAND.HIATUS.SUCCESS;I've successfully set a hiatus for you.
+Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.HIATUS-ALREADY-ACTIVE;You already have an active reminder! Use the `/hiatus edit` command if you want to change the date.
+Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-EDIT;You don't have an active hiatus you can edit! Try creating one with the `/hiatus create` command.
+Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-END;You don't have an active hiatus you can end! Try creating one with the `/hiatus create` command.
+Hiatus;STRINGS.COMMAND.HIATUS.CREATE.SUCCESS;I've successfully set a hiatus for you.
+Hiatus;STRINGS.COMMAND.HIATUS.EDIT.SUCCESS;I've successfully edited your hiatus.
+Hiatus;STRINGS.COMMAND.HIATUS.DELETE.SUCCESS;I've successfully ended your hiatus.
 System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR;Internal Error: `Command validation failed unexpectedly.`
 System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR;Internal Error: `Command execution failed unexpectedly.`
 System;SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT;Internal Error: `Database rejection`

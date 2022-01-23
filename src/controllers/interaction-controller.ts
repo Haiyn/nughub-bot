@@ -207,7 +207,6 @@ export class InteractionController extends Controller {
      * @returns when done
      */
     private async handleButtonInteraction(interaction: ButtonInteraction): Promise<void> {
-        this.logger.trace(interaction);
         const buttonType = interaction.customId.slice(0, interaction.customId.indexOf(':'));
         switch (buttonType) {
             case ButtonType.SkipPrompt:
@@ -238,7 +237,7 @@ export class InteractionController extends Controller {
             );
             embedLevel = EmbedLevel.Warning;
             title = 'Warning';
-            userMessage = error.userMessage;
+            userMessage = error.userMessage ?? 'Validation failed';
             if (error.isInternal) {
                 embedType = EmbedType.Technical;
             }
@@ -248,7 +247,7 @@ export class InteractionController extends Controller {
                 `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} command failed while executing: ${error.internalMessage}`,
                 error.error ? this.logger.prettyError(error.error) : null
             );
-            userMessage = error.userMessage;
+            userMessage = error.userMessage ?? 'Something went wrong';
         } else if (error instanceof ConfigurationError) {
             // Issue with config
             this.logger.error(
