@@ -27,6 +27,20 @@ export function commandDefinition(): SlashCommandBuilder {
                         .setDescription('A day when you will return. Format example: 26 Mar 2022')
                         .setRequired(false)
                 )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName('edit')
+                .setDescription('Edit your hiatus end date.')
+                .addStringOption((option) =>
+                    option
+                        .setName('until')
+                        .setDescription('A day when you will return. Format example: 26 Mar 2022')
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand.setName('end').setDescription('End your hiatus.')
         );
 
     return <SlashCommandBuilder>command;

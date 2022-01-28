@@ -138,5 +138,16 @@ export class Server {
             .catch(() => {
                 this.logger.warn(`Could not restore reminders.`);
             });
+
+        this.logger.info('Restroing active hiatus finish events from database...');
+        await this.jobRuntimeController
+            .restoreHiatusFromDatabase()
+            .then((result) => {
+                this.logger.info(`Restored ${result} hiatus finish events.`);
+            })
+            .catch((error) => {
+                this.logger.warn(`Could not restore hiatus finish events.`);
+                this.logger.prettyError(error);
+            });
     }
 }

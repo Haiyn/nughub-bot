@@ -2,7 +2,7 @@ import { Controller } from '@controllers/controller';
 import { ButtonType } from '@models/components/button-type';
 import { SkipPromptActions } from '@models/components/skip-prompt-actions';
 import { TimestampActions } from '@models/components/timestamp-actions';
-import { HiatusModel } from '@models/jobs/hiatus-schema';
+import { HiatusModel, IHiatusSchema } from '@models/jobs/hiatus-schema';
 import { Reminder } from '@models/jobs/reminder';
 import { IReminderSchema, ReminderModel } from '@models/jobs/reminder-schema';
 import { TimestampStatus } from '@models/ui/timestamp-status';
@@ -10,7 +10,14 @@ import { MessageService } from '@services/message-service';
 import { ScheduleService } from '@services/schedule-service';
 import { SessionFinish, SessionNext } from '@src/commands';
 import container from '@src/inversify.config';
-import { EmbedLevel, EmbedType, ISessionSchema, SessionModel } from '@src/models';
+import {
+    EmbedLevel,
+    EmbedType,
+    Hiatus,
+    HiatusStatus,
+    ISessionSchema,
+    SessionModel,
+} from '@src/models';
 import {
     ConfigurationProvider,
     EmbedProvider,
@@ -167,6 +174,7 @@ export class JobRuntimeController extends Controller {
                 reminder.iteration++;
                 if (reminder.iteration === 1) {
                     let newDate = moment()
+                        .utc()
                         .add(
                             await this.configuration.getNumber(`Schedule_Reminder_1_Hours`),
                             'hours'
@@ -270,6 +278,7 @@ export class JobRuntimeController extends Controller {
         const skipPromptHours = await this.configuration.getNumber(`Schedule_SkipPrompt_Hours`);
         const skipPromptMinutes = await this.configuration.getNumber(`Schedule_SkipPrompt_Minutes`);
         const newSkipPromptDate = moment()
+            .utc()
             .add(skipPromptHours, 'hours')
             .add(skipPromptMinutes, 'minutes')
             .toDate();
@@ -277,14 +286,8 @@ export class JobRuntimeController extends Controller {
         // Define the skip prompt send action
         const sendSkipPrompt = async (): Promise<void> => {
             this.logger.debug(`Sending skip prompt for ${reminder.name}...`);
-            let message = `**User:** ${reminder.user.username} (<@${reminder.user.id}>)\n**Channel:** ${reminder.channel}\n`;
-            message += `${await this.userService.getUserHiatusStatus(reminder.user.id, true)}\n\n`;
-            message += `${reminder.user.username} has not replied in the `;
-            message +=
-                skipPromptMinutes != 0
-                    ? `${skipPromptHours} hours and ${skipPromptMinutes} minutes `
-                    : `${skipPromptHours} hours `;
-            message += `since the last reminder. They can now be skipped.`;
+            let message = `**User:** ${reminder.user.username} (<@${reminder.user.id}>)\n**Channel:** ${reminder.channel}\n\n`;
+            message += `${await this.userService.getUserHiatusStatus(reminder.user.id, true)}`;
             const embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
                 title: await this.stringProvider.get('JOB.SKIP-PROMPT.TITLE'),
                 content: message,
@@ -417,6 +420,174 @@ export class JobRuntimeController extends Controller {
 
         await interaction.deferUpdate();
         this.logger.info(`Handled timestamp post interaction.`);
+    }
+
+    // endregion
+
+    // region HIATUS
+
+    /**
+     * Restores all active hiatus from the hiatus collection in the Mongodb
+     *
+     * @returns The number of active hiatus restored (excluding orphaned ones)
+     */
+    public async restoreHiatusFromDatabase(): Promise<number> {
+        const activeHiatus: IHiatusSchema[] = await HiatusModel.find({});
+        let restored = 0;
+
+        for (const hiatusEntry of activeHiatus) {
+            if (!hiatusEntry.expires) return;
+            const user = await this.userService.getUserById(hiatusEntry.userId);
+
+            // TODO Fix this
+            if (moment(hiatusEntry.expires).isBefore(moment().utc())) {
+                this.logger.warn(
+                    `Hiatus for (${user.username}) is orphaned: Ran out at ${moment(
+                        hiatusEntry.expires
+                    ).toDate()}`
+                );
+                continue;
+            }
+
+            const hiatus: Hiatus = {
+                user: user,
+                reason: hiatusEntry.reason,
+                hiatusPostId: hiatusEntry.hiatusPostId,
+                expires: hiatusEntry.expires,
+            };
+
+            await this.scheduleHiatusFinish(hiatus);
+            restored++;
+        }
+
+        return restored;
+    }
+
+    public async scheduleHiatusFinish(hiatus: Hiatus): Promise<void> {
+        this.logger.debug(`Scheduling hiatus...`);
+        const date = moment(hiatus.expires).toDate();
+
+        // Define the skip prompt send action
+        const finishHiatus = async (): Promise<void> => {
+            this.logger.info(`Finishing hiatus for ${hiatus.user.username}...`);
+            const title = await this.stringProvider.get('JOB.WELCOME-BACK.TITLE');
+            let content = await this.stringProvider.get('JOB.WELCOME-BACK.DESCRIPTION');
+            content += '\n';
+            let footer = '';
+
+            const currentTurnsForUser: ISessionSchema[] = await SessionModel.find({
+                'currentTurn.userId': hiatus.user.id,
+            });
+            if (!currentTurnsForUser) {
+                content += await this.stringProvider.get(
+                    'JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES'
+                );
+            } else {
+                this.logger.debug(`Assembling pending replies for ${hiatus.user.username}...`);
+                content += await this.stringProvider.get(
+                    'JOB.WELCOME-BACK.DESCRIPTION.HAS-OPEN-REPLIES'
+                );
+                content += '\n\n';
+                for (const session of currentTurnsForUser) {
+                    const reminderModel = await ReminderModel.findOne({
+                        channelId: session.channelId,
+                    }).exec();
+
+                    // See if a reminder is scheduled
+                    const reminderName = `reminder:${session.channelId}`;
+                    const reminderJob = this.scheduleService.getJob(reminderName);
+
+                    if (!reminderJob) {
+                        this.logger.warn(
+                            `Couldn't find reminder job ${reminderName} for current turn (${session.channelId}) while trying to assemble pending replies for Hiatus finish.`
+                        );
+                        content += `*${reminderModel.characterName}* in <#${reminderModel.channelId}>`;
+                        continue;
+                    }
+                    // If user is not on first reminder, do nothing
+                    if (reminderModel.iteration === 0) return;
+
+                    // See if removing the hiatus extension would make the RP reply overdue
+                    const dateWithoutHiatusExtension = moment(
+                        new Date(new Date(reminderJob.nextInvocation()))
+                    )
+                        .subtract(
+                            await this.configuration.getNumber('Schedule_Hiatus_Minutes'),
+                            'minutes'
+                        )
+                        .subtract(
+                            await this.configuration.getNumber('Schedule_Hiatus_Hours'),
+                            'hours'
+                        )
+                        .toDate();
+                    const today = moment().utc();
+                    if (today.isAfter(dateWithoutHiatusExtension)) {
+                        // User is overdue to reply, cancel the reminder job
+                        this.logger.debug(
+                            `${reminderJob.name} is overdue (${dateWithoutHiatusExtension})`
+                        );
+                        this.scheduleService.cancelJob(reminderJob.name);
+                        const reminder: Reminder = {
+                            name: reminderModel.name,
+                            user: await this.userService.getUserById(reminderModel.userId),
+                            characterName: reminderModel.characterName,
+                            date: reminderModel.date,
+                            channel: await this.channelService.getTextChannelByChannelId(
+                                reminderModel.channelId
+                            ),
+                            iteration: reminderModel.iteration,
+                        };
+                        // Send a skip prompt
+                        await this.scheduleSkipPrompt(reminder);
+
+                        // Edit the timestamps
+                        await this.messageService.editTimestamp(
+                            session.channelId,
+                            TimestampStatus.OverdueReminder,
+                            undefined,
+                            HiatusStatus.NoHiatus
+                        );
+
+                        content += `⚠ *${reminderModel.characterName}* in <#${reminderModel.channelId}>`;
+                    } else {
+                        // User is not overdue to reply, reschedule the next reminder
+                        this.scheduleService.rescheduleJob(
+                            reminderJob.name,
+                            dateWithoutHiatusExtension
+                        );
+
+                        content += `*${reminderModel.characterName}* in <#${reminderModel.channelId}>`;
+                    }
+                }
+                if (content.includes('⚠')) {
+                    footer = await this.stringProvider.get('JOB.WELCOME-BACK.FOOTER.OVERDUE');
+                }
+            }
+
+            // Delete hiatus post
+            this.logger.debug(`Deleting hiatus for ${hiatus.user.username}...`);
+            await this.messageService.deleteHiatus(hiatus.hiatusPostId);
+            await HiatusModel.findOneAndDelete({ userId: hiatus.user.id }).exec();
+
+            // Send welcome back message
+            this.logger.debug(`Sending welcome back message for user ${hiatus.user.username}...`);
+            const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
+                authorIcon: hiatus.user.avatarURL(),
+                authorName: hiatus.user.username,
+                title: title,
+                content: content,
+                footer: footer,
+            });
+            const reminderChannel = this.channelService.getTextChannelByChannelId(
+                await this.configuration.getString('Channels_NotificationChannelId')
+            );
+            await reminderChannel.send({ content: `<@${hiatus.user.id}>`, embeds: [embed] });
+
+            this.logger.info(`Finished hiatus for ${hiatus.user.username}`);
+        };
+
+        // Schedule the job
+        this.scheduleService.scheduleJob(`hiatus:${hiatus.user.id}`, date, finishHiatus);
     }
 
     // endregion

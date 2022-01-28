@@ -51,7 +51,7 @@ export class EmbedProvider extends Provider {
      * @returns A discord.js Message Embed
      */
     public async get(type: EmbedType, level: EmbedLevel, data: EmbedData): Promise<MessageEmbed> {
-        if (data.content.includes('Error')) {
+        if (data.content?.includes('Error')) {
             level = EmbedLevel.Error;
         }
         const color: ColorResolvable = await this.mapEmbedLevelToColorResolvable(level);
