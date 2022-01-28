@@ -3,6 +3,7 @@ import { HiatusStatus } from '@models/ui/hiatus-status';
 import { Service } from '@services/service';
 import { User } from 'discord.js';
 import { injectable } from 'inversify';
+import moment = require('moment');
 
 /** A service that handles Discord users */
 @injectable()
@@ -31,7 +32,7 @@ export class UserService extends Service {
         if (!hiatus) return HiatusStatus.NoHiatus;
         if (hiatus.expires) {
             if (!detailed) return HiatusStatus.ActiveHiatus;
-            return HiatusStatus.ActiveHiatus + `(returns <t:${hiatus.expires}:R>)`;
+            return HiatusStatus.ActiveHiatus + `(returns <t:${moment(hiatus.expires).unix()}:R>)`;
         }
         return HiatusStatus.ActiveIndefiniteHiatus;
     }

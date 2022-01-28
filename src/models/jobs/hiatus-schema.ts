@@ -4,7 +4,7 @@ import { model, Schema } from 'mongoose';
 export interface IHiatusSchema {
     userId: string;
     reason: string;
-    expires: number;
+    expires: Date;
     hiatusPostId: string;
 }
 
@@ -13,7 +13,7 @@ export const hiatusSchema = new Schema<IHiatusSchema>(
     {
         userId: { type: 'String', required: true },
         reason: { type: 'String', required: true },
-        expires: { type: 'Number', required: false },
+        expires: { type: 'Date', required: false },
         hiatusPostId: { type: 'String', required: true },
     },
     { collection: 'Hiatus' }

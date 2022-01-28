@@ -145,8 +145,9 @@ export class Server {
             .then((result) => {
                 this.logger.info(`Restored ${result} hiatus finish events.`);
             })
-            .catch(() => {
+            .catch((error) => {
                 this.logger.warn(`Could not restore hiatus finish events.`);
+                this.logger.prettyError(error);
             });
     }
 }

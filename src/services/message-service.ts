@@ -9,6 +9,7 @@ import { EmbedProvider } from '@src/providers';
 import { TYPES } from '@src/types';
 import {
     Client,
+    Message,
     MessageActionRow,
     MessageButton,
     MessageEmbed,
@@ -183,7 +184,9 @@ export class MessageService extends Service {
     public async sendHiatus(hiatus: Hiatus): Promise<string> {
         let content = `**User:** <@${hiatus.user.id}>\n`;
         hiatus.expires
-            ? (content += `**Until:** <t:${hiatus.expires}:D> (<t:${hiatus.expires}:R>)\n\n`)
+            ? (content += `**Until:** <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
+                  hiatus.expires
+              ).unix()}:R>)\n\n`)
             : '\n\n';
         content += `**Reason:** ${hiatus.reason}`;
 
@@ -210,7 +213,9 @@ export class MessageService extends Service {
     public async editHiatus(hiatus: Hiatus): Promise<void> {
         let content = `**User:** <@${hiatus.user.id}>\n`;
         hiatus.expires
-            ? (content += `**Until:** <t:${hiatus.expires}:D> (<t:${hiatus.expires}:R>)\n\n`)
+            ? (content += `**Until:** <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
+                  hiatus.expires
+              ).unix()}:R>)\n\n`)
             : '\n\n';
         content += `**Reason:** ${hiatus.reason}`;
         const footer = `✏️ Hiatus was edited on ${moment().utc().format('MMMM Do YYYY, h:mm A')}`;
@@ -230,7 +235,24 @@ export class MessageService extends Service {
         await hiatusPost.edit({ embeds: [embed] });
     }
 
-    public async deleteHiatus(userId: string): Promise<void> {}
+    public async deleteHiatus(hiatusPostId: string): Promise<void> {
+        const hiatusChannel = await this.channelService.getTextChannelByChannelId(
+            await this.configuration.getString('Channels_HiatusChannelId')
+        );
+        const hiatusPost: Message = await hiatusChannel.messages.fetch(hiatusPostId);
+        if (!hiatusPost) {
+            this.logger.warn(`Cannot delete hiatus post with ID ${hiatusPostId}!`);
+            return;
+        }
+        try {
+            await hiatusPost.delete();
+        } catch (error) {
+            this.logger.error(
+                `Failed to delete hiatus post with ID ${hiatusPostId}: ${hiatusPost}`,
+                this.logger.prettyError(error)
+            );
+        }
+    }
 
     // endregion
 }

@@ -93,7 +93,13 @@ export class Hiatus extends Command {
             reason: interaction.options.getString('reason'),
         };
         const expires = interaction.options.getString('until');
-        if (expires) hiatus.expires = moment.utc(expires).unix() + 12 * 60 * 60;
+        if (expires)
+            hiatus.expires = moment
+                .utc(expires)
+                .set('hours', 12)
+                .set('minutes', 0)
+                .set('seconds', 0)
+                .toDate();
 
         const currentTurnsForUser: ISessionSchema[] = await SessionModel.find({
             'currentTurn.userId': hiatus.user.id,
@@ -133,8 +139,12 @@ export class Hiatus extends Command {
         }
 
         this.logger.debug(`Editing hiatus with new date...`);
-        const oldDate = activeHiatus.expires;
-        const newDate = moment.utc(interaction.options.getString('until')).unix() + 12 * 60 * 60;
+        const newDate = moment
+            .utc(interaction.options.getString('until'))
+            .set('hours', 12)
+            .set('minutes', 0)
+            .set('seconds', 0)
+            .toDate();
         activeHiatus.expires = newDate;
 
         // Save to database
@@ -147,7 +157,9 @@ export class Hiatus extends Command {
         // (Re)schedule hiatus with new date
         const jobName = `hiatus:${activeHiatus.userId}`;
         if (this.scheduleService.jobExists(jobName)) {
-            this.scheduleService.getJob(jobName).reschedule(newDate);
+            this.scheduleService
+                .getJob(jobName)
+                .reschedule(this.scheduleService.dateToCron(newDate));
         } else {
             await this.jobRuntime.scheduleHiatusFinish(hiatusData);
         }
@@ -173,7 +185,7 @@ export class Hiatus extends Command {
             const hiatus: HiatusData = {
                 user: await this.userService.getUserById(activeHiatus.userId),
                 reason: activeHiatus.reason,
-                expires: moment().add(1, 'seconds').unix(),
+                expires: moment().add(1, 'seconds').toDate(),
                 hiatusPostId: activeHiatus.hiatusPostId,
             };
             await this.jobRuntime.scheduleHiatusFinish(hiatus);
@@ -227,7 +239,9 @@ export class Hiatus extends Command {
     private async editTimestamp(hiatus: HiatusData, channelId: string): Promise<void> {
         let timestampFooter = await this.userService.getUserHiatusStatus(hiatus.user.id);
         hiatus.expires
-            ? (timestampFooter += ` expires <t:${hiatus.expires}:D> (<t:${hiatus.expires}:R>)`)
+            ? (timestampFooter += ` expires <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
+                  hiatus.expires
+              ).unix()}:R>)`)
             : '';
         await this.messageService.editTimestamp(channelId, undefined, undefined, timestampFooter);
     }

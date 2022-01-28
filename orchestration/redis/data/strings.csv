@@ -44,4 +44,9 @@ Job;STRINGS.JOB.REMINDER.WARNING.TITLE;⚠️ Reminder Warning
 Job;STRINGS.JOB.SKIP-PROMPT.TITLE;⚠️ Skip Warning
 Job;STRINGS.JOB.SKIP-PROMPT.TITLE.SKIPPED;⏭️ Skip Warning (skipped)
 Job;STRINGS.JOB.SKIP-PROMPT.TITLE.DISMISSED;⏸️ Skip Warning (dismissed)
-Job;STRINGS.JOB.SKIP-PROMPT.TITLE.DISMISSED;❌ Skip Warning (failed)
+Job;STRINGS.JOB.SKIP-PROMPT.TITLE.FAILED;❌ Skip Warning (failed)
+Job;STRINGS.JOB.WELCOME-BACK.TITLE;🎉 Welcome back!
+Job;STRINGS.JOB.WELCOME-BACK.DESCRIPTION;Your hiatus has ended.
+Job;STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES;You have no pending RP replies.
+Job;STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-OPEN-REPLIES;You have following pending replies:
+Job;STRINGS.JOB.WELCOME-BACK.FOOTER.OVERDUE;Pending replies marked with ⚠️ are RPs where your reply is overdue.
