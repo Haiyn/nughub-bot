@@ -9,6 +9,7 @@ import { SessionModel } from '@models/data/session-schema';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
+import { ConfigurationKeys, HiatusModel } from '@src/models';
 import {
     Channel,
     CommandInteraction,
@@ -171,32 +172,65 @@ export class SessionStart extends Command {
     /**
      * Saves the parsed session to a new message in the sessions channel
      *
-     * @param sessionsChannel The channel where the message is supposed to go
-     * @param data The session business object
+     * @param channel The channel where the message is supposed to go
+     * @param session The session business object
      * @returns Resolves with the sent message
      * @throws {CommandError} Throws if the message could not be sent
      */
     private async saveSessionToSessionChannel(
-        sessionsChannel: TextChannel,
-        data: Session
+        channel: TextChannel,
+        session: Session
     ): Promise<Message> {
         try {
-            let postContent = `\n\n<#${data.channel.id}>:\n\n`;
-            data.turnOrder.forEach((character) => {
+            // Find out which game the channel is in
+            let title = '';
+            const category = session.channel.parent.name;
+            switch (category) {
+                case await this.configuration.getString(ConfigurationKeys.Category_Origins):
+                    title += title += (await this.emojiProvider.get('DAO')) + ' ';
+                    break;
+                case await this.configuration.getString(ConfigurationKeys.Category_DA2):
+                    title += title += (await this.emojiProvider.get('DA2')) + ' ';
+                    break;
+                case await this.configuration.getString(ConfigurationKeys.Category_Inquisition):
+                    title += title += (await this.emojiProvider.get('DAI')) + ' ';
+                    break;
+                default:
+                    this.logger.warn(`Unable to resolve emoji for category ${category}.`);
+            }
+
+            // Capitalize the channel name
+            const channelNameWords = session.channel.name.split('-');
+            channelNameWords.map(
+                (name, index) =>
+                    (channelNameWords[index] = name.charAt(0).toUpperCase() + name.slice(1))
+            );
+            title += ' ';
+            title += channelNameWords.join(' ');
+
+            let content = `${session.channel}\n\n\n`;
+            for (const character of session.turnOrder) {
                 if (
-                    character.user.id === data.currentTurn.user.id &&
-                    character.name === data.currentTurn.name
+                    character.user.id === session.currentTurn.user.id &&
+                    character.name === session.currentTurn.name
                 )
-                    postContent += ':arrow_right: ';
-                postContent += `${character.name} <@${character.user.id}>\n`;
-            });
-            const divider = await this.embedProvider.get(EmbedType.Separator, EmbedLevel.Guild, {
-                content: await this.stringProvider.get('SYSTEM.DECORATORS.SEPARATOR'),
+                    content += ':arrow_right: ';
+                content += `**${character.name}** - ${character.user.username} (${character.user}) `;
+
+                const hasHiatus = await HiatusModel.findOne({ userId: character.user.id }).exec();
+                if (hasHiatus) {
+                    content += '⌛';
+                }
+                content += '\n\n';
+            }
+
+            const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
+                title: title,
+                content: content,
             });
 
-            const result = await sessionsChannel.send({
-                content: postContent,
-                embeds: [divider],
+            const result = await channel.send({
+                embeds: [embed],
                 allowedMentions: { parse: [] },
             });
             this.logger.debug(`Sent new sessions message (ID: ${result.id})`);

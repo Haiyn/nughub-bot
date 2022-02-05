@@ -1,52 +1,52 @@
-Group;Key;Value
-Ping;STRINGS.COMMAND.PING.SUCCESS;(Manic cackling.)
-Ping;STRINGS.COMMAND.PING.PENDING;Checking...
-Session Finish;STRINGS.COMMAND.SESSION-FINISH.VALIDATION.NO-ONGOING-RP;There is no ongoing RP session in <#{0}>!
-Session Finish;STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-NOT-DELETED;I couldn't delete the session post from <#{0}> but the session is still finished! Please check if the session message was removed.
-Session Finish;STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-DELETED;The session in <#{0}> is now finished!
-Session Next;STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP;There is no ongoing RP session in <#{0}>!
-Session Next;STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NOT-USERS-TURN;It is currently <@{0}>'s turn! Only they are allowed to advance their turn.
-Session Next;STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP-IN-CURRENT-CHANNEL;There is no ongoing RP session in this channel! Please use this command in the RP channel or supply it when using the command.
-Session Next;STRINGS.COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED;Uh-oh, I couldn't manage to update the session post in <#{0}!
-Session Next;STRINGS.COMMAND.SESSION-NEXT.SUCCESS;I notified the next user!
-Session Next;STRINGS.COMMAND.SESSION-NEXT.NOTIFICATION-TITLE;It's your turn!
-Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.INVALID-RP-CHANNEL;<#{0}> is not a channel you can start a session in! Please pick a valid RP channel.
-Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.CHANNEL-ALREADY-USED;There is already a RP session running <#{0}>!
-Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.CHARACTER-NAME-NOT-PROVIDED;Please provide a character name for every user you've mentioned!
-Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.USER-NOT-PROVIDED;Please provide a user for every character name you've given!
-Session Start;STRINGS.COMMAND.SESSION-START.VALIDATION.DUPLICATE-CHARACTER-NAME;You can't start an RP that has the same character twice!
-Session Start;STRINGS.COMMAND.SESSION-START.ERROR.PARSE-SESSION-FAILED;Uh-oh, something went wrong while I was trying to process your inputs!
-Session Start;STRINGS.COMMAND.SESSION-START.ERROR.SAVE-TO-SESSION-CHANNEL-FAILED;Uh-oh, something went wrong while I was trying to post the session!
-Session Start;STRINGS.COMMAND.SESSION-START.ERROR.COULD-NOT-INITIALIZE-CHANNEL;I can't post the session in <#{0}> because there are messages in it that aren't from me!
-Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-TITLE;Ongoing RP Sessions
-Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION;You can find all currently running RPs here - including their turn order.
-Session Start;STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER;(Manic cackling.)
-Session Start;STRINGS.COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED;Uh-oh, I ran into some trouble while trying to initialize the sessions channel!
-Session Start;STRINGS.COMMAND.SESSION-START.SUCCESS;I successfully started a new RP session in <#{0}>!
-Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.REASON-TOO-LONG;The reason you've given me is too long! Please keep it under 3500 characters.
-Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.INVALID-DATE;The date you've given me is not valid! Try to use a DD/MM format or something readable like 01 January.
-Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.DATE-IN-PAST;The date you've given me is in the past! Please pick a date in the future.
-Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.HIATUS-ALREADY-ACTIVE;You already have an active reminder! Use the `/hiatus edit` command if you want to change the date.
-Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-EDIT;You don't have an active hiatus you can edit! Try creating one with the `/hiatus create` command.
-Hiatus;STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-END;You don't have an active hiatus you can end! Try creating one with the `/hiatus create` command.
-Hiatus;STRINGS.COMMAND.HIATUS.CREATE.SUCCESS;I've successfully set a hiatus for you.
-Hiatus;STRINGS.COMMAND.HIATUS.EDIT.SUCCESS;I've successfully edited your hiatus.
-Hiatus;STRINGS.COMMAND.HIATUS.DELETE.SUCCESS;I've successfully ended your hiatus.
-System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR;Internal Error: `Command validation failed unexpectedly.`
-System;SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR;Internal Error: `Command execution failed unexpectedly.`
-System;SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT;Internal Error: `Database rejection`
-System;STRINGS.SYSTEM.DECORATORS.SEPARATOR;༺═──────────────═༻
-Job;STRINGS.JOB.REMINDER.TITLE;Reminder: It's your turn!
-Job;STRINGS.JOB.REMINDER.FOOTER.FIRST;This is your first reminder.
-Job;STRINGS.JOB.REMINDER.DESCRIPTION.HIATUS;⏳ You are on hiatus and get 2 weeks to reply.
-Job;STRINGS.JOB.REMINDER.FOOTER.SECOND;This is your second reminder. You will be skipped in 24 hours.
-Job;STRINGS.JOB.REMINDER.WARNING.TITLE;⚠️ Reminder Warning
-Job;STRINGS.JOB.SKIP-PROMPT.TITLE;⚠️ Skip Warning
-Job;STRINGS.JOB.SKIP-PROMPT.TITLE.SKIPPED;⏭️ Skip Warning (skipped)
-Job;STRINGS.JOB.SKIP-PROMPT.TITLE.DISMISSED;⏸️ Skip Warning (dismissed)
-Job;STRINGS.JOB.SKIP-PROMPT.TITLE.FAILED;❌ Skip Warning (failed)
-Job;STRINGS.JOB.WELCOME-BACK.TITLE;🎉 Welcome back!
-Job;STRINGS.JOB.WELCOME-BACK.DESCRIPTION;Your hiatus has ended.
-Job;STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES;You have no pending RP replies.
-Job;STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-OPEN-REPLIES;You have following pending replies:
-Job;STRINGS.JOB.WELCOME-BACK.FOOTER.OVERDUE;Pending replies marked with ⚠️ are RPs where your reply is overdue.
+Group,Key,Value
+Ping,STRINGS.COMMAND.PING.SUCCESS,(Manic cackling.)
+Ping,STRINGS.COMMAND.PING.PENDING,Checking...
+Session Finish,STRINGS.COMMAND.SESSION-FINISH.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in <#{0}>!
+Session Finish,STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-NOT-DELETED,I couldn't delete the session post from <#{0}> but the session is still finished! Please check if the session message was removed.
+Session Finish,STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-DELETED,The session in <#{0}> is now finished!
+Session Next,STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in <#{0}>!
+Session Next,STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NOT-USERS-TURN,It is currently <@{0}>'s turn! Only they are allowed to advance their turn.
+Session Next,STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP-IN-CURRENT-CHANNEL,There is no ongoing RP session in this channel! Please use this command in the RP channel or supply it when using the command.
+Session Next,STRINGS.COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED,"Uh-oh, I couldn't manage to update the session post in <#{0}!"
+Session Next,STRINGS.COMMAND.SESSION-NEXT.SUCCESS,I notified the next user!
+Session Next,STRINGS.COMMAND.SESSION-NEXT.NOTIFICATION-TITLE,It's your turn!
+Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.INVALID-RP-CHANNEL,<#{0}> is not a channel you can start a session in! Please pick a valid RP channel.
+Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.CHANNEL-ALREADY-USED,There is already a RP session running <#{0}>!
+Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.CHARACTER-NAME-NOT-PROVIDED,Please provide a character name for every user you've mentioned!
+Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.USER-NOT-PROVIDED,Please provide a user for every character name you've given!
+Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.DUPLICATE-CHARACTER-NAME,You can't start an RP that has the same character twice!
+Session Start,STRINGS.COMMAND.SESSION-START.ERROR.PARSE-SESSION-FAILED,"Uh-oh, something went wrong while I was trying to process your inputs!"
+Session Start,STRINGS.COMMAND.SESSION-START.ERROR.SAVE-TO-SESSION-CHANNEL-FAILED,"Uh-oh, something went wrong while I was trying to post the session!"
+Session Start,STRINGS.COMMAND.SESSION-START.ERROR.COULD-NOT-INITIALIZE-CHANNEL,I can't post the session in <#{0}> because there are messages in it that aren't from me!
+Session Start,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-TITLE,Ongoing RP Sessions
+Session Start,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION,You can find all currently running RPs here - including their turn order.\n\nA ➡️ shows you whose turn it is.\nA ⌛ shows you who is currently on a hiatus.
+Session Start,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER,(Manic cackling.)
+Session Start,STRINGS.COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED,"Uh-oh, I ran into some trouble while trying to initialize the sessions channel!"
+Session Start,STRINGS.COMMAND.SESSION-START.SUCCESS,I successfully started a new RP session in <#{0}>!
+Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.REASON-TOO-LONG,The reason you've given me is too long! Please keep it under 3500 characters.
+Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.INVALID-DATE,The date you've given me is not valid! Try to use a DD/MM format or something readable like 01 January.
+Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.DATE-IN-PAST,The date you've given me is in the past! Please pick a date in the future.
+Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.HIATUS-ALREADY-ACTIVE,You already have an active reminder! Use the `/hiatus edit` command if you want to change the date.
+Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-EDIT,You don't have an active hiatus you can edit! Try creating one with the `/hiatus create` command.
+Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-END,You don't have an active hiatus you can end! Try creating one with the `/hiatus create` command.
+Hiatus,STRINGS.COMMAND.HIATUS.CREATE.SUCCESS,I've successfully set a hiatus for you.
+Hiatus,STRINGS.COMMAND.HIATUS.EDIT.SUCCESS,I've successfully edited your hiatus.
+Hiatus,STRINGS.COMMAND.HIATUS.DELETE.SUCCESS,I've successfully ended your hiatus.
+System,SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR,Internal Error: `Command validation failed unexpectedly.`
+System,SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR,Internal Error: `Command execution failed unexpectedly.`
+System,SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT,Internal Error: `Database rejection`
+System,STRINGS.SYSTEM.DECORATORS.SEPARATOR,༺═──────────────═༻
+Job,STRINGS.JOB.REMINDER.TITLE,Reminder: It's your turn!
+Job,STRINGS.JOB.REMINDER.FOOTER.FIRST,This is your first reminder.
+Job,STRINGS.JOB.REMINDER.DESCRIPTION.HIATUS,⏳ You are on hiatus and get 2 weeks to reply.
+Job,STRINGS.JOB.REMINDER.FOOTER.SECOND,This is your second reminder. You will be skipped in 24 hours.
+Job,STRINGS.JOB.REMINDER.WARNING.TITLE,⚠️ Reminder Warning
+Job,STRINGS.JOB.SKIP-PROMPT.TITLE,⚠️ Skip Warning
+Job,STRINGS.JOB.SKIP-PROMPT.TITLE.SKIPPED,⏭️ Skip Warning (skipped)
+Job,STRINGS.JOB.SKIP-PROMPT.TITLE.DISMISSED,⏸️ Skip Warning (dismissed)
+Job,STRINGS.JOB.SKIP-PROMPT.TITLE.FAILED,❌ Skip Warning (failed)
+Job,STRINGS.JOB.WELCOME-BACK.TITLE,🎉 Welcome back!
+Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION,Your hiatus has ended.
+Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES,You have no pending RP replies.
+Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-OPEN-REPLIES,You have following pending replies:
+Job,STRINGS.JOB.WELCOME-BACK.FOOTER.OVERDUE,Pending replies marked with ⚠️ are RPs where your reply is overdue.

@@ -4,7 +4,7 @@ import { PermissionLevel } from '@models/permissions/permission-level';
 import { ConfigurationProvider } from '@providers/configuration-provider';
 import { MessageService } from '@services/message-service';
 import { ScheduleService } from '@services/schedule-service';
-import { EmbedProvider, StringProvider } from '@src/providers';
+import { EmbedProvider, EmojiProvider, StringProvider } from '@src/providers';
 import { ChannelService, HelperService, InteractionService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
@@ -50,6 +50,9 @@ export abstract class Command {
     /** The embed provider */
     protected readonly embedProvider: EmbedProvider;
 
+    /** The emoji provider */
+    protected readonly emojiProvider: EmojiProvider;
+
     /* The permission level of the command */
     public readonly permissionLevel: PermissionLevel;
 
@@ -65,6 +68,7 @@ export abstract class Command {
         @inject(TYPES.MessageService) messageService: MessageService,
         @inject(TYPES.StringProvider) stringProvider: StringProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
+        @inject(TYPES.EmojiProvider) emojiProvider: EmojiProvider,
         @inject(TYPES.JobRuntimeController) jobRuntime: JobRuntimeController
     ) {
         this.logger = logger;
@@ -78,6 +82,7 @@ export abstract class Command {
         this.messageService = messageService;
         this.stringProvider = stringProvider;
         this.embedProvider = embedProvider;
+        this.emojiProvider = emojiProvider;
         this.jobRuntime = jobRuntime;
     }
 
