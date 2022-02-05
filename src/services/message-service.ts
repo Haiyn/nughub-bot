@@ -236,19 +236,19 @@ export class MessageService extends Service {
     }
 
     public async deleteHiatus(hiatusPostId: string): Promise<void> {
-        const hiatusChannel = await this.channelService.getTextChannelByChannelId(
-            await this.configuration.getString('Channels_HiatusChannelId')
-        );
-        const hiatusPost: Message = await hiatusChannel.messages.fetch(hiatusPostId);
-        if (!hiatusPost) {
-            this.logger.warn(`Cannot delete hiatus post with ID ${hiatusPostId}!`);
-            return;
-        }
         try {
+            const hiatusChannel = await this.channelService.getTextChannelByChannelId(
+                await this.configuration.getString('Channels_HiatusChannelId')
+            );
+            const hiatusPost: Message = await hiatusChannel.messages.fetch(hiatusPostId);
+            if (!hiatusPost) {
+                this.logger.warn(`Cannot delete hiatus post with ID ${hiatusPostId}!`);
+                return;
+            }
             await hiatusPost.delete();
         } catch (error) {
             this.logger.error(
-                `Failed to delete hiatus post with ID ${hiatusPostId}: ${hiatusPost}`,
+                `Failed to delete hiatus post with ID ${hiatusPostId}`,
                 this.logger.prettyError(error)
             );
         }

@@ -6,6 +6,7 @@ import { ISessionSchema, SessionModel } from '@models/data/session-schema';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
+import { ConfigurationKeys } from '@src/models';
 import { CommandInteraction, CommandInteractionOptionResolver, TextChannel } from 'discord.js';
 import { injectable } from 'inversify';
 
@@ -48,12 +49,22 @@ export class SessionFinish extends Command {
         };
     }
 
-    async runInternally(
+    /**
+     * Finishes an RP session without a user interaction
+     *
+     * @param sessionToFinish the session to finish
+     * @param triggeredByDeletion whether or not the finish was caused by someone deleting the turn order post
+     * @returns when done
+     */
+    public async runInternally(
         sessionToFinish: ISessionSchema,
         triggeredByDeletion = true
     ): Promise<void> {
         const rpSessionChannel = this.channelService.getTextChannelByChannelId(
             sessionToFinish.channelId
+        );
+        const turnOrdersChannel = this.channelService.getTextChannelByChannelId(
+            await this.configuration.getString(ConfigurationKeys.Channels_CurrentSessionsChannelId)
         );
 
         if (sessionToFinish.timestampPostId) {
@@ -63,6 +74,11 @@ export class SessionFinish extends Command {
         }
 
         await this.deleteSessionFromDatabase(rpSessionChannel.id);
+
+        await this.deleteSessionPostFromSessionsChannel(
+            turnOrdersChannel,
+            sessionToFinish.sessionPostId
+        );
 
         await this.sendSeparatorInRpChannel(rpSessionChannel);
 
