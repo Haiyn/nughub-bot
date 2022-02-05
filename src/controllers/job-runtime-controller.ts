@@ -439,7 +439,6 @@ export class JobRuntimeController extends Controller {
             if (!hiatusEntry.expires) return;
             const user = await this.userService.getUserById(hiatusEntry.userId);
 
-            // TODO Fix this
             if (moment(hiatusEntry.expires).isBefore(moment().utc())) {
                 this.logger.warn(
                     `Hiatus for (${user.username}) is orphaned: Ran out at ${moment(
@@ -477,13 +476,17 @@ export class JobRuntimeController extends Controller {
 
             const currentTurnsForUser: ISessionSchema[] = await SessionModel.find({
                 'currentTurn.userId': hiatus.user.id,
-            });
-            if (!currentTurnsForUser) {
+            }).exec();
+
+            if (!currentTurnsForUser || currentTurnsForUser?.length === 0) {
+                this.logger.debug(`User ${hiatus.user.username} has no pending replies.`);
                 content += await this.stringProvider.get(
                     'JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES'
                 );
             } else {
-                this.logger.debug(`Assembling pending replies for ${hiatus.user.username}...`);
+                this.logger.debug(
+                    `User ${hiatus.user.username} has ${currentTurnsForUser.length} pending replies. Assembling content ...`
+                );
                 content += await this.stringProvider.get(
                     'JOB.WELCOME-BACK.DESCRIPTION.HAS-OPEN-REPLIES'
                 );
@@ -501,7 +504,7 @@ export class JobRuntimeController extends Controller {
                         this.logger.warn(
                             `Couldn't find reminder job ${reminderName} for current turn (${session.channelId}) while trying to assemble pending replies for Hiatus finish.`
                         );
-                        content += `*${reminderModel.characterName}* in <#${reminderModel.channelId}>`;
+                        content += `**${session.currentTurn.name}** in <#${session.channelId}>\n`;
                         continue;
                     }
                     // If user is not on first reminder, do nothing
