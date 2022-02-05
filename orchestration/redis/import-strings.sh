@@ -7,21 +7,20 @@ export HOSTIP=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print
 
 INPUT="$1"
 COUNTER=0
-IFS=";"     # Set file separator to ; instead of a whitespace or shit breaks
+IFS=","     # Set file separator to ; instead of a whitespace or shit breaks
 
 echo "Importing $INPUT..."
-while read -r i; do
-  # Read the line from the file and save it to variables
-  KEY=$(echo "$i" | awk 'BEGIN { FS = ";" } ; { print $2 }');
-  VALUE=$(echo "$i" | awk 'BEGIN { FS = ";" } ; { print $3 }');
-  if [ "$KEY" = "Key" ]; then
+while read -r group key value; do
+  # Skip the first line
+  if [ "$key" = "Key" ]; then
     continue
   fi
-  echo "Inserting $KEY: \"$VALUE\"..."
+  value=$(echo "$value" | sed -r "s/\\\"//g")
+  echo "Inserting $key: \"$value\"..."
 
   # Export the read key value pair to subshell
-  export KEY=$KEY
-  export VALUE=$VALUE
+  export KEY=$key
+  export VALUE=$(echo $value)
   # Run redis SET command
   sh -c 'redis-cli -h $HOSTIP SET $KEY "$VALUE"';
   COUNTER=$((COUNTER+1))

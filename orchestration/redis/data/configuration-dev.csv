@@ -1,15 +1,21 @@
 Key;Value;Type;Description
-CONFIGURATION_Channels_CurrentSessionsChannelId;890287079756554282;STRING;The ID of the channel where the turn orders should be posted
+CONFIGURATION_Channels_CurrentSessionsChannelId;938531936215920681;STRING;The ID of the channel where the turn orders should be posted
 CONFIGURATION_Channels_InternalChannelId;890287022701412352;STRING;The ID of the channel where the bot should send internal messages (errors, updates, warnings)
 CONFIGURATION_Channels_NotificationChannelId;890287049368797244;STRING;The ID of the channel where next turn notifications should be posted
 CONFIGURATION_Channels_TimestampsChannelId;934227537767305216;STRING;The ID of the channel where timestamp are sent to
 CONFIGURATION_Channels_HiatusChannelId;934546940077690930;STRING;The ID of the channel where hiatuses are sent to
 CONFIGURATION_Channels_RpChannelIds;890287133376528446;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Channels_RpChannelIds;890287167421681665;SET;The ID of the channels where an RP can be started
+CONFIGURATION_Channels_RpChannelIds;914651641611968543;SET;The ID of the channels where an RP can be started
+CONFIGURATION_Channels_RpChannelIds;939555743177269358;SET;The ID of the channels where an RP can be started
+CONFIGURATION_Channels_RpChannelIds;939555795673182258;SET;The ID of the channels where an RP can be started
+CONFIGURATION_Category_Origins;Origins;STRING;The name of the Dragon Age Origins category
+CONFIGURATION_Category_DA2;DA2;STRING;The name of the Dragon Age 2 category
+CONFIGURATION_Category_Inquisition;Inquisition;STRING;The name of the Dragon Age Inquisition category
 CONFIGURATION_Guild_Color_4;#de9997;STRING;The color of the guild in HEX
 CONFIGURATION_Guild_Color_3;#c70d00;STRING;The Error color in HEX
 CONFIGURATION_Guild_Color_2;#ffa500;STRING;The Warning color in HEX
-CONFIGURATION_Guild_Color_1;#187bcd;STRING;The Info color in HEX
+CONFIGURATION_Guild_Color_1,#187bcd;STRING;The Info color in HEX
 CONFIGURATION_Guild_Color_0;#86dc3d;STRING;The Success color in HEX
 CONFIGURATION_Permission_Roles_0_Ids;914184090176065556;SET;The ID of the roles that should have Reader access
 CONFIGURATION_Permission_Roles_1_Ids;914664670546231376;SET;The ID of the roles that should have RPer access
