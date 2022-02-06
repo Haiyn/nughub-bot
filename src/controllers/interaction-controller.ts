@@ -209,9 +209,6 @@ export class InteractionController extends Controller {
     private async handleButtonInteraction(interaction: ButtonInteraction): Promise<void> {
         const buttonType = interaction.customId.slice(0, interaction.customId.indexOf(':'));
         switch (buttonType) {
-            case ButtonType.SkipPrompt:
-                await this.jobRuntimeController.handleSkipPromptInteraction(interaction);
-                break;
             case ButtonType.Timestamp:
                 await this.jobRuntimeController.handleTimestampInteraction(interaction);
                 break;
@@ -272,7 +269,7 @@ export class InteractionController extends Controller {
             });
             await this.interactionService.reply(interaction, {
                 embeds: [embedReply],
-                ephemeral: true,
+                ephemeral: false,
             });
         }
     }

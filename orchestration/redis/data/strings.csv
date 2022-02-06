@@ -37,14 +37,12 @@ System,SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR,Internal Error: `Command exe
 System,SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT,Internal Error: `Database rejection`
 System,STRINGS.SYSTEM.DECORATORS.SEPARATOR,༺═──────────────═༻
 Job,STRINGS.JOB.REMINDER.TITLE,Reminder: It's your turn!
+Job,STRINGS.JOB.REMINDER.DESCRIPTION.SECOND,"\n\n⚠️ Without a response you will be skipped 24 hours. Please remember being skipped is not a punishment and is meant to keep the flow of role play moving. You'll be pinged again in the turn order once it's your turn again!"
+Job,STRINGS.JOB.REMINDER.DESCRIPTION.SECOND.HIATUS-HINT,"\n\n⏳ If you need extra time (up to another week) please use `/hiatus create` to notify us that you are on a hiatus."
 Job,STRINGS.JOB.REMINDER.FOOTER.FIRST,This is your first reminder.
 Job,STRINGS.JOB.REMINDER.DESCRIPTION.HIATUS,⏳ You are on hiatus and get 2 weeks to reply.
 Job,STRINGS.JOB.REMINDER.FOOTER.SECOND,This is your second reminder.
-Job,STRINGS.JOB.REMINDER.WARNING.TITLE,⚠️ Reminder Warning
-Job,STRINGS.JOB.SKIP-PROMPT.TITLE,⚠️ Skip Warning
-Job,STRINGS.JOB.SKIP-PROMPT.TITLE.SKIPPED,⏭️ Skip Warning (skipped)
-Job,STRINGS.JOB.SKIP-PROMPT.TITLE.DISMISSED,⏸️ Skip Warning (dismissed)
-Job,STRINGS.JOB.SKIP-PROMPT.TITLE.FAILED,❌ Skip Warning (failed)
+Job,STRINGS.JOB.REMINDER.WARNING.TITLE,⚠️ Last Reminder Warning
 Job,STRINGS.JOB.WELCOME-BACK.TITLE,🎉 Welcome back!
 Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION,Your hiatus has ended.
 Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES,You have no pending RP replies.

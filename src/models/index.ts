@@ -3,7 +3,6 @@ export { CommandPermission } from './commands/command-permission';
 export { CommandResult } from './commands/command-result';
 export { CommandValidationError } from './commands/command-validation-error';
 export { ButtonType } from './components/button-type';
-export { SkipPromptActions } from './components/skip-prompt-actions';
 export { TimestampActions } from './components/timestamp-actions';
 export { ConfigurationError } from './config/configuration-error';
 export { ConfigurationKeys } from './config/configuration-keys.enum';

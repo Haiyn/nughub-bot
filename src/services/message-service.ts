@@ -84,14 +84,16 @@ export class MessageService extends Service {
                 .setCustomId(
                     `${ButtonType.Timestamp}:${TimestampActions.AdvanceTurn}:${sessionTimestamp.channelId}`
                 )
-                .setLabel('Advance Turn')
-                .setStyle('PRIMARY'),
+                .setLabel('Skip User')
+                .setStyle('PRIMARY')
+                .setEmoji('⏩'),
             new MessageButton()
                 .setCustomId(
                     `${ButtonType.Timestamp}:${TimestampActions.Finish}:${sessionTimestamp.channelId}`
                 )
                 .setLabel('Finish RP')
-                .setStyle('DANGER'),
+                .setStyle('DANGER')
+                .setEmoji('❌'),
         ]);
 
         const timestampChannelId = await this.configuration.getString(
