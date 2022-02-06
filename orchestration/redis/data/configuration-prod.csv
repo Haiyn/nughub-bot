@@ -22,9 +22,7 @@ CONFIGURATION_Permission_Roles_3_Ids;889495215533097021;SET;The ID of the roles 
 CONFIGURATION_Permission_User_4_Id;356178941913858049;STRING;The User ID of the Owner
 CONFIGURATION_Schedule_Reminder_0_Hours;48;STRING;The number of hours that should pass before the first reminder is sent
 CONFIGURATION_Schedule_Reminder_0_Minutes;0;STRING;The number of minutes that should pass before the first reminder is sent
-CONFIGURATION_Schedule_Reminder_1_Hours;168;STRING;The number of hours that should pass before the second reminder is sent
+CONFIGURATION_Schedule_Reminder_1_Hours;120;STRING;The number of hours that should pass before the second reminder is sent
 CONFIGURATION_Schedule_Reminder_1_Minutes;0;STRING;The number of minutes that should pass before the second reminder is sent
-CONFIGURATION_Schedule_SkipPrompt_Hours;24;STRING;The number of hours that should pass since the last reminder until the skip prompt is shown
-CONFIGURATION_Schedule_SkipPrompt_Minutes;0;STRING;The number of minutes that should pass since the last reminder until the skip prompt is shown
 CONFIGURATION_Schedule_Hiatus_Minutes;0;STRING;The number of minutes that a user gets extra to reply when they are on a hiatus
 CONFIGURATION_Schedule_Hiatus_Hours;168;STRING;The number of minutes that a user gets extra to reply when they are on a hiatus

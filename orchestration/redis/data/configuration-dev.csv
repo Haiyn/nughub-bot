@@ -26,8 +26,6 @@ CONFIGURATION_Permission_User_4_Id;356178941913858049;STRING;The User ID of the 
 CONFIGURATION_Schedule_Reminder_0_Hours;0;STRING;The number of hours that should pass before the first reminder is sent
 CONFIGURATION_Schedule_Reminder_0_Minutes;1;STRING;The number of minutes that should pass before the first reminder is sent
 CONFIGURATION_Schedule_Reminder_1_Hours;0;STRING;The number of hours that should pass before the second reminder is sent
-CONFIGURATION_Schedule_Reminder_1_Minutes;5;STRING;The number of minutes that should pass before the second reminder is sent
-CONFIGURATION_Schedule_SkipPrompt_Hours;0;STRING;The number of hours that should pass since the last reminder until the skip prompt is shown
-CONFIGURATION_Schedule_SkipPrompt_Minutes;1;STRING;The number of minutes that should pass since the last reminder until the skip prompt is shown
-CONFIGURATION_Schedule_Hiatus_Minutes;10;STRING;The number of minutes that a user gets extra to reply when they are on a hiatus
+CONFIGURATION_Schedule_Reminder_1_Minutes;1;STRING;The number of minutes that should pass before the second reminder is sent
+CONFIGURATION_Schedule_Hiatus_Minutes;2;STRING;The number of minutes that a user gets extra to reply when they are on a hiatus
 CONFIGURATION_Schedule_Hiatus_Hours;0;STRING;The number of minutes that a user gets extra to reply when they are on a hiatus

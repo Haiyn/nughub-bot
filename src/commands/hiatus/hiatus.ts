@@ -8,6 +8,7 @@ import {
     CommandValidationError,
     EmbedLevel,
     EmbedType,
+    HiatusStatus,
     ISessionSchema,
     SessionModel,
 } from '@src/models';
@@ -109,8 +110,8 @@ export class Hiatus extends Command {
             `Adjusting ${currentTurnsForUser.length} reminders to accommodate hiatus...`
         );
         for (const session of currentTurnsForUser) {
-            await this.rescheduleReminder(session.channelId);
-            await this.editTimestamp(hiatus, session.channelId);
+            const isAfterLastReminder = await this.rescheduleReminder(session.channelId);
+            await this.editTimestamp(hiatus, session.channelId, isAfterLastReminder);
         }
 
         this.logger.debug(`Sending hiatus to hiatus channel...`);
@@ -206,18 +207,16 @@ export class Hiatus extends Command {
      * Reschedules an active reminder for a user when a hiatus is created
      *
      * @param channelId The channelId for which the reminder should be reschedules
-     * @returns when done
+     * @returns true when it is an extension request after the last reminder, false otherwise
      */
-    private async rescheduleReminder(channelId: string): Promise<void> {
+    private async rescheduleReminder(channelId: string): Promise<boolean> {
         const name = `reminder:${channelId}`;
         // workaround for shitty node-schedule return: typed as Date but returns cron date without time accuracy
         const invocation = this.scheduleService.getJob(name)?.nextInvocation();
         const date = new Date(invocation);
         if (!date || isNaN(date.getTime())) {
-            this.logger.warn(
-                `Trying to get nonexistent job ${name} while trying to reschedule reminder for hiatus creation.`
-            );
-            return;
+            this.logger.info(`Hiatus creation happened after last reminder.`);
+            return true;
         }
         // add the the time to the date
         const newDate = moment(date)
@@ -227,6 +226,8 @@ export class Hiatus extends Command {
         this.logger.trace(`Found next invocation for ${channelId} on ${date}. Moved to ${newDate}`);
 
         this.scheduleService.rescheduleJob(name, newDate);
+
+        return false;
     }
 
     /**
@@ -234,10 +235,16 @@ export class Hiatus extends Command {
      *
      * @param hiatus the created hiatus
      * @param channelId the channelId for which the timestamp should be edited
+     * @param askedForExtension whether or not a hiatus was created after the last reminder
      * @returns when done
      */
-    private async editTimestamp(hiatus: HiatusData, channelId: string): Promise<void> {
+    private async editTimestamp(
+        hiatus: HiatusData,
+        channelId: string,
+        askedForExtension: boolean
+    ): Promise<void> {
         let timestampFooter = await this.userService.getUserHiatusStatus(hiatus.user.id);
+        if (askedForExtension) timestampFooter = HiatusStatus.AskedForExtension;
         hiatus.expires
             ? (timestampFooter += ` expires <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
                   hiatus.expires
