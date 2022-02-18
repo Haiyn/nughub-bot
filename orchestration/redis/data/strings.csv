@@ -23,6 +23,17 @@ Session Start,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION,You can
 Session Start,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER,(Manic cackling.)
 Session Start,STRINGS.COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED,"Uh-oh, I ran into some trouble while trying to initialize the sessions channel!"
 Session Start,STRINGS.COMMAND.SESSION-START.SUCCESS,I successfully started a new RP session in <#{0}>!
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in the channel you've provided!
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.CHARACTER-ALREADY-EXISTS, The character you've supplied already exists in the turn order.
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NOT-A-NUMBER,This is not a valid number.
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE,This number is not in the valid range.
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.TIMEOUT,You took too long to respond.
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.ADD,I've successfully added the character to the turn order.
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.REMOVE,I've successfully removed the character from the turn order.
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.SET,I've successfully set the new current turn.
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.ERROR.COULD-NOT-ADD,Something failed internally while I was trying to add the character to the turn order!
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.ERROR.COULD-NOT-REMOVE,Something failed internally while I was trying to remove the character from the turn order!
+Session Edit,STRINGS.COMMAND.SESSION-EDIT.ERROR.COULD-NOT-SET,Something failed internally while I was trying to set a new current turn!
 Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.REASON-TOO-LONG,The reason you've given me is too long! Please keep it under 3500 characters.
 Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.INVALID-DATE,The date you've given me is not valid! Try to use a DD/MM format or something readable like 01 January.
 Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.DATE-IN-PAST,The date you've given me is in the past! Please pick a date in the future.

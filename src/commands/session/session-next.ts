@@ -7,15 +7,11 @@ import { Reminder } from '@models/jobs/reminder';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
+import { NextReason } from '@models/ui/next-reason.enum';
 import { TimestampStatus } from '@models/ui/timestamp-status';
-import { HiatusModel, SessionTimestamp } from '@src/models';
+import { ConfigurationKeys, SessionTimestamp } from '@src/models';
 import { CommandValidationError } from '@src/models/commands/command-validation-error';
-import {
-    CommandInteraction,
-    CommandInteractionOptionResolver,
-    Message,
-    TextChannel,
-} from 'discord.js';
+import { CommandInteraction, CommandInteractionOptionResolver, TextChannel } from 'discord.js';
 import { injectable } from 'inversify';
 import moment = require('moment');
 
@@ -45,7 +41,19 @@ export class SessionNext extends Command {
         const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
 
         this.logger.debug('Updating user turn in sessions channel...');
-        await this.updateTurnOrderInSessionsChannel(newSession);
+        await this.messageService.updateSessionPost(newSession).catch(async () => {
+            throw new CommandError(
+                'Failed to update session post with new current turn marker',
+                await this.stringProvider.get(
+                    'COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED',
+                    [
+                        await this.configuration.getString(
+                            ConfigurationKeys.Channels_CurrentSessionsChannelId
+                        ),
+                    ]
+                )
+            );
+        });
 
         this.logger.debug('Notifying next user...');
         await this.notifyNextUser(session.currentTurn, newSession, userMessage);
@@ -76,9 +84,10 @@ export class SessionNext extends Command {
      * Runs the next command internally instead of triggered by a command interaction
      *
      * @param channelId The channelId where the next command should be executed
+     * @param reason A reason why the next command was run, will be shown to user
      * @returns true when successful false otherwise
      */
-    public async runInternally(channelId: string): Promise<boolean> {
+    public async runInternally(channelId: string, reason: NextReason): Promise<boolean> {
         this.logger.debug('Running next command internally...');
 
         const session: ISessionSchema = await SessionModel.findOne({ channelId: channelId });
@@ -87,10 +96,22 @@ export class SessionNext extends Command {
         const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
 
         this.logger.debug('Updating user turn in sessions channel...');
-        await this.updateTurnOrderInSessionsChannel(newSession);
+        await this.messageService.updateSessionPost(newSession).catch(async () => {
+            throw new CommandError(
+                'Failed to update session post with new current turn marker',
+                await this.stringProvider.get(
+                    'COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED',
+                    [
+                        await this.configuration.getString(
+                            ConfigurationKeys.Channels_CurrentSessionsChannelId
+                        ),
+                    ]
+                )
+            );
+        });
 
         this.logger.debug('Notifying next user...');
-        await this.notifyNextUser(session.currentTurn, newSession, undefined, true);
+        await this.notifyNextUser(session.currentTurn, newSession, undefined, reason);
 
         this.logger.debug('Parsing reminder...');
         const reminder: Reminder = await this.parseReminder(newSession);
@@ -193,70 +214,19 @@ export class SessionNext extends Command {
     }
 
     /**
-     * Updates the current turn indicator in the current sessions channel
-     *
-     * @param session The new session with the new current turn
-     * @returns Resolves when sent
-     * @throws {CommandError} Throws if the message could not be edited
-     */
-    private async updateTurnOrderInSessionsChannel(session: ISessionSchema): Promise<void> {
-        const currentSessionsChannelId = await this.configuration.getString(
-            'Channels_CurrentSessionsChannelId'
-        );
-        try {
-            const sessionPost: Message = this.channelService
-                .getTextChannelByChannelId(currentSessionsChannelId)
-                .messages.cache.get(session.sessionPostId);
-
-            let content = `<#${session.channelId}>\n\n\n`;
-            for (const character of session.turnOrder) {
-                const user = await this.userService.getUserById(character.userId);
-                if (
-                    user.id === session.currentTurn.userId &&
-                    character.name === session.currentTurn.name
-                )
-                    content += ':arrow_right: ';
-                content += `**${character.name}** - ${user.username} (${user}) `;
-
-                const hasHiatus = await HiatusModel.findOne({ userId: user.id }).exec();
-                if (hasHiatus) {
-                    content += '⌛';
-                }
-                content += '\n\n';
-            }
-
-            sessionPost.embeds[0].setDescription(content);
-
-            await sessionPost.edit({
-                embeds: sessionPost.embeds,
-                allowedMentions: { parse: [] },
-            });
-        } catch (error) {
-            throw new CommandError(
-                'Failed to update session post with new current turn marker',
-                await this.stringProvider.get(
-                    'COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED',
-                    [currentSessionsChannelId]
-                ),
-                error
-            );
-        }
-    }
-
-    /**
      * Mentions the user that is next in the turn order
      *
      * @param previousTurn The user that previously had the turn
      * @param newSession The session after the turn order update
      * @param userMessage The message the previous user left
-     * @param isSkip Whether it was a skip that triggered the next command or not
+     * @param reason An optional reason, passed if command was run internally.
      * @returns Resolves when notification sent
      */
     private async notifyNextUser(
         previousTurn: ICharacterSchema,
         newSession: ISessionSchema,
         userMessage?: string,
-        isSkip = false
+        reason: NextReason = null
     ): Promise<void> {
         let content = `*${newSession.currentTurn.name}* in <#${newSession.channelId}>`;
         if (userMessage) content += `\n\n<@${previousTurn.userId}> said: \\"${userMessage}\\"`;
@@ -266,7 +236,7 @@ export class SessionNext extends Command {
             content: content,
             authorName: user.username,
             authorIcon: user.avatarURL(),
-            footer: isSkip ? `The previous user was skipped.` : '',
+            footer: reason,
         });
         const ping = `<@${newSession.currentTurn.userId}>`;
         const notificationChannel: TextChannel =
@@ -362,7 +332,7 @@ export class SessionNext extends Command {
         // See if the current turn user is on hiatus, if so add a footer
         const footer = await this.userService.getUserHiatusStatus(session.currentTurn.userId);
         let content = `**Channel:**\t<#${session.channelId}>\n**User:**\t<@${session.currentTurn.userId}>\n**Character:**\t${session.currentTurn.name}\n\n`;
-        content += `**Last Reply:** <t:${timestamp}:F> (<t:${timestamp}:R>)\n`;
+        content += `**Last Turn Advance:** <t:${timestamp}:F> (<t:${timestamp}:R>)\n`;
         await this.messageService.editTimestamp(
             session.channelId,
             TimestampStatus.InTime,

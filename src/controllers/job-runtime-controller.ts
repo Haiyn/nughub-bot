@@ -14,6 +14,7 @@ import {
     Hiatus,
     HiatusStatus,
     ISessionSchema,
+    NextReason,
     SessionModel,
 } from '@src/models';
 import {
@@ -280,7 +281,7 @@ export class JobRuntimeController extends Controller {
         if (action === TimestampActions.AdvanceTurn) {
             this.logger.info(`Received skip request from timestamp interaction. Skipping...`);
             const command: SessionNext = container.get('Next');
-            await command.runInternally(channelId);
+            await command.runInternally(channelId, NextReason.Skipped);
         } else if (action === TimestampActions.Finish) {
             this.logger.info(`Received finish request from timestamp interaction. Finishing...`);
             const command: SessionFinish = container.get('Finish');

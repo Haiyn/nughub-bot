@@ -1,3 +1,4 @@
+import { commandDefinition as sessionEdit } from '@commands/definitions/session/session-edit';
 import { commandDefinition as sessionFinish } from '@commands/definitions/session/session-finish';
 import { commandDefinition as sessionNext } from '@commands/definitions/session/session-next';
 import { commandDefinition as sessionStart } from '@commands/definitions/session/session-start';
@@ -12,8 +13,18 @@ export default [
     sessionStart(),
     sessionFinish(),
     sessionNext(),
+    sessionEdit(),
     configuration(),
     strings(),
     hiatus(),
 ];
-export { sessionStart, sessionNext, sessionFinish, ping, configuration, strings, hiatus };
+export {
+    sessionStart,
+    sessionNext,
+    sessionFinish,
+    sessionEdit,
+    ping,
+    configuration,
+    strings,
+    hiatus,
+};

@@ -15,15 +15,19 @@ export class Session {
     /** The message that was posted to the current sessions channel */
     sessionPost: Message;
 
+    timestampPost?: Message;
+
     constructor(
         channel: TextChannel,
         turnOrder: Character[],
         currentTurn: Character,
-        sessionPost: Message
+        sessionPost: Message,
+        timestampPost?: Message
     ) {
         this.channel = channel;
         this.turnOrder = turnOrder;
         this.currentTurn = currentTurn;
         this.sessionPost = sessionPost;
+        this.timestampPost = timestampPost;
     }
 }

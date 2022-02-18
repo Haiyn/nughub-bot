@@ -4,7 +4,16 @@ import { TimestampStatus } from '@models/ui/timestamp-status';
 import { ConfigurationProvider } from '@providers/configuration-provider';
 import { ChannelService, UserService } from '@services/index';
 import { Service } from '@services/service';
-import { ButtonType, EmbedLevel, EmbedType, SessionModel, SessionTimestamp } from '@src/models';
+import {
+    ButtonType,
+    ConfigurationKeys,
+    EmbedLevel,
+    EmbedType,
+    HiatusModel,
+    ISessionSchema,
+    SessionModel,
+    SessionTimestamp,
+} from '@src/models';
 import { EmbedProvider } from '@src/providers';
 import { TYPES } from '@src/types';
 import {
@@ -33,7 +42,7 @@ export class MessageService extends Service {
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
         @inject(TYPES.ChannelService) channelService: ChannelService,
-        @inject(TYPES.ChannelService) userService: UserService
+        @inject(TYPES.UserService) userService: UserService
     ) {
         super(client, logger, configuration);
         this.embedProvider = embedProvider;
@@ -52,6 +61,59 @@ export class MessageService extends Service {
         const channel = await this.channelService.getTextChannelByChannelId(internalChannelId);
         await channel.send(message);
     }
+
+    public async getMessageFromChannel(messageId: string, channelId: string): Promise<Message> {
+        const channel = this.channelService.getTextChannelByChannelId(channelId);
+        return await channel.messages.fetch(messageId);
+    }
+
+    // region SESSION POSTS
+
+    /**
+     * Updates the current turn indicator in the current sessions channel
+     *
+     * @param session The new session with the new current turn
+     * @returns Resolves when sent
+     */
+    public async updateSessionPost(session: ISessionSchema): Promise<void> {
+        const currentSessionsChannelId = await this.configuration.getString(
+            ConfigurationKeys.Channels_CurrentSessionsChannelId
+        );
+        try {
+            const sessionPost: Message = this.channelService
+                .getTextChannelByChannelId(currentSessionsChannelId)
+                .messages.cache.get(session.sessionPostId);
+
+            let content = `<#${session.channelId}>\n\n\n`;
+            for (const character of session.turnOrder) {
+                const user = await this.userService.getUserById(character.userId);
+                if (
+                    user.id === session.currentTurn.userId &&
+                    character.name === session.currentTurn.name
+                )
+                    content += ':arrow_right: ';
+                content += `**${character.name}** - ${user.username} (${user}) `;
+
+                const hasHiatus = await HiatusModel.findOne({ userId: user.id }).exec();
+                if (hasHiatus) {
+                    content += '⌛';
+                }
+                content += '\n\n';
+            }
+
+            sessionPost.embeds[0].setDescription(content);
+
+            await sessionPost.edit({
+                embeds: sessionPost.embeds,
+                allowedMentions: { parse: [] },
+            });
+        } catch (error) {
+            this.logger.error(`Could not edit session post.`, this.logger.prettyError(error));
+            return Promise.reject();
+        }
+    }
+
+    // endregion
 
     // region TIMESTAMPS
 
@@ -73,7 +135,7 @@ export class MessageService extends Service {
 
         // Construct message
         let content = `**Channel:**\t<#${sessionTimestamp.channelId}>\n**User:**\t<@${session.currentTurn.userId}>\n**Character:**\t${session.currentTurn.name}\n\n`;
-        content += `**Last Reply:** <t:${sessionTimestamp.timestamp}:F> (<t:${sessionTimestamp.timestamp}:R>)\n`;
+        content += `**Last Turn Advance:** <t:${sessionTimestamp.timestamp}:F> (<t:${sessionTimestamp.timestamp}:R>)\n`;
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: TimestampStatus.InTime,
             content: content,
@@ -122,7 +184,7 @@ export class MessageService extends Service {
      */
     public async editTimestamp(
         channelId: string,
-        newStatus?: string,
+        newStatus?: TimestampStatus,
         newContent?: string,
         newFooter?: string
     ): Promise<void> {

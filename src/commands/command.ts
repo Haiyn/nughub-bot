@@ -4,6 +4,7 @@ import { PermissionLevel } from '@models/permissions/permission-level';
 import { ConfigurationProvider } from '@providers/configuration-provider';
 import { MessageService } from '@services/message-service';
 import { ScheduleService } from '@services/schedule-service';
+import { SessionMapper } from '@src/mappers/session.mapper';
 import { EmbedProvider, EmojiProvider, StringProvider } from '@src/providers';
 import { ChannelService, HelperService, InteractionService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
@@ -56,6 +57,8 @@ export abstract class Command {
     /* The permission level of the command */
     public readonly permissionLevel: PermissionLevel;
 
+    protected readonly sessionMapper: SessionMapper;
+
     constructor(
         @inject(TYPES.CommandLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
@@ -69,7 +72,8 @@ export abstract class Command {
         @inject(TYPES.StringProvider) stringProvider: StringProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
         @inject(TYPES.EmojiProvider) emojiProvider: EmojiProvider,
-        @inject(TYPES.JobRuntimeController) jobRuntime: JobRuntimeController
+        @inject(TYPES.JobRuntimeController) jobRuntime: JobRuntimeController,
+        @inject(TYPES.SessionMapper) sessionMapper: SessionMapper
     ) {
         this.logger = logger;
         this.client = client;
@@ -84,6 +88,7 @@ export abstract class Command {
         this.embedProvider = embedProvider;
         this.emojiProvider = emojiProvider;
         this.jobRuntime = jobRuntime;
+        this.sessionMapper = sessionMapper;
     }
 
     /**

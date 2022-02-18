@@ -19,4 +19,5 @@ export { EmbedData } from './ui/embed-data';
 export { EmbedLevel } from './ui/embed-level';
 export { EmbedType } from './ui/embed-type';
 export { HiatusStatus } from './ui/hiatus-status';
+export { NextReason } from './ui/next-reason.enum';
 export { TimestampStatus } from './ui/timestamp-status';

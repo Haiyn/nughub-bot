@@ -21,6 +21,8 @@ import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { MessageService } from '@services/message-service';
 import { Strings } from '@commands/system/strings';
 import { Hiatus } from '@commands/hiatus/hiatus';
+import { SessionMapper } from '@src/mappers/session.mapper';
+import { SessionEdit } from '@commands/session/session-edit';
 
 const container = new Container();
 
@@ -117,11 +119,15 @@ container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingle
 container.bind<ScheduleService>(TYPES.ScheduleService).to(ScheduleService).inSingletonScope();
 container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();
 
+// Mappers
+container.bind<SessionMapper>(TYPES.SessionMapper).to(SessionMapper).inSingletonScope();
+
 // Commands
 container.bind<Ping>('Ping').to(Ping).inRequestScope();
 container.bind<SessionStart>('Start').to(SessionStart).inRequestScope();
 container.bind<SessionFinish>('Finish').to(SessionFinish).inRequestScope();
 container.bind<SessionNext>('Next').to(SessionNext).inRequestScope();
+container.bind<SessionEdit>('Edit').to(SessionEdit).inRequestScope();
 container.bind<Configuration>('Configuration').to(Configuration).inRequestScope();
 container.bind<Strings>('Strings').to(Strings).inRequestScope();
 container.bind<Hiatus>('Hiatus').to(Hiatus).inRequestScope();

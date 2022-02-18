@@ -4,4 +4,5 @@ export enum TimestampStatus {
     FirstReminder = `❕ First reminder sent`,
     SecondReminder = `❗ Last reminder sent`,
     OverdueReminder = `❗️ Last reminder sent; reply is overdue after hiatus`,
+    ManuallySetTurn = `❔ Manually set turn; No notification`,
 }
