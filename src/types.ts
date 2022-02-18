@@ -32,14 +32,19 @@ export const TYPES = {
     ScheduleService: Symbol('ScheduleService'),
     MessageService: Symbol('MessageService'),
 
+    // Mappers
+    SessionMapper: Symbol('SessionMapper'),
+
     // Commands
     Ping: Symbol('Ping'),
     SessionStart: Symbol('Start'),
     SessionFinish: Symbol('Finish'),
+    SessionEdit: Symbol('Edit'),
     SessionNext: Symbol('Next'),
     Configuration: Symbol('Configuration'),
     Strings: Symbol('Strings'),
     Hiatus: Symbol('Hiatus'),
+    Show: Symbol('Show'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

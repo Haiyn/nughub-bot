@@ -1,3 +1,4 @@
+import { commandDefinition as sessionEdit } from '@commands/definitions/session/session-edit';
 import { commandDefinition as sessionFinish } from '@commands/definitions/session/session-finish';
 import { commandDefinition as sessionNext } from '@commands/definitions/session/session-next';
 import { commandDefinition as sessionStart } from '@commands/definitions/session/session-start';
@@ -5,6 +6,7 @@ import { commandDefinition as configuration } from '@commands/definitions/system
 import { commandDefinition as ping } from '@commands/definitions/system/ping';
 import { commandDefinition as strings } from '@commands/definitions/system/strings';
 import { commandDefinition as hiatus } from './hiatus/hiatus';
+import { commandDefinition as show } from './user/show';
 
 /** a default export as an array so all commands can be registered dynamically */
 export default [
@@ -12,8 +14,20 @@ export default [
     sessionStart(),
     sessionFinish(),
     sessionNext(),
+    sessionEdit(),
     configuration(),
     strings(),
     hiatus(),
+    show(),
 ];
-export { sessionStart, sessionNext, sessionFinish, ping, configuration, strings, hiatus };
+export {
+    sessionStart,
+    sessionNext,
+    sessionFinish,
+    sessionEdit,
+    ping,
+    configuration,
+    strings,
+    hiatus,
+    show,
+};
