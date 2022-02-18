@@ -6,6 +6,7 @@ import { commandDefinition as configuration } from '@commands/definitions/system
 import { commandDefinition as ping } from '@commands/definitions/system/ping';
 import { commandDefinition as strings } from '@commands/definitions/system/strings';
 import { commandDefinition as hiatus } from './hiatus/hiatus';
+import { commandDefinition as show } from './user/show';
 
 /** a default export as an array so all commands can be registered dynamically */
 export default [
@@ -17,6 +18,7 @@ export default [
     configuration(),
     strings(),
     hiatus(),
+    show(),
 ];
 export {
     sessionStart,
@@ -27,4 +29,5 @@ export {
     configuration,
     strings,
     hiatus,
+    show,
 };

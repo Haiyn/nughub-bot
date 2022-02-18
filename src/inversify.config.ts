@@ -23,6 +23,7 @@ import { Strings } from '@commands/system/strings';
 import { Hiatus } from '@commands/hiatus/hiatus';
 import { SessionMapper } from '@src/mappers/session.mapper';
 import { SessionEdit } from '@commands/session/session-edit';
+import { Show } from '@commands/user/show';
 
 const container = new Container();
 
@@ -131,5 +132,6 @@ container.bind<SessionEdit>('Edit').to(SessionEdit).inRequestScope();
 container.bind<Configuration>('Configuration').to(Configuration).inRequestScope();
 container.bind<Strings>('Strings').to(Strings).inRequestScope();
 container.bind<Hiatus>('Hiatus').to(Hiatus).inRequestScope();
+container.bind<Show>('Show').to(Show).inRequestScope();
 
 export default container;
