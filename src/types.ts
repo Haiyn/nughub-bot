@@ -47,6 +47,7 @@ export const TYPES = {
     Hiatus: Symbol('Hiatus'),
     Show: Symbol('Show'),
     Qotd: Symbol('Qotd'),
+    QotdAdmin: Symbol('Qotdadmin'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

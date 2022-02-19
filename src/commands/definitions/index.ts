@@ -4,6 +4,7 @@ import { commandDefinition as sessionNext } from '@commands/definitions/session/
 import { commandDefinition as sessionStart } from '@commands/definitions/session/session-start';
 import { commandDefinition as configuration } from '@commands/definitions/system/configuration';
 import { commandDefinition as ping } from '@commands/definitions/system/ping';
+import { commandDefinition as qotdAdmin } from '@commands/definitions/system/qotd-admin';
 import { commandDefinition as strings } from '@commands/definitions/system/strings';
 import { commandDefinition as hiatus } from './hiatus/hiatus';
 import { commandDefinition as qotd } from './misc/qotd';
@@ -21,6 +22,7 @@ export default [
     hiatus(),
     show(),
     qotd(),
+    qotdAdmin(),
 ];
 export {
     sessionStart,
@@ -33,4 +35,5 @@ export {
     hiatus,
     show,
     qotd,
+    qotdAdmin,
 };

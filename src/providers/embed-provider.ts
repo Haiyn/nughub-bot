@@ -51,6 +51,13 @@ export class EmbedProvider extends Provider {
      * @returns A discord.js Message Embed
      */
     public async get(type: EmbedType, level: EmbedLevel, data: EmbedData): Promise<MessageEmbed> {
+        if (data === undefined || data === null) {
+            this.logger.error(`Given data is empty!`);
+            return new MessageEmbed({
+                description: `Failed to construct error message.`,
+                color: 'RED',
+            });
+        }
         if (data.content?.includes('Error')) {
             level = EmbedLevel.Error;
         }
@@ -105,7 +112,7 @@ export class EmbedProvider extends Provider {
         switch (embedType) {
             case EmbedType.Minimal:
                 embedData = {
-                    description: '**' + data.content + '**',
+                    description: data.content,
                 };
                 break;
             case EmbedType.Detailed:

@@ -26,6 +26,7 @@ import { SessionEdit } from '@commands/session/session-edit';
 import { Show } from '@commands/user/show';
 import { Qotd } from '@commands/misc/qotd';
 import { QotdController } from '@controllers/qotd-controller';
+import { QotdAdmin } from '@commands/system/qotd-admin';
 
 const container = new Container();
 
@@ -137,5 +138,6 @@ container.bind<Strings>('Strings').to(Strings).inRequestScope();
 container.bind<Hiatus>('Hiatus').to(Hiatus).inRequestScope();
 container.bind<Show>('Show').to(Show).inRequestScope();
 container.bind<Qotd>('Qotd').to(Qotd).inRequestScope();
+container.bind<QotdAdmin>('Qotdadmin').to(QotdAdmin).inRequestScope();
 
 export default container;
