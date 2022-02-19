@@ -16,6 +16,7 @@ export const TYPES = {
     MessageController: Symbol('MessageController'),
     InteractionController: Symbol('InteractionController'),
     JobRuntimeController: Symbol('JobRuntimeController'),
+    QotdController: Symbol('QotdController'),
 
     // Providers
     StringProvider: Symbol('StringProvider'),
@@ -45,6 +46,7 @@ export const TYPES = {
     Strings: Symbol('Strings'),
     Hiatus: Symbol('Hiatus'),
     Show: Symbol('Show'),
+    Qotd: Symbol('Qotd'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

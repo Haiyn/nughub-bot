@@ -4,6 +4,7 @@ CONFIGURATION_Channels_InternalChannelId;890287022701412352;STRING;The ID of the
 CONFIGURATION_Channels_NotificationChannelId;890287049368797244;STRING;The ID of the channel where next turn notifications should be posted
 CONFIGURATION_Channels_TimestampsChannelId;934227537767305216;STRING;The ID of the channel where timestamp channels are sent to
 CONFIGURATION_Channels_HiatusChannelId;934546940077690930;STRING;The ID of the channel where hiatuses are sent to
+CONFIGURATION_Channels_QotdChannelId;937180877732073492;STRING;The ID of the channel where hiatuses are sent to
 CONFIGURATION_Channels_RpChannelIds;890287133376528446;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Channels_RpChannelIds;890287167421681665;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Category_Origins;Origins;STRING;The name of the Dragon Age Origins category
@@ -26,3 +27,4 @@ CONFIGURATION_Schedule_Reminder_1_Hours;120;STRING;The number of hours that shou
 CONFIGURATION_Schedule_Reminder_1_Minutes;0;STRING;The number of minutes that should pass before the second reminder is sent
 CONFIGURATION_Schedule_Hiatus_Minutes;0;STRING;The number of minutes that a user gets extra to reply when they are on a hiatus
 CONFIGURATION_Schedule_Hiatus_Hours;168;STRING;The number of minutes that a user gets extra to reply when they are on a hiatus
+CONFIGURATION_Schedule_QotdSendTime_Hours;12;STRING;The time (in hours and UTC) when a qotd should be sent

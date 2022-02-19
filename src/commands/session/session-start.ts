@@ -236,7 +236,7 @@ export class SessionStart extends Command {
             this.logger.debug(`Sent new sessions message (ID: ${result.id})`);
             return Promise.resolve(result);
         } catch (error) {
-            new CommandError(
+            throw new CommandError(
                 `Failed internally while saving to session channel.`,
                 await this.stringProvider.get(
                     'COMMAND.SESSION-START.ERROR.SAVE-TO-SESSION-CHANNEL-FAILED'
@@ -346,7 +346,7 @@ export class SessionStart extends Command {
             );
             return Promise.resolve();
         } catch (error) {
-            new CommandError(
+            throw new CommandError(
                 `Failed internally while saving to database.`,
                 await this.stringProvider.get('SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT'),
                 error

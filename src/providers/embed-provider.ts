@@ -43,7 +43,7 @@ export class EmbedProvider extends Provider {
     }
 
     /**
-     * Returns the value of a emoji key in format <:NAME:ID>
+     * Returns an embed
      *
      * @param type The embed type that should be used
      * @param level The severity level the embed should have

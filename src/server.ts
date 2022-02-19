@@ -1,5 +1,6 @@
 import { InteractionController, MessageController } from '@controllers/index';
 import { JobRuntimeController } from '@controllers/job-runtime-controller';
+import { QotdController } from '@controllers/qotd-controller';
 import { TYPES } from '@src/types';
 import { Client, Guild, Interaction, Message } from 'discord.js';
 import { inject, injectable } from 'inversify';
@@ -8,23 +9,13 @@ import { Logger } from 'tslog';
 /** The server is the main entry point for the bot to connect and subscribe to events */
 @injectable()
 export class Server {
-    /** The discord client */
     private client: Client;
-
-    /** The bot token */
     private readonly token: string;
-
-    /** The ts-log logger */
     private readonly logger: Logger;
-
-    /** The message controller that handles all message events */
     private readonly messageController: MessageController;
-
-    /** The interaction controller that handles all interaction events */
     private readonly interactionController: InteractionController;
-
-    /** The job runtime controller that handles all timed jobs */
     private readonly jobRuntimeController: JobRuntimeController;
+    private readonly qotdController: QotdController;
 
     constructor(
         @inject(TYPES.Client) client: Client,
@@ -32,7 +23,8 @@ export class Server {
         @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.MessageController) messageController: MessageController,
         @inject(TYPES.InteractionController) interactionController: InteractionController,
-        @inject(TYPES.JobRuntimeController) jobRuntimeController: JobRuntimeController
+        @inject(TYPES.JobRuntimeController) jobRuntimeController: JobRuntimeController,
+        @inject(TYPES.QotdController) qotdController: QotdController
     ) {
         this.client = client;
         this.token = token;
@@ -40,6 +32,7 @@ export class Server {
         this.messageController = messageController;
         this.interactionController = interactionController;
         this.jobRuntimeController = jobRuntimeController;
+        this.qotdController = qotdController;
     }
 
     /**
@@ -139,7 +132,7 @@ export class Server {
                 this.logger.warn(`Could not restore reminders.`);
             });
 
-        this.logger.info('Restroing active hiatus finish events from database...');
+        this.logger.info('Restoring active hiatus finish events from database...');
         await this.jobRuntimeController
             .restoreHiatusFromDatabase()
             .then((result) => {
@@ -147,6 +140,19 @@ export class Server {
             })
             .catch((error) => {
                 this.logger.warn(`Could not restore hiatus finish events.`);
+                this.logger.prettyError(error);
+            });
+
+        this.logger.info('Restoring qotd job...');
+        await this.qotdController
+            .restoreQotdJobs()
+            .then((result) => {
+                result === -1
+                    ? this.logger.info(`No qotds left to restore.`)
+                    : this.logger.info(`Restored qotd job, ${result} qotds left.`);
+            })
+            .catch((error) => {
+                this.logger.error(`Could not restore qotd job.`);
                 this.logger.prettyError(error);
             });
     }

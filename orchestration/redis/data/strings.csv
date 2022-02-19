@@ -43,6 +43,7 @@ Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-END,You don't have an acti
 Hiatus,STRINGS.COMMAND.HIATUS.CREATE.SUCCESS,I've successfully set a hiatus for you.
 Hiatus,STRINGS.COMMAND.HIATUS.EDIT.SUCCESS,I've successfully edited your hiatus.
 Hiatus,STRINGS.COMMAND.HIATUS.DELETE.SUCCESS,I've successfully ended your hiatus.
+Qotd,STRINGS.COMMAND.QOTD.SUCCESS,I've successfully added your question! It will be used as soon as the ones before it were used.
 System,SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR,Internal Error: `Command validation failed unexpectedly.`
 System,SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR,Internal Error: `Command execution failed unexpectedly.`
 System,SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT,Internal Error: `Database rejection`
