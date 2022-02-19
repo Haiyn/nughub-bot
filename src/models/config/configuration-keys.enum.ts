@@ -5,6 +5,7 @@ export enum ConfigurationKeys {
     Channels_TimestampsChannelId = 'Channels_TimestampsChannelId',
     Channels_HiatusChannelId = 'Channels_HiatusChannelId',
     Channels_RpChannelIds = 'Channels_RpChannelIds',
+    Channels_QotdChannelId = 'Channels_QotdChannelId',
     Category_Origins = 'Category_Origins',
     Category_DA2 = 'Category_DA2',
     Category_Inquisition = 'Category_Inquisition',
@@ -26,4 +27,5 @@ export enum ConfigurationKeys {
     Schedule_SkipPrompt_Minutes = 'Schedule_SkipPrompt_Minutes',
     Schedule_Hiatus_Minutes = 'Schedule_Hiatus_Minutes',
     Schedule_Hiatus_Hours = 'Schedule_Hiatus_Hours',
+    Schedule_QotdSendTime_Hours = 'Schedule_QotdSendTime_Hours',
 }

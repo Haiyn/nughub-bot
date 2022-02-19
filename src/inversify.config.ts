@@ -24,6 +24,9 @@ import { Hiatus } from '@commands/hiatus/hiatus';
 import { SessionMapper } from '@src/mappers/session.mapper';
 import { SessionEdit } from '@commands/session/session-edit';
 import { Show } from '@commands/user/show';
+import { Qotd } from '@commands/misc/qotd';
+import { QotdController } from '@controllers/qotd-controller';
+import { QotdAdmin } from '@commands/system/qotd-admin';
 
 const container = new Container();
 
@@ -95,6 +98,7 @@ container
     .bind<JobRuntimeController>(TYPES.JobRuntimeController)
     .to(JobRuntimeController)
     .inSingletonScope();
+container.bind<QotdController>(TYPES.QotdController).to(QotdController).inSingletonScope();
 
 // Providers
 container.bind<StringProvider>(TYPES.StringProvider).to(StringProvider).inSingletonScope();
@@ -133,5 +137,7 @@ container.bind<Configuration>('Configuration').to(Configuration).inRequestScope(
 container.bind<Strings>('Strings').to(Strings).inRequestScope();
 container.bind<Hiatus>('Hiatus').to(Hiatus).inRequestScope();
 container.bind<Show>('Show').to(Show).inRequestScope();
+container.bind<Qotd>('Qotd').to(Qotd).inRequestScope();
+container.bind<QotdAdmin>('Qotdadmin').to(QotdAdmin).inRequestScope();
 
 export default container;

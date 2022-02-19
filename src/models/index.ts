@@ -8,6 +8,8 @@ export { ConfigurationError } from './config/configuration-error';
 export { ConfigurationKeys } from './config/configuration-keys.enum';
 export { Character, ICharacter } from './data/character';
 export { characterSchema, ICharacterSchema } from './data/character-schema';
+export { Question } from './data/question';
+export { IQuestionSchema, QuestionModel } from './data/question-schema';
 export { Session } from './data/session';
 export { ISessionSchema, SessionModel } from './data/session-schema';
 export { SessionTimestamp } from './data/session-timestamp';
