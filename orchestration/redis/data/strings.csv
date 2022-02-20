@@ -25,9 +25,6 @@ Session Start,STRINGS.COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED,"Uh-oh, I ra
 Session Start,STRINGS.COMMAND.SESSION-START.SUCCESS,I successfully started a new RP session in <#{0}>!
 Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in the channel you've provided!
 Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.CHARACTER-ALREADY-EXISTS, The character you've supplied already exists in the turn order.
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NOT-A-NUMBER,This is not a valid number.
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE,This number is not in the valid range.
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.TIMEOUT,You took too long to respond.
 Session Edit,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.ADD,I've successfully added the character to the turn order.
 Session Edit,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.REMOVE,I've successfully removed the character from the turn order.
 Session Edit,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.SET,I've successfully set the new current turn.
@@ -60,3 +57,6 @@ Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION,Your hiatus has ended.
 Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES,You have no pending RP replies.
 Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-OPEN-REPLIES,You have following pending replies:
 Job,STRINGS.JOB.WELCOME-BACK.FOOTER.OVERDUE,Pending replies marked with ⚠️ are RPs where your reply is overdue.
+Reply Query,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.NOT-A-NUMBER,This is not a valid number.
+Reply Query,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE,This number is not in the valid range.
+Reply Query,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.TIMEOUT,You took too long to respond.

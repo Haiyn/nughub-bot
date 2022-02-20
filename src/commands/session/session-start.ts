@@ -267,22 +267,6 @@ export class SessionStart extends Command {
         });
         if (sessionsChannelMessages.size != 0) {
             // Channel has messages in it
-            let isOnlyBotMessages = true;
-            sessionsChannelMessages.each((message) => {
-                if (message.author.id !== this.client.user.id) {
-                    isOnlyBotMessages = false;
-                    return;
-                }
-            });
-            if (!isOnlyBotMessages) {
-                throw new CommandError(
-                    `Session Posts Channel has non-bot messages in it.`,
-                    await this.stringProvider.get(
-                        'COMMAND.SESSION-START.ERROR.COULD-NOT-INITIALIZE-CHANNEL',
-                        [sessionsChannel.id]
-                    )
-                );
-            }
             this.logger.debug(`Session channel is already initialized.`);
             return Promise.resolve(true);
         }

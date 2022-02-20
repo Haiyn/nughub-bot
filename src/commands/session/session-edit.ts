@@ -122,7 +122,7 @@ export class SessionEdit extends Command {
                         EmbedLevel.Warning,
                         {
                             content: await this.stringProvider.get(
-                                'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NOT-A-NUMBER'
+                                'COMMAND.VALIDATION.REPLY-QUERY.NOT-A-NUMBER'
                             ),
                         }
                     );
@@ -138,7 +138,7 @@ export class SessionEdit extends Command {
                         EmbedLevel.Warning,
                         {
                             content: await this.stringProvider.get(
-                                'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
+                                'COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
                             ),
                         }
                     );
@@ -183,7 +183,7 @@ export class SessionEdit extends Command {
             .catch(async () => {
                 queryReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Warning, {
                     content: await this.stringProvider.get(
-                        'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.TIMEOUT'
+                        'COMMAND.VALIDATION.REPLY-QUERY.TIMEOUT'
                     ),
                 });
                 await interaction.channel.send({ embeds: [queryReply] });
@@ -230,7 +230,7 @@ export class SessionEdit extends Command {
                         EmbedLevel.Warning,
                         {
                             content: await this.stringProvider.get(
-                                'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NOT-A-NUMBER'
+                                'COMMAND.VALIDATION.REPLY-QUERY.NOT-A-NUMBER'
                             ),
                         }
                     );
@@ -245,7 +245,7 @@ export class SessionEdit extends Command {
                         EmbedLevel.Warning,
                         {
                             content: await this.stringProvider.get(
-                                'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
+                                'COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
                             ),
                         }
                     );
@@ -287,7 +287,7 @@ export class SessionEdit extends Command {
             .catch(async () => {
                 queryReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Warning, {
                     content: await this.stringProvider.get(
-                        'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.TIMEOUT'
+                        'COMMAND.VALIDATION.REPLY-QUERY.TIMEOUT'
                     ),
                 });
                 await interaction.channel.send({ embeds: [queryReply] });
@@ -333,7 +333,7 @@ export class SessionEdit extends Command {
                         EmbedLevel.Warning,
                         {
                             content: await this.stringProvider.get(
-                                'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NOT-A-NUMBER'
+                                'COMMAND.VALIDATION.REPLY-QUERY.NOT-A-NUMBER'
                             ),
                         }
                     );
@@ -348,7 +348,7 @@ export class SessionEdit extends Command {
                         EmbedLevel.Warning,
                         {
                             content: await this.stringProvider.get(
-                                'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
+                                'COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
                             ),
                         }
                     );
@@ -391,7 +391,7 @@ export class SessionEdit extends Command {
             .catch(async () => {
                 queryReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Warning, {
                     content: await this.stringProvider.get(
-                        'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.TIMEOUT'
+                        'COMMAND.VALIDATION.REPLY-QUERY.TIMEOUT'
                     ),
                 });
                 await interaction.channel.send({ embeds: [queryReply] });
