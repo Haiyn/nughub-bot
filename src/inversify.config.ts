@@ -27,6 +27,8 @@ import { Show } from '@commands/user/show';
 import { Qotd } from '@commands/misc/qotd';
 import { QotdController } from '@controllers/qotd-controller';
 import { QotdAdmin } from '@commands/system/qotd-admin';
+import { CharacterChannelController } from '@controllers/character-channel-controller';
+import { CanonCharacter } from '@commands/character/canon-character.command';
 
 const container = new Container();
 
@@ -99,6 +101,10 @@ container
     .to(JobRuntimeController)
     .inSingletonScope();
 container.bind<QotdController>(TYPES.QotdController).to(QotdController).inSingletonScope();
+container
+    .bind<CharacterChannelController>(TYPES.CharacterChannelController)
+    .to(CharacterChannelController)
+    .inSingletonScope();
 
 // Providers
 container.bind<StringProvider>(TYPES.StringProvider).to(StringProvider).inSingletonScope();
@@ -139,5 +145,6 @@ container.bind<Hiatus>('Hiatus').to(Hiatus).inRequestScope();
 container.bind<Show>('Show').to(Show).inRequestScope();
 container.bind<Qotd>('Qotd').to(Qotd).inRequestScope();
 container.bind<QotdAdmin>('Qotdadmin').to(QotdAdmin).inRequestScope();
+container.bind<CanonCharacter>('Canoncharacter').to(CanonCharacter).inRequestScope();
 
 export default container;

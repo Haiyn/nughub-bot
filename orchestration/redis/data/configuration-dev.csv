@@ -4,7 +4,9 @@ CONFIGURATION_Channels_InternalChannelId;890287022701412352;STRING;The ID of the
 CONFIGURATION_Channels_NotificationChannelId;890287049368797244;STRING;The ID of the channel where next turn notifications should be posted
 CONFIGURATION_Channels_TimestampsChannelId;934227537767305216;STRING;The ID of the channel where timestamp are sent to
 CONFIGURATION_Channels_HiatusChannelId;934546940077690930;STRING;The ID of the channel where hiatuses are sent to
-CONFIGURATION_Channels_QotdChannelId;944380796427468800;STRING;The ID of the channel where hiatuses are sent to
+CONFIGURATION_Channels_QotdChannelId;944380796427468800;STRING;The ID of the channel where qotds are sent to
+CONFIGURATION_Channels_CanonCharacterChannelId;944982515003830312;STRING;The ID of the channel where canon character lists are sent to
+CONFIGURATION_Channels_OriginalCharacterChannelId;944982535379759134;STRING;The ID of the channel where original character lists are sent to
 CONFIGURATION_Channels_RpChannelIds;890287133376528446;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Channels_RpChannelIds;890287167421681665;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Channels_RpChannelIds;914651641611968543;SET;The ID of the channels where an RP can be started

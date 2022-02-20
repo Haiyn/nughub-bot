@@ -158,7 +158,7 @@ export class QotdAdmin extends Command {
             })
             .catch(async () => {
                 queryReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Warning, {
-                    content: `Reply timed out.`,
+                    content: `COMMAND.VALIDATION.REPLY-QUERY.TIMEOUT`,
                 });
                 await interaction.channel.send({ embeds: [queryReply] });
                 return;

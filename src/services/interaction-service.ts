@@ -3,15 +3,7 @@ import { ChannelService } from '@services/channel-service';
 import { Service } from '@services/service';
 import { EmbedProvider, StringProvider } from '@src/providers';
 import { TYPES } from '@src/types';
-import {
-    AwaitMessagesOptions,
-    Client,
-    ColorResolvable,
-    CommandInteraction,
-    InteractionReplyOptions,
-    Message,
-    MessageEmbed,
-} from 'discord.js';
+import { Client, CommandInteraction, InteractionReplyOptions } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
@@ -77,42 +69,6 @@ export class InteractionService extends Service {
                 this.logger.prettyError(error)
             );
             return Promise.resolve();
-        }
-    }
-
-    /**
-     * Waits for a reply by the interaction creator
-     *
-     * @param interaction the interaction, used to determine the author
-     * @returns the first message of the interaction creator in the same channel or null if it timed out
-     */
-    public async awaitQueryReply(interaction: CommandInteraction): Promise<Message | null> {
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
-        const awaitMessageOptions: AwaitMessagesOptions = {
-            filter: authorFilter,
-            max: 1,
-            time: 30000,
-            errors: ['time'],
-        };
-
-        const collection = await interaction.channel
-            .awaitMessages(awaitMessageOptions)
-            .catch(async () => {
-                this.logger.info(
-                    `User input has timed out after ${
-                        awaitMessageOptions.time / 1000
-                    } seconds. Sending timeout message.`
-                );
-                // Manually construct embed because async bullshittery that i have no patience to deal with
-                const embed = new MessageEmbed({
-                    description: `Reply timed out.`,
-                    color: '#ffa500' as ColorResolvable,
-                });
-                await interaction.channel.send({ embeds: [embed] });
-                return Promise.resolve(null);
-            });
-        if (collection !== null) {
-            return collection.first();
         }
     }
 }

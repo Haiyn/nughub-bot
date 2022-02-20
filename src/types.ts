@@ -17,6 +17,7 @@ export const TYPES = {
     InteractionController: Symbol('InteractionController'),
     JobRuntimeController: Symbol('JobRuntimeController'),
     QotdController: Symbol('QotdController'),
+    CharacterChannelController: Symbol('CharacterChannelController'),
 
     // Providers
     StringProvider: Symbol('StringProvider'),
@@ -48,6 +49,7 @@ export const TYPES = {
     Show: Symbol('Show'),
     Qotd: Symbol('Qotd'),
     QotdAdmin: Symbol('Qotdadmin'),
+    CanonCharacter: Symbol('Canoncharacter'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

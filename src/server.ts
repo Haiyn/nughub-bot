@@ -1,6 +1,8 @@
+import { CharacterChannelController } from '@controllers/character-channel-controller';
 import { InteractionController, MessageController } from '@controllers/index';
 import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { QotdController } from '@controllers/qotd-controller';
+import container from '@src/inversify.config';
 import { TYPES } from '@src/types';
 import { Client, Guild, Interaction, Message } from 'discord.js';
 import { inject, injectable } from 'inversify';
@@ -16,6 +18,7 @@ export class Server {
     private readonly interactionController: InteractionController;
     private readonly jobRuntimeController: JobRuntimeController;
     private readonly qotdController: QotdController;
+    private readonly characterChannelController: CharacterChannelController;
 
     constructor(
         @inject(TYPES.Client) client: Client,
@@ -24,7 +27,9 @@ export class Server {
         @inject(TYPES.MessageController) messageController: MessageController,
         @inject(TYPES.InteractionController) interactionController: InteractionController,
         @inject(TYPES.JobRuntimeController) jobRuntimeController: JobRuntimeController,
-        @inject(TYPES.QotdController) qotdController: QotdController
+        @inject(TYPES.QotdController) qotdController: QotdController,
+        @inject(TYPES.CharacterChannelController)
+        characterChannelController: CharacterChannelController
     ) {
         this.client = client;
         this.token = token;
@@ -33,6 +38,7 @@ export class Server {
         this.interactionController = interactionController;
         this.jobRuntimeController = jobRuntimeController;
         this.qotdController = qotdController;
+        this.characterChannelController = characterChannelController;
     }
 
     /**
@@ -102,25 +108,29 @@ export class Server {
                 this.logger.error(`Failed to cache messages: `, this.logger.prettyError(error));
             });
 
-        this.logger.info('Registering application commands...');
-        await this.interactionController
-            .registerApplicationCommands()
-            .then((result) => {
-                this.logger.info(`Registered ${result} interactions.`);
-            })
-            .catch(() => {
-                process.exit(1);
-            });
+        if (container.get(TYPES.Environment) !== 'local') {
+            this.logger.info('Registering application commands...');
+            await this.interactionController
+                .registerApplicationCommands()
+                .then((result) => {
+                    this.logger.info(`Registered ${result} interactions.`);
+                })
+                .catch(() => {
+                    process.exit(1);
+                });
 
-        this.logger.info('Registering application command permissions...');
-        await this.interactionController
-            .registerApplicationCommandPermissions()
-            .then(() => {
-                this.logger.info(`Registered application command permissions.`);
-            })
-            .catch(() => {
-                process.exit(1);
-            });
+            this.logger.info('Registering application command permissions...');
+            await this.interactionController
+                .registerApplicationCommandPermissions()
+                .then(() => {
+                    this.logger.info(`Registered application command permissions.`);
+                })
+                .catch(() => {
+                    process.exit(1);
+                });
+        } else {
+            this.logger.info(`Skipping command registration because Environment is 'local'.`);
+        }
 
         this.logger.info('Restoring active reminders from database...');
         await this.jobRuntimeController
@@ -153,6 +163,17 @@ export class Server {
             })
             .catch((error) => {
                 this.logger.error(`Could not restore qotd job.`);
+                this.logger.prettyError(error);
+            });
+
+        this.logger.info('Initializing character lists...');
+        await this.characterChannelController
+            .initializeCharacterChannels()
+            .then(() => {
+                this.logger.info(`Successfully initialized character lists.`);
+            })
+            .catch((error) => {
+                this.logger.error(`Could not initialize character lists.`);
                 this.logger.prettyError(error);
             });
     }
