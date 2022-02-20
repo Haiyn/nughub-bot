@@ -161,13 +161,8 @@ export class CanonCharacter extends Command {
         );
 
         // Send reply
-        let content = `I've successfully edited the following character to the canon character list:\n\n`;
-        content += `${canonCharacter.name}\n`;
-        content += `Game: ${DragonAgeGame[canonCharacter.game]}\n`;
-        content += `Availability: ${CanonCharacterAvailability[canonCharacter.availability]}\n`;
-        if (canonCharacter.claimerId) {
-            content += `Claimer: <@${canonCharacter.claimerId}>\n`;
-        }
+        let content = `I've successfully added the following character to the canon character list:\n\n`;
+        content += CharacterChannelController.getCanonCharacterEntry(canonCharacter);
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
         });
@@ -238,7 +233,7 @@ export class CanonCharacter extends Command {
                         EmbedLevel.Warning,
                         {
                             content: await this.stringProvider.get(
-                                'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
+                                'COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
                             ),
                         }
                     );
@@ -255,7 +250,7 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
                                 {
-                                    content: `I've successfully removed the character ${characterToRemove.name}.`,
+                                    content: `I've successfully removed the character '${characterToRemove.name}'.`,
                                 }
                             );
                             return;
@@ -269,7 +264,7 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Error,
                                 {
-                                    content: `I couldn't remove the character ${characterToRemove.name}.`,
+                                    content: `I couldn't remove the character '${characterToRemove.name}'.`,
                                 }
                             );
                             return;
@@ -353,7 +348,7 @@ export class CanonCharacter extends Command {
                         EmbedLevel.Warning,
                         {
                             content: await this.stringProvider.get(
-                                'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
+                                'COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
                             ),
                         }
                     );
@@ -380,7 +375,7 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
                                 {
-                                    content: `I've successfully assigned the character ${characterToAssign.name}.`,
+                                    content: `I've successfully assigned the character '${characterToAssign.name}' to <@${characterToAssign.claimerId}>.`,
                                 }
                             );
                             return;
@@ -394,7 +389,7 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Error,
                                 {
-                                    content: `I couldn't assign the character ${characterToAssign.name}.`,
+                                    content: `I couldn't assign the character '${characterToAssign.name}'.`,
                                 }
                             );
                             return;
@@ -478,7 +473,7 @@ export class CanonCharacter extends Command {
                         EmbedLevel.Warning,
                         {
                             content: await this.stringProvider.get(
-                                'COMMAND.SESSION-EDIT.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
+                                'COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE'
                             ),
                         }
                     );
@@ -501,7 +496,7 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
                                 {
-                                    content: `I've successfully unassigned the character ${characterToUnassign.name}.`,
+                                    content: `I've successfully unassigned the character '${characterToUnassign.name}'.`,
                                 }
                             );
                             return;
@@ -515,7 +510,7 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Error,
                                 {
-                                    content: `I couldn't unassign the character ${characterToUnassign.name}.`,
+                                    content: `I couldn't unassign the character '${characterToUnassign.name}'.`,
                                 }
                             );
                             return;

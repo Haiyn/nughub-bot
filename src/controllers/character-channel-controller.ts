@@ -5,7 +5,7 @@ import { DragonAgeGame } from '@models/misc/dragon-age-game.enum';
 import { MessageService } from '@services/message-service';
 import { ScheduleService } from '@services/schedule-service';
 import { DragonAgeGameMapper } from '@src/mappers/dragon-age-game.mapper';
-import { ConfigurationKeys } from '@src/models';
+import { ConfigurationKeys, OriginalCharacterModel, OriginalCharacterSchema } from '@src/models';
 import { ConfigurationProvider, EmbedProvider, PermissionProvider } from '@src/providers';
 import { ChannelService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
@@ -48,37 +48,10 @@ export class CharacterChannelController extends Controller {
     public async initializeCharacterChannels(): Promise<void> {
         await this.initializeCanonCharacterChannel();
 
-        // await this.initializeOriginalCharacterChannel();
+        await this.initializeOriginalCharacterChannel();
     }
 
-    private async initializeCanonCharacterChannel(): Promise<void> {
-        const channelId = await this.configuration.getString(
-            ConfigurationKeys.Channels_CanonCharacterChannelId
-        );
-        const channel = await this.channelService.getTextChannelByChannelId(channelId);
-
-        const messages: Collection<string, Message> = await channel.messages.fetch();
-        let daoMessage = this.findCharacterListForGame(messages, DragonAgeGame.DAO);
-        let da2Message = this.findCharacterListForGame(messages, DragonAgeGame.DA2);
-        let daiMessage = this.findCharacterListForGame(messages, DragonAgeGame.DAI);
-        if (!daoMessage || !da2Message || !daiMessage) {
-            // Clear the channel of the other bot messages
-            this.logger.debug(
-                `At least one canon character list does not exist anymore. Clearing channel...`
-            );
-            await this.clearChannelOfBotMessages(channel);
-
-            // get the new messages
-            this.logger.debug(`Sending new messages...`);
-            daoMessage = await this.sendCanonCharacterListForGame(channel, DragonAgeGame.DAO);
-            da2Message = await this.sendCanonCharacterListForGame(channel, DragonAgeGame.DA2);
-            daiMessage = await this.sendCanonCharacterListForGame(channel, DragonAgeGame.DAI);
-        }
-
-        await this.configuration.setString(ConfigurationKeys.Messages_CanonList_0, daoMessage.id);
-        await this.configuration.setString(ConfigurationKeys.Messages_CanonList_1, da2Message.id);
-        await this.configuration.setString(ConfigurationKeys.Messages_CanonList_2, daiMessage.id);
-    }
+    // region HELPERS
 
     private findCharacterListForGame(
         messages: Collection<string, Message>,
@@ -107,24 +80,62 @@ export class CharacterChannelController extends Controller {
         }
     }
 
-    public async generateCanonCharacterListContentForGame(game: DragonAgeGame): Promise<string> {
+    // endregion
+
+    // region CANON CHARACTERS
+
+    private async initializeCanonCharacterChannel(): Promise<void> {
+        const channelId = await this.configuration.getString(
+            ConfigurationKeys.Channels_CanonCharacterChannelId
+        );
+        const channel = await this.channelService.getTextChannelByChannelId(channelId);
+
+        const messages: Collection<string, Message> = await channel.messages.fetch();
+        let daoMessage = this.findCharacterListForGame(messages, DragonAgeGame.DAO);
+        let da2Message = this.findCharacterListForGame(messages, DragonAgeGame.DA2);
+        let daiMessage = this.findCharacterListForGame(messages, DragonAgeGame.DAI);
+        if (!daoMessage || !da2Message || !daiMessage) {
+            // Clear the channel of the other bot messages
+            this.logger.debug(
+                `At least one canon character list does not exist anymore. Clearing channel...`
+            );
+            await this.clearChannelOfBotMessages(channel);
+
+            // get the new messages
+            this.logger.debug(`Sending new messages...`);
+            daoMessage = await CharacterChannelController.sendCanonCharacterListForGame(
+                channel,
+                DragonAgeGame.DAO
+            );
+            da2Message = await CharacterChannelController.sendCanonCharacterListForGame(
+                channel,
+                DragonAgeGame.DA2
+            );
+            daiMessage = await CharacterChannelController.sendCanonCharacterListForGame(
+                channel,
+                DragonAgeGame.DAI
+            );
+        }
+
+        await this.configuration.setString(ConfigurationKeys.Messages_CanonList_0, daoMessage.id);
+        await this.configuration.setString(ConfigurationKeys.Messages_CanonList_1, da2Message.id);
+        await this.configuration.setString(ConfigurationKeys.Messages_CanonList_2, daiMessage.id);
+    }
+
+    private static async generateCanonCharacterListContentForGame(
+        game: DragonAgeGame
+    ): Promise<string> {
         const canonCharacters: CanonCharacterSchema[] = await CanonCharacterModel.find({
             game: game,
-        }).exec();
+        })
+            .sort({ name: 1 })
+            .exec();
 
-        let messageContent = `**${DragonAgeGameMapper.mapEnumToStringName(
+        let messageContent = `__**${DragonAgeGameMapper.mapEnumToStringName(
             game
-        )}**\n\n`.toUpperCase();
+        )}**__\n\n`.toUpperCase();
         for (const character of canonCharacters) {
-            messageContent += `${character.name}: `;
-            if (character.claimerId) {
-                messageContent += `<@${character.claimerId}>`;
-                if (character.availability === CanonCharacterAvailability.TemporaryClaim) {
-                    messageContent += ` **(temporary claim)**`;
-                }
-            } else {
-                messageContent += `**available**`;
-            }
+            messageContent += CharacterChannelController.getCanonCharacterEntry(character);
             messageContent += `\n`;
         }
 
@@ -135,11 +146,26 @@ export class CharacterChannelController extends Controller {
         return messageContent;
     }
 
-    private async sendCanonCharacterListForGame(
+    public static getCanonCharacterEntry(character: CanonCharacterSchema): string {
+        let messageContent = `${character.name}: `;
+        if (character.claimerId) {
+            messageContent += `<@${character.claimerId}>`;
+            if (character.availability === CanonCharacterAvailability.TemporaryClaim) {
+                messageContent += ` **(temporary claim)**`;
+            }
+        } else {
+            messageContent += `**available**`;
+        }
+
+        return messageContent;
+    }
+
+    private static async sendCanonCharacterListForGame(
         channel: TextChannel,
         game: DragonAgeGame
     ): Promise<Message> {
-        const messageContent = await this.generateCanonCharacterListContentForGame(game);
+        const messageContent =
+            await CharacterChannelController.generateCanonCharacterListContentForGame(game);
         return await channel.send({ content: messageContent, allowedMentions: { parse: [] } });
     }
 
@@ -160,7 +186,8 @@ export class CharacterChannelController extends Controller {
                 `Could not get canon character list message with ID ${listMessageId} in channel with ID ${canonCharacterChannelId}`
             );
         }
-        const messageContent = await this.generateCanonCharacterListContentForGame(game);
+        const messageContent =
+            await CharacterChannelController.generateCanonCharacterListContentForGame(game);
 
         try {
             await listMessage.edit({ content: messageContent, allowedMentions: { parse: [] } });
@@ -168,4 +195,116 @@ export class CharacterChannelController extends Controller {
             throw new Error(`Failed to edit canon character list with ID ${listMessageId}`);
         }
     }
+
+    // endregion
+
+    // region ORIGINAL CHARACTERS
+
+    private async initializeOriginalCharacterChannel(): Promise<void> {
+        const channelId = await this.configuration.getString(
+            ConfigurationKeys.Channels_OriginalCharacterChannelId
+        );
+        const channel = await this.channelService.getTextChannelByChannelId(channelId);
+
+        const messages: Collection<string, Message> = await channel.messages.fetch();
+        let daoMessage = this.findCharacterListForGame(messages, DragonAgeGame.DAO);
+        let da2Message = this.findCharacterListForGame(messages, DragonAgeGame.DA2);
+        let daiMessage = this.findCharacterListForGame(messages, DragonAgeGame.DAI);
+        if (!daoMessage || !da2Message || !daiMessage) {
+            // Clear the channel of the other bot messages
+            this.logger.debug(
+                `At least one original character list does not exist anymore. Clearing channel...`
+            );
+            await this.clearChannelOfBotMessages(channel);
+
+            // get the new messages
+            this.logger.debug(`Sending new messages...`);
+            daoMessage = await CharacterChannelController.sendOriginalCharacterListForGame(
+                channel,
+                DragonAgeGame.DAO
+            );
+            da2Message = await CharacterChannelController.sendOriginalCharacterListForGame(
+                channel,
+                DragonAgeGame.DA2
+            );
+            daiMessage = await CharacterChannelController.sendOriginalCharacterListForGame(
+                channel,
+                DragonAgeGame.DAI
+            );
+        }
+
+        await this.configuration.setString(
+            ConfigurationKeys.Messages_OriginalList_0,
+            daoMessage.id
+        );
+        await this.configuration.setString(
+            ConfigurationKeys.Messages_OriginalList_1,
+            da2Message.id
+        );
+        await this.configuration.setString(
+            ConfigurationKeys.Messages_OriginalList_2,
+            daiMessage.id
+        );
+    }
+
+    private static async sendOriginalCharacterListForGame(
+        channel: TextChannel,
+        game: DragonAgeGame
+    ): Promise<Message> {
+        const messageContent =
+            await CharacterChannelController.generateOriginalCharacterListContentForGame(game);
+        return await channel.send({ content: messageContent, allowedMentions: { parse: [] } });
+    }
+
+    private static async generateOriginalCharacterListContentForGame(
+        game: DragonAgeGame
+    ): Promise<string> {
+        const originalCharacters: OriginalCharacterSchema[] = await OriginalCharacterModel.find({
+            game: game,
+        })
+            .sort({ name: 1 })
+            .exec();
+
+        let messageContent = `__**${DragonAgeGameMapper.mapEnumToStringName(
+            game
+        )}**__\n\n`.toUpperCase();
+        for (const character of originalCharacters) {
+            messageContent += `• **${character.name}** (${character.race}, ${character.age}) <@${character.userId}>\n`;
+        }
+
+        if (messageContent.length > 4096) {
+            throw new Error(`New canon character list content exceeds the discord limit.`);
+        }
+
+        return messageContent;
+    }
+
+    public async updateOriginalCharacterList(game: DragonAgeGame): Promise<void> {
+        this.logger.debug(`Updating original character list for ${game[game]}...`);
+        const originalCharacterChannelId = await this.configuration.getString(
+            ConfigurationKeys.Channels_OriginalCharacterChannelId
+        );
+        const listMessageId = await this.configuration.getString(
+            ConfigurationKeys['Messages_OriginalList_' + game]
+        );
+        const listMessage = await this.messageService.getMessageFromChannel(
+            listMessageId,
+            originalCharacterChannelId
+        );
+        if (!listMessage) {
+            throw Error(
+                `Could not get original character list message with ID ${listMessageId} in channel with ID ${originalCharacterChannelId}`
+            );
+        }
+        const messageContent =
+            await CharacterChannelController.generateOriginalCharacterListContentForGame(game);
+
+        try {
+            await listMessage.edit({ content: messageContent, allowedMentions: { parse: [] } });
+        } catch (error) {
+            throw new Error(`Failed to edit original character list with ID ${listMessageId}`);
+        }
+    }
+
+    // endregion
 }

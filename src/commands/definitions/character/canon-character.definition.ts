@@ -9,7 +9,7 @@ import { DragonAgeGame } from '@models/misc/dragon-age-game.enum';
  */
 export function commandDefinition(): SlashCommandBuilder {
     const command = new SlashCommandBuilder()
-        .setName('canoncharacter')
+        .setName('cc')
         .setDescription('Manage canon characters.')
         .addSubcommand((option) =>
             option

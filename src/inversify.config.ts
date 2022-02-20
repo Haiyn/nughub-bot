@@ -29,6 +29,7 @@ import { QotdController } from '@controllers/qotd-controller';
 import { QotdAdmin } from '@commands/system/qotd-admin';
 import { CharacterChannelController } from '@controllers/character-channel-controller';
 import { CanonCharacter } from '@commands/character/canon-character.command';
+import { OriginalCharacter } from '@commands/character/original-character.command';
 
 const container = new Container();
 
@@ -145,6 +146,7 @@ container.bind<Hiatus>('Hiatus').to(Hiatus).inRequestScope();
 container.bind<Show>('Show').to(Show).inRequestScope();
 container.bind<Qotd>('Qotd').to(Qotd).inRequestScope();
 container.bind<QotdAdmin>('Qotdadmin').to(QotdAdmin).inRequestScope();
-container.bind<CanonCharacter>('Canoncharacter').to(CanonCharacter).inRequestScope();
+container.bind<CanonCharacter>('Cc').to(CanonCharacter).inRequestScope();
+container.bind<OriginalCharacter>('Oc').to(OriginalCharacter).inRequestScope();
 
 export default container;

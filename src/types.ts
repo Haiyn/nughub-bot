@@ -49,7 +49,8 @@ export const TYPES = {
     Show: Symbol('Show'),
     Qotd: Symbol('Qotd'),
     QotdAdmin: Symbol('Qotdadmin'),
-    CanonCharacter: Symbol('Canoncharacter'),
+    CanonCharacter: Symbol('Cc'),
+    OriginalCharacter: Symbol('Oc'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),
