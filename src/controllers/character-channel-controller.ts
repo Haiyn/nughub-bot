@@ -113,9 +113,7 @@ export class CharacterChannelController extends Controller {
         await this.configuration.setString(ConfigurationKeys.Messages_CanonList_2, daiMessage.id);
     }
 
-    private static async generateCanonCharacterListContentForGame(
-        game: DragonAgeGame
-    ): Promise<string> {
+    private async generateCanonCharacterListContentForGame(game: DragonAgeGame): Promise<string> {
         const canonCharacters: CanonCharacterSchema[] = await CanonCharacterModel.find({
             game: game,
         })
@@ -126,7 +124,7 @@ export class CharacterChannelController extends Controller {
             game
         )}**__\n\n`.toUpperCase();
         for (const character of canonCharacters) {
-            messageContent += CharacterChannelController.getCanonCharacterEntry(character);
+            messageContent += await this.getCanonCharacterEntry(character);
             messageContent += `\n`;
         }
 
@@ -137,10 +135,10 @@ export class CharacterChannelController extends Controller {
         return messageContent;
     }
 
-    public static getCanonCharacterEntry(character: CanonCharacterSchema): string {
+    public async getCanonCharacterEntry(character: CanonCharacterSchema): Promise<string> {
         let messageContent = `${character.name}: `;
         if (character.claimerId) {
-            messageContent += `<@${character.claimerId}>`;
+            messageContent += `${await this.userService.getUserById(character.claimerId)}`;
             if (character.availability === CanonCharacterAvailability.TemporaryClaim) {
                 messageContent += ` **(temporary claim)**`;
             }
@@ -155,8 +153,7 @@ export class CharacterChannelController extends Controller {
         channel: TextChannel,
         game: DragonAgeGame
     ): Promise<Message> {
-        const messageContent =
-            await CharacterChannelController.generateCanonCharacterListContentForGame(game);
+        const messageContent = await this.generateCanonCharacterListContentForGame(game);
         let message;
         try {
             message = await channel.send({
@@ -194,8 +191,7 @@ export class CharacterChannelController extends Controller {
                 );
             }
         }
-        const messageContent =
-            await CharacterChannelController.generateCanonCharacterListContentForGame(game);
+        const messageContent = await this.generateCanonCharacterListContentForGame(game);
 
         try {
             await listMessage.edit({ content: messageContent, allowedMentions: { parse: [] } });
@@ -250,8 +246,7 @@ export class CharacterChannelController extends Controller {
         channel: TextChannel,
         game: DragonAgeGame
     ): Promise<Message> {
-        const messageContent =
-            await CharacterChannelController.generateOriginalCharacterListContentForGame(game);
+        const messageContent = await this.generateOriginalCharacterListContentForGame(game);
         let message;
         try {
             message = await channel.send({
@@ -267,7 +262,7 @@ export class CharacterChannelController extends Controller {
         return message;
     }
 
-    private static async generateOriginalCharacterListContentForGame(
+    private async generateOriginalCharacterListContentForGame(
         game: DragonAgeGame
     ): Promise<string> {
         const originalCharacters: OriginalCharacterSchema[] = await OriginalCharacterModel.find({
@@ -280,7 +275,9 @@ export class CharacterChannelController extends Controller {
             game
         )}**__\n\n`.toUpperCase();
         for (const character of originalCharacters) {
-            messageContent += `• **${character.name}** (${character.race}, ${character.age}) <@${character.userId}>\n`;
+            messageContent += `• **${character.name}** (${character.race}, ${
+                character.age
+            }) ${await this.userService.getUserById(character.userId)}\n`;
         }
 
         if (messageContent.length > 4096) {
@@ -312,8 +309,7 @@ export class CharacterChannelController extends Controller {
                 );
             }
         }
-        const messageContent =
-            await CharacterChannelController.generateOriginalCharacterListContentForGame(game);
+        const messageContent = await this.generateOriginalCharacterListContentForGame(game);
 
         try {
             await listMessage.edit({ content: messageContent, allowedMentions: { parse: [] } });

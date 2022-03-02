@@ -162,7 +162,7 @@ export class CanonCharacter extends Command {
 
         // Send reply
         let content = `I've successfully added the following character to the canon character list:\n\n`;
-        content += CharacterChannelController.getCanonCharacterEntry(canonCharacter);
+        content += this.characterChannelController.getCanonCharacterEntry(canonCharacter);
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
         });
@@ -207,8 +207,8 @@ export class CanonCharacter extends Command {
             .then(async (collection) => {
                 // Get the first reply
                 const message = collection.first();
-                const position: number | typeof NaN = Number.parseInt(message.content);
-                if (Number.isNaN(position)) {
+                const position: number | typeof NaN = Number(message.content);
+                if (isNaN(position) || !position) {
                     // Check if its a valid number
                     this.logger.info(
                         `User gave ${message.content} which is not a parsable number.`
@@ -222,8 +222,7 @@ export class CanonCharacter extends Command {
                             ),
                         }
                     );
-                }
-                if (position > charactersForGame.length || position < 1) {
+                } else if (position > charactersForGame.length || position < 1) {
                     // Check if the number in in range
                     this.logger.info(
                         `User gave ${position} which is not in range of ${charactersForGame.length}.`
@@ -322,8 +321,8 @@ export class CanonCharacter extends Command {
             .then(async (collection) => {
                 // Get the first reply
                 const message = collection.first();
-                const position: number | typeof NaN = Number.parseInt(message.content);
-                if (Number.isNaN(position)) {
+                const position: number | typeof NaN = Number(message.content);
+                if (isNaN(position) || !position) {
                     // Check if its a valid number
                     this.logger.info(
                         `User gave ${message.content} which is not a parsable number.`
@@ -337,8 +336,7 @@ export class CanonCharacter extends Command {
                             ),
                         }
                     );
-                }
-                if (position > charactersForGame.length || position < 1) {
+                } else if (position > charactersForGame.length || position < 1) {
                     // Check if the number in in range
                     this.logger.info(
                         `User gave ${position} which is not in range of ${charactersForGame.length}.`
@@ -375,7 +373,11 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
                                 {
-                                    content: `I've successfully assigned the character '${characterToAssign.name}' to <@${characterToAssign.claimerId}>.`,
+                                    content: `I've successfully assigned the character '${
+                                        characterToAssign.name
+                                    }' to ${await this.userService.getUserById(
+                                        characterToAssign.claimerId
+                                    )}.`,
                                 }
                             );
                             return;
@@ -447,8 +449,9 @@ export class CanonCharacter extends Command {
             .then(async (collection) => {
                 // Get the first reply
                 const message = collection.first();
-                const position: number | typeof NaN = Number.parseInt(message.content);
-                if (Number.isNaN(position)) {
+                const position: number | typeof NaN = Number(message.content);
+                this.logger.trace(position);
+                if (isNaN(position) || !position) {
                     // Check if its a valid number
                     this.logger.info(
                         `User gave ${message.content} which is not a parsable number.`
@@ -462,8 +465,7 @@ export class CanonCharacter extends Command {
                             ),
                         }
                     );
-                }
-                if (position > charactersForGame.length || position < 1) {
+                } else if (position > charactersForGame.length || position < 1) {
                     // Check if the number in in range
                     this.logger.info(
                         `User gave ${position} which is not in range of ${charactersForGame.length}.`
@@ -519,7 +521,8 @@ export class CanonCharacter extends Command {
 
                 await message.reply({ embeds: [queryReply] });
             })
-            .catch(async () => {
+            .catch(async (error) => {
+                this.logger.trace(error);
                 queryReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Warning, {
                     content: await this.stringProvider.get(
                         `COMMAND.VALIDATION.REPLY-QUERY.TIMEOUT`
@@ -535,18 +538,19 @@ export class CanonCharacter extends Command {
         queryText: string
     ): Promise<MessageEmbed> {
         let content = `Current canon characters:\n\n`;
-        characters.forEach((character, index) => {
+        for (const character of characters) {
+            const index = characters.indexOf(character);
             content += `${index + 1}. **${character.name}** `;
             if (character.claimerId) {
                 character.availability === CanonCharacterAvailability.TemporaryClaim
                     ? (content += `temp`)
                     : '';
-                content += ` claimed by <@${character.claimerId}>`;
+                content += ` claimed by ${await this.userService.getUserById(character.claimerId)}`;
             } else {
                 content += ` available`;
             }
             content += `\n`;
-        });
+        }
         content += `\n${queryText}`;
         return await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             content: content,

@@ -15,6 +15,7 @@ export class UserService extends Service {
      * @returns the discord user
      */
     public async getUserById(id: string): Promise<User> {
+        this.logger.trace(`Fetching user for ID ${id}`);
         const fetchedUser = await this.client.users.fetch(id);
         if (!fetchedUser) this.logger.warn(`Could not find user for passed ID ${id}`);
         return fetchedUser;

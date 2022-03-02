@@ -98,8 +98,8 @@ export class QotdAdmin extends Command {
             .then(async (collection) => {
                 // Get the first reply
                 const message = collection.first();
-                const position: number | typeof NaN = Number.parseInt(message.content);
-                if (Number.isNaN(position)) {
+                const position: number | typeof NaN = Number(message.content);
+                if (isNaN(position) || !position) {
                     // Check if its a valid number
                     this.logger.info(
                         `User gave ${message.content} which is not a parsable number.`
@@ -147,9 +147,11 @@ export class QotdAdmin extends Command {
                         {
                             content: `I've successfully ${
                                 isRemove ? 'removed' : 'edited'
-                            } the QOT:\n\n${position}. ${qotd.content} (submitted by <@${
+                            } the QOT:\n\n${position}. ${
+                                qotd.content
+                            } (submitted by ${await this.userService.getUserById(
                                 qotd.submitterId
-                            }>)`,
+                            )})`,
                         }
                     );
                 }

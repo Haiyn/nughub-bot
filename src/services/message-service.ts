@@ -134,7 +134,11 @@ export class MessageService extends Service {
         }
 
         // Construct message
-        let content = `**Channel:**\t<#${sessionTimestamp.channelId}>\n**User:**\t<@${session.currentTurn.userId}>\n**Character:**\t${session.currentTurn.name}\n\n`;
+        let content = `**Channel:**\t<#${
+            sessionTimestamp.channelId
+        }>\n**User:**\t${await this.userService.getUserById(
+            session.currentTurn.userId
+        )}\n**Character:**\t${session.currentTurn.name}\n\n`;
         content += `**Last Turn Advance:** <t:${sessionTimestamp.timestamp}:F> (<t:${sessionTimestamp.timestamp}:R>)\n`;
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: TimestampStatus.InTime,
@@ -246,7 +250,7 @@ export class MessageService extends Service {
      * @returns the message id
      */
     public async sendHiatus(hiatus: Hiatus): Promise<string> {
-        let content = `**User:** <@${hiatus.user.id}>\n`;
+        let content = `**User:** ${await this.userService.getUserById(hiatus.user.id)}\n`;
         hiatus.expires
             ? (content += `**Until:** <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
                   hiatus.expires
@@ -275,7 +279,7 @@ export class MessageService extends Service {
      * @returns when done
      */
     public async editHiatus(hiatus: Hiatus): Promise<void> {
-        let content = `**User:** <@${hiatus.user.id}>\n`;
+        let content = `**User:** ${await this.userService.getUserById(hiatus.user.id)}\n`;
         hiatus.expires
             ? (content += `**Until:** <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
                   hiatus.expires
