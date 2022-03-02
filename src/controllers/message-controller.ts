@@ -4,7 +4,7 @@ import { SessionModel } from '@models/data/session-schema';
 import { ConfigurationProvider } from '@providers/configuration-provider';
 import { SessionFinish } from '@src/commands';
 import container from '@src/inversify.config';
-import { CommandError } from '@src/models';
+import { CommandError, ConfigurationKeys } from '@src/models';
 import { EmbedProvider, PermissionProvider } from '@src/providers';
 import { ChannelService } from '@src/services';
 import { TYPES } from '@src/types';
@@ -77,13 +77,30 @@ export class MessageController extends Controller {
      */
     async handleCaching(): Promise<void> {
         try {
-            const currentSessionsChannel = this.channelService.getTextChannelByChannelId(
-                await this.configuration.getString('Channels_CurrentSessionsChannelId')
-            );
-            await currentSessionsChannel.messages.fetch().then((fetchedMessages) => {
-                this.logger.debug(
-                    `Fetched ${fetchedMessages.size} messages from currentSessionsChannel.`
-                );
+            const channelsToFetchFrom = [
+                this.channelService.getTextChannelByChannelId(
+                    await this.configuration.getString(
+                        ConfigurationKeys.Channels_CurrentSessionsChannelId
+                    )
+                ),
+                this.channelService.getTextChannelByChannelId(
+                    await this.configuration.getString(
+                        ConfigurationKeys.Channels_CanonCharacterChannelId
+                    )
+                ),
+                this.channelService.getTextChannelByChannelId(
+                    await this.configuration.getString(
+                        ConfigurationKeys.Channels_OriginalCharacterChannelId
+                    )
+                ),
+            ];
+
+            channelsToFetchFrom.forEach((channel) => {
+                channel.messages.fetch().then((fetchedMessages) => {
+                    this.logger.debug(
+                        `Fetched ${fetchedMessages.size} messages from ${channel.name}.`
+                    );
+                });
             });
 
             this.logger.debug('Fetching done.');

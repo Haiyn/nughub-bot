@@ -103,18 +103,9 @@ export class CharacterChannelController extends Controller {
 
             // get the new messages
             this.logger.debug(`Sending new messages...`);
-            daoMessage = await CharacterChannelController.sendCanonCharacterListForGame(
-                channel,
-                DragonAgeGame.DAO
-            );
-            da2Message = await CharacterChannelController.sendCanonCharacterListForGame(
-                channel,
-                DragonAgeGame.DA2
-            );
-            daiMessage = await CharacterChannelController.sendCanonCharacterListForGame(
-                channel,
-                DragonAgeGame.DAI
-            );
+            daoMessage = await this.sendCanonCharacterListForGame(channel, DragonAgeGame.DAO);
+            da2Message = await this.sendCanonCharacterListForGame(channel, DragonAgeGame.DA2);
+            daiMessage = await this.sendCanonCharacterListForGame(channel, DragonAgeGame.DAI);
         }
 
         await this.configuration.setString(ConfigurationKeys.Messages_CanonList_0, daoMessage.id);
@@ -160,13 +151,25 @@ export class CharacterChannelController extends Controller {
         return messageContent;
     }
 
-    private static async sendCanonCharacterListForGame(
+    private async sendCanonCharacterListForGame(
         channel: TextChannel,
         game: DragonAgeGame
     ): Promise<Message> {
         const messageContent =
             await CharacterChannelController.generateCanonCharacterListContentForGame(game);
-        return await channel.send({ content: messageContent, allowedMentions: { parse: [] } });
+        let message;
+        try {
+            message = await channel.send({
+                content: messageContent,
+                allowedMentions: { parse: [] },
+            });
+        } catch (error) {
+            this.logger.error(
+                `Could not send cc message for game ${game} in channel ${channel.name}`
+            );
+            throw new Error(error);
+        }
+        return message;
     }
 
     public async updateCanonCharacterList(game: DragonAgeGame): Promise<void> {
@@ -182,9 +185,14 @@ export class CharacterChannelController extends Controller {
             canonCharacterChannelId
         );
         if (!listMessage) {
-            throw Error(
-                `Could not get canon character list message with ID ${listMessageId} in channel with ID ${canonCharacterChannelId}`
-            );
+            try {
+                await this.initializeCanonCharacterChannel();
+            } catch (error) {
+                this.logger.prettyError(error);
+                throw Error(
+                    `Could not get canon character list message with ID ${listMessageId} in channel with ID ${canonCharacterChannelId}`
+                );
+            }
         }
         const messageContent =
             await CharacterChannelController.generateCanonCharacterListContentForGame(game);
@@ -219,18 +227,9 @@ export class CharacterChannelController extends Controller {
 
             // get the new messages
             this.logger.debug(`Sending new messages...`);
-            daoMessage = await CharacterChannelController.sendOriginalCharacterListForGame(
-                channel,
-                DragonAgeGame.DAO
-            );
-            da2Message = await CharacterChannelController.sendOriginalCharacterListForGame(
-                channel,
-                DragonAgeGame.DA2
-            );
-            daiMessage = await CharacterChannelController.sendOriginalCharacterListForGame(
-                channel,
-                DragonAgeGame.DAI
-            );
+            daoMessage = await this.sendOriginalCharacterListForGame(channel, DragonAgeGame.DAO);
+            da2Message = await this.sendOriginalCharacterListForGame(channel, DragonAgeGame.DA2);
+            daiMessage = await this.sendOriginalCharacterListForGame(channel, DragonAgeGame.DAI);
         }
 
         await this.configuration.setString(
@@ -247,13 +246,25 @@ export class CharacterChannelController extends Controller {
         );
     }
 
-    private static async sendOriginalCharacterListForGame(
+    private async sendOriginalCharacterListForGame(
         channel: TextChannel,
         game: DragonAgeGame
     ): Promise<Message> {
         const messageContent =
             await CharacterChannelController.generateOriginalCharacterListContentForGame(game);
-        return await channel.send({ content: messageContent, allowedMentions: { parse: [] } });
+        let message;
+        try {
+            message = await channel.send({
+                content: messageContent,
+                allowedMentions: { parse: [] },
+            });
+        } catch (error) {
+            this.logger.error(
+                `Could not send oc message for game ${game} in channel ${channel.name}`
+            );
+            throw new Error(error);
+        }
+        return message;
     }
 
     private static async generateOriginalCharacterListContentForGame(
@@ -292,9 +303,14 @@ export class CharacterChannelController extends Controller {
             originalCharacterChannelId
         );
         if (!listMessage) {
-            throw Error(
-                `Could not get original character list message with ID ${listMessageId} in channel with ID ${originalCharacterChannelId}`
-            );
+            try {
+                await this.initializeOriginalCharacterChannel();
+            } catch (error) {
+                this.logger.prettyError(error);
+                throw Error(
+                    `Could not get original character list message with ID ${listMessageId} in channel with ID ${originalCharacterChannelId}`
+                );
+            }
         }
         const messageContent =
             await CharacterChannelController.generateOriginalCharacterListContentForGame(game);
