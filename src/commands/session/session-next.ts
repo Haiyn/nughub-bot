@@ -229,7 +229,10 @@ export class SessionNext extends Command {
         reason: NextReason = null
     ): Promise<void> {
         let content = `*${newSession.currentTurn.name}* in <#${newSession.channelId}>`;
-        if (userMessage) content += `\n\n<@${previousTurn.userId}> said: \\"${userMessage}\\"`;
+        if (userMessage)
+            content += `\n\n${await this.userService.getUserById(
+                previousTurn.userId
+            )} said: \\"${userMessage}\\"`;
         const user = await this.client.users.fetch(newSession.currentTurn.userId);
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: await this.stringProvider.get('COMMAND.SESSION-NEXT.NOTIFICATION-TITLE'),
@@ -238,7 +241,7 @@ export class SessionNext extends Command {
             authorIcon: user.avatarURL(),
             footer: reason,
         });
-        const ping = `<@${newSession.currentTurn.userId}>`;
+        const ping = `${await this.userService.getUserById(newSession.currentTurn.userId)}`;
         const notificationChannel: TextChannel =
             await this.channelService.getTextChannelByChannelId(
                 await this.configuration.getString('Channels_NotificationChannelId')
@@ -331,7 +334,11 @@ export class SessionNext extends Command {
 
         // See if the current turn user is on hiatus, if so add a footer
         const footer = await this.userService.getUserHiatusStatus(session.currentTurn.userId);
-        let content = `**Channel:**\t<#${session.channelId}>\n**User:**\t<@${session.currentTurn.userId}>\n**Character:**\t${session.currentTurn.name}\n\n`;
+        let content = `**Channel:**\t<#${
+            session.channelId
+        }>\n**User:**\t${await this.userService.getUserById(
+            session.currentTurn.userId
+        )}\n**Character:**\t${session.currentTurn.name}\n\n`;
         content += `**Last Turn Advance:** <t:${timestamp}:F> (<t:${timestamp}:R>)\n`;
         await this.messageService.editTimestamp(
             session.channelId,

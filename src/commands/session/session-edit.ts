@@ -112,8 +112,8 @@ export class SessionEdit extends Command {
             .then(async (collection) => {
                 // Get the first reply and check if its a valid number
                 const message = collection.first();
-                const position: number | typeof NaN = Number.parseInt(message.content);
-                if (Number.isNaN(position)) {
+                const position: number | typeof NaN = Number(message.content);
+                if (isNaN(position) || !position) {
                     this.logger.info(
                         `User gave ${message.content} which is not a parsable number.`
                     );
@@ -126,8 +126,7 @@ export class SessionEdit extends Command {
                             ),
                         }
                     );
-                }
-                if (position > sessionToEdit.turnOrder.length + 1 || position - 1 < 0) {
+                } else if (position > sessionToEdit.turnOrder.length + 1 || position - 1 < 0) {
                     this.logger.info(
                         `User gave ${position} which is not in range of ${
                             sessionToEdit.turnOrder.length + 1
@@ -219,8 +218,8 @@ export class SessionEdit extends Command {
             .then(async (collection) => {
                 // Get the first reply
                 const message = collection.first();
-                const position: number | typeof NaN = Number.parseInt(message.content);
-                if (Number.isNaN(position)) {
+                const position: number | typeof NaN = Number(message.content);
+                if (isNaN(position) || !position) {
                     // Check if its a valid number
                     this.logger.info(
                         `User gave ${message.content} which is not a parsable number.`
@@ -234,8 +233,7 @@ export class SessionEdit extends Command {
                             ),
                         }
                     );
-                }
-                if (position > sessionToEdit.turnOrder.length || position < 1) {
+                } else if (position > sessionToEdit.turnOrder.length || position < 1) {
                     // Check if the number in in range
                     this.logger.info(
                         `User gave ${position} which is not in range of ${sessionToEdit.turnOrder.length}.`
@@ -322,8 +320,8 @@ export class SessionEdit extends Command {
             .then(async (collection) => {
                 // Get the first reply
                 const message = collection.first();
-                const position: number | typeof NaN = Number.parseInt(message.content);
-                if (Number.isNaN(position)) {
+                const position: number | typeof NaN = Number(message.content);
+                if (isNaN(position) || !position) {
                     // Check if its a valid number
                     this.logger.info(
                         `User gave ${message.content} which is not a parsable number.`
@@ -337,8 +335,7 @@ export class SessionEdit extends Command {
                             ),
                         }
                     );
-                }
-                if (position > sessionToEdit.turnOrder.length || position < 1) {
+                } else if (position > sessionToEdit.turnOrder.length || position < 1) {
                     // Check if the number in in range
                     this.logger.info(
                         `User gave ${position} which is not in range of ${sessionToEdit.turnOrder.length}.`
@@ -538,7 +535,11 @@ export class SessionEdit extends Command {
 
             // We also need to edit the timestamp
             const footer = await this.userService.getUserHiatusStatus(session.currentTurn.user.id);
-            let content = `**Channel:**\t<#${session.channel.id}>\n**User:**\t<@${session.currentTurn.user.id}>\n**Character:**\t${session.currentTurn.name}\n\n`;
+            let content = `**Channel:**\t<#${
+                session.channel.id
+            }>\n**User:**\t${await this.userService.getUserById(
+                session.currentTurn.user.id
+            )}\n**Character:**\t${session.currentTurn.name}\n\n`;
             content += `**Last Turn Advance:** <t:${moment.utc().unix()}:F> (<t:${moment
                 .utc()
                 .unix()}:R>)\n`;

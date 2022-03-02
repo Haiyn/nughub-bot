@@ -160,7 +160,7 @@ export class JobRuntimeController extends Controller {
                     reminderChannelId
                 );
                 await channel.send({
-                    content: `<@${reminder.user.id}>`,
+                    content: `${await this.userService.getUserById(reminder.user.id)}`,
                     embeds: [message],
                 });
                 this.scheduleService.cancelJob(reminder.name);
@@ -224,7 +224,11 @@ export class JobRuntimeController extends Controller {
                     {
                         title: await this.stringProvider.get('JOB.REMINDER.WARNING.TITLE'),
                         content:
-                            `**User:** ${reminder.user.username} (<@${reminder.user.id}>)\n**Channel:** <#${reminder.channel.id}>\n\n` +
+                            `**User:** ${
+                                reminder.user.username
+                            } (${await this.userService.getUserById(
+                                reminder.user.id
+                            )}>)\n**Channel:** <#${reminder.channel.id}>\n\n` +
                             `${await this.userService.getUserHiatusStatus(reminder.user.id)}`,
                     }
                 );
@@ -444,7 +448,10 @@ export class JobRuntimeController extends Controller {
             const reminderChannel = this.channelService.getTextChannelByChannelId(
                 await this.configuration.getString('Channels_NotificationChannelId')
             );
-            await reminderChannel.send({ content: `<@${hiatus.user.id}>`, embeds: [embed] });
+            await reminderChannel.send({
+                content: `${await this.userService.getUserById(hiatus.user.id)}`,
+                embeds: [embed],
+            });
 
             this.logger.info(`Finished hiatus for ${hiatus.user.username}`);
         };

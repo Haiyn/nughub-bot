@@ -126,7 +126,9 @@ export class OriginalCharacter extends Command {
 
         // Send reply
         let content = `I've successfully added the following character to the original character list:\n\n`;
-        content += `**${originalCharacter.name}** (${originalCharacter.race}, ${originalCharacter.age}) <@${originalCharacter.userId}>`;
+        content += `**${originalCharacter.name}** (${originalCharacter.race}, ${
+            originalCharacter.age
+        }) ${await this.userService.getUserById(originalCharacter.userId)}`;
 
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
@@ -172,8 +174,8 @@ export class OriginalCharacter extends Command {
             .then(async (collection) => {
                 // Get the first reply
                 const message = collection.first();
-                const position: number | typeof NaN = Number.parseInt(message.content);
-                if (Number.isNaN(position)) {
+                const position: number | typeof NaN = Number(message.content);
+                if (isNaN(position) || !position) {
                     // Check if its a valid number
                     this.logger.info(
                         `User gave ${message.content} which is not a parsable number.`
@@ -187,8 +189,7 @@ export class OriginalCharacter extends Command {
                             ),
                         }
                     );
-                }
-                if (position > charactersForGame.length || position < 1) {
+                } else if (position > charactersForGame.length || position < 1) {
                     // Check if the number in in range
                     this.logger.info(
                         `User gave ${position} which is not in range of ${charactersForGame.length}.`
@@ -254,11 +255,13 @@ export class OriginalCharacter extends Command {
         queryText: string
     ): Promise<MessageEmbed> {
         let content = `Current original characters:\n\n`;
-        characters.forEach((character, index) => {
+        for (const character of characters) {
+            const index = characters.indexOf(character);
+            const user = await this.userService.getUserById(character.userId);
             content += `${index + 1}. **${character.name}** (${character.race}, ${
                 character.age
-            }) <@${character.userId}>\n`;
-        });
+            }) ${user}\n`;
+        }
         content += `\n${queryText}`;
         return await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             content: content,
