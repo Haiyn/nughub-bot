@@ -114,7 +114,9 @@ export class CanonCharacter extends Command {
             ) {
                 throw new CommandValidationError(
                     `User is trying to add an available canon character with a claimer.`,
-                    `You cannot add a claimer to a character that is supposed to be available!`
+                    await this.stringProvider.get(
+                        'COMMAND.CANON-CHARACTER.VALIDATION.CANNOT-ADD-AVAILABLE-CHARACTER-WITH-CLAIMER'
+                    )
                 );
             }
 
@@ -125,7 +127,9 @@ export class CanonCharacter extends Command {
             ) {
                 throw new CommandValidationError(
                     `User is trying to add a non-available canon character without a claimer.`,
-                    `You cannot add a non-available canon character without a claimer!`
+                    await this.stringProvider.get(
+                        'COMMAND.CANON-CHARACTER.VALIDATION.CANNOT-ADD-CLAIMED-CHARACTER-WITHOUT-CLAIMER'
+                    )
                 );
             }
         }
@@ -161,7 +165,8 @@ export class CanonCharacter extends Command {
         );
 
         // Send reply
-        let content = `I've successfully added the following character to the canon character list:\n\n`;
+        let content =
+            (await this.stringProvider.get('COMMAND.CANON-CHARACTER.ADD.SUCCESS')) + `\n\n`;
         content += this.characterChannelController.getCanonCharacterEntry(canonCharacter);
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
@@ -177,7 +182,9 @@ export class CanonCharacter extends Command {
 
         if (charactersForGame.length === 0) {
             const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Info, {
-                content: `There are no canon characters that you can remove.`,
+                content: await this.stringProvider.get(
+                    'COMMAND.CANON-CHARACTER.REMOVE.NOTHING-TO-REMOVE'
+                ),
             });
             await this.interactionService.reply(interaction, { embeds: [embed] });
             return;
@@ -186,7 +193,7 @@ export class CanonCharacter extends Command {
         this.logger.debug(`Sending query for canon character: remove`);
         const embed = await this.getQueryEmbed(
             charactersForGame,
-            'Which user would you like to remove? Please input a number.'
+            await this.stringProvider.get('COMMAND.CANON-CHARACTER.REMOVE.QUERY.QUESTION')
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
@@ -249,7 +256,10 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
                                 {
-                                    content: `I've successfully removed the character '${characterToRemove.name}'.`,
+                                    content: await this.stringProvider.get(
+                                        'COMMAND.CANON-CHARACTER.REMOVE.SUCCESS',
+                                        [characterToRemove.name]
+                                    ),
                                 }
                             );
                             return;
@@ -263,7 +273,10 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Error,
                                 {
-                                    content: `I couldn't remove the character '${characterToRemove.name}'.`,
+                                    content: await this.stringProvider.get(
+                                        'COMMAND.CANON-CHARACTER.REMOVE.FAILURE',
+                                        [characterToRemove.name]
+                                    ),
                                 }
                             );
                             return;
@@ -291,7 +304,9 @@ export class CanonCharacter extends Command {
 
         if (charactersForGame.length === 0) {
             const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Info, {
-                content: `There are no canon characters that you can assign.`,
+                content: await this.stringProvider.get(
+                    'COMMAND.CANON-CHARACTER.ASSIGN.NOTHING-TO-ASSIGN'
+                ),
             });
             await this.interactionService.reply(interaction, { embeds: [embed] });
             return;
@@ -300,7 +315,7 @@ export class CanonCharacter extends Command {
         this.logger.debug(`Sending query for canon character: assign`);
         const embed = await this.getQueryEmbed(
             charactersForGame,
-            'Which user would you like to assign the person to? Please input a number.'
+            await this.stringProvider.get('COMMAND.CANON-CHARACTER.ASSIGN.QUERY.QUESTION')
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
@@ -373,11 +388,10 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
                                 {
-                                    content: `I've successfully assigned the character '${
-                                        characterToAssign.name
-                                    }' to ${await this.userService.getUserById(
-                                        characterToAssign.claimerId
-                                    )}.`,
+                                    content: await this.stringProvider.get(
+                                        'COMMAND.CANON-CHARACTER.ASSIGN.SUCCESS',
+                                        [characterToAssign.name, characterToAssign.claimerId]
+                                    ),
                                 }
                             );
                             return;
@@ -391,7 +405,10 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Error,
                                 {
-                                    content: `I couldn't assign the character '${characterToAssign.name}'.`,
+                                    content: await this.stringProvider.get(
+                                        'COMMAND.CANON-CHARACTER.ASSIGN.FAILURE',
+                                        [characterToAssign.name]
+                                    ),
                                 }
                             );
                             return;
@@ -419,7 +436,9 @@ export class CanonCharacter extends Command {
 
         if (charactersForGame.length === 0) {
             const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Info, {
-                content: `There are no canon characters that you can unassign.`,
+                content: await this.stringProvider.get(
+                    'COMMAND.CANON-CHARACTER.UNASSIGN.NOTHING-TO-UNASSIGN'
+                ),
             });
             await this.interactionService.reply(interaction, { embeds: [embed] });
             return;
@@ -428,7 +447,7 @@ export class CanonCharacter extends Command {
         this.logger.debug(`Sending query for canon character: unassign`);
         const embed = await this.getQueryEmbed(
             charactersForGame,
-            'Which user would you like to unassign? Please input a number.'
+            await this.stringProvider.get('COMMAND.CANON-CHARACTER.UNASSIGN.QUERY.QUESTION')
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
@@ -498,7 +517,10 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
                                 {
-                                    content: `I've successfully unassigned the character '${characterToUnassign.name}'.`,
+                                    content: await this.stringProvider.get(
+                                        'COMMAND.CANON-CHARACTER.UNASSIGN.SUCCESS',
+                                        [characterToUnassign.name]
+                                    ),
                                 }
                             );
                             return;
@@ -512,7 +534,10 @@ export class CanonCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Error,
                                 {
-                                    content: `I couldn't unassign the character '${characterToUnassign.name}'.`,
+                                    content: await this.stringProvider.get(
+                                        'COMMAND.CANON-CHARACTER.UNASSIGN.FAILURE',
+                                        [characterToUnassign.name]
+                                    ),
                                 }
                             );
                             return;

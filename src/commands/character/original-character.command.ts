@@ -9,7 +9,14 @@ import { ScheduleService } from '@services/schedule-service';
 import { Command } from '@src/commands';
 import { JobRuntimeController } from '@src/controllers';
 import { SessionMapper } from '@src/mappers';
-import { CommandError, CommandResult, EmbedLevel, EmbedType, PermissionLevel } from '@src/models';
+import {
+    CommandError,
+    CommandResult,
+    CommandValidationError,
+    EmbedLevel,
+    EmbedType,
+    PermissionLevel,
+} from '@src/models';
 import {
     ConfigurationProvider,
     EmbedProvider,
@@ -22,6 +29,7 @@ import {
     AwaitMessagesOptions,
     Client,
     CommandInteraction,
+    CommandInteractionOptionResolver,
     Message,
     MessageEmbed,
 } from 'discord.js';
@@ -92,8 +100,16 @@ export class OriginalCharacter extends Command {
         };
     }
 
-    public async validateOptions(): Promise<void> {
-        return;
+    public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
+        const number = Number(options.getString('age'));
+        if (!number || isNaN(number)) {
+            throw new CommandValidationError(
+                `User gave an invalid number for the age parameter: ${options.getString('age')}`,
+                await this.stringProvider.get(
+                    'COMMAND.ORIGINAL-CHARACTER.VALIDATION.AGE-NOT-A-NUMBER'
+                )
+            );
+        }
     }
 
     private async add(interaction: CommandInteraction): Promise<void> {
@@ -125,8 +141,8 @@ export class OriginalCharacter extends Command {
         );
 
         // Send reply
-        let content = `I've successfully added the following character to the original character list:\n\n`;
-        content += `**${originalCharacter.name}** (${originalCharacter.race}, ${
+        let content = await this.stringProvider.get('COMMAND.ORIGINAL-CHARACTER.ADD.SUCCESS');
+        content += `\n\n**${originalCharacter.name}** (${originalCharacter.race}, ${
             originalCharacter.age
         }) ${await this.userService.getUserById(originalCharacter.userId)}`;
 
@@ -144,7 +160,9 @@ export class OriginalCharacter extends Command {
 
         if (charactersForGame.length === 0) {
             const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Info, {
-                content: `There are no original characters that you can remove.`,
+                content: await this.stringProvider.get(
+                    'COMMAND.ORIGINAL-CHARACTER.REMOVE.NOTHING-TO-REMOVE'
+                ),
             });
             await this.interactionService.reply(interaction, { embeds: [embed] });
             return;
@@ -153,7 +171,7 @@ export class OriginalCharacter extends Command {
         this.logger.debug(`Sending query for original character: remove`);
         const embed = await this.getQueryEmbed(
             charactersForGame,
-            'Which OC would you like to remove? Please input a number.'
+            await this.stringProvider.get('COMMAND.ORIGINAL-CHARACTER.REMOVE.QUERY.QUESTION')
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
@@ -216,7 +234,10 @@ export class OriginalCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
                                 {
-                                    content: `I've successfully removed the original character '${characterToRemove.name}'.`,
+                                    content: await this.stringProvider.get(
+                                        'COMMAND.ORIGINAL-CHARACTER.REMOVE.SUCCESS',
+                                        [characterToRemove.name]
+                                    ),
                                 }
                             );
                             return;
@@ -230,7 +251,10 @@ export class OriginalCharacter extends Command {
                                 EmbedType.Minimal,
                                 EmbedLevel.Error,
                                 {
-                                    content: `I couldn't remove the character '${characterToRemove.name}'.`,
+                                    content: await this.stringProvider.get(
+                                        'COMMAND.ORIGINAL-CHARACTER.REMOVE.FAILURE',
+                                        [characterToRemove.name]
+                                    ),
                                 }
                             );
                             return;
