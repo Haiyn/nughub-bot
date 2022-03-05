@@ -49,7 +49,7 @@ export class QotdController extends Controller {
                 .sort({ dateAdded: 1 })
                 .exec();
 
-            if (!questions) {
+            if (!questions || questions.length === 0 || questions[0] === undefined) {
                 this.logger.warn(`Trying to schedule a qotd but there are none left!`);
                 return;
             }
@@ -77,7 +77,7 @@ export class QotdController extends Controller {
 
             // Schedule new qotd message
             if (questions.length > 1) {
-                this.logger.debug(`${questions.length} qotds left: Scheduling new qotd.`);
+                this.logger.debug(`${questions.length - 1} qotds left: Scheduling new qotd.`);
                 await this.scheduleQotd();
             }
         };
