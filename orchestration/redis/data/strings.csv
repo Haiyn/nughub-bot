@@ -41,6 +41,27 @@ Hiatus,STRINGS.COMMAND.HIATUS.CREATE.SUCCESS,I've successfully set a hiatus for 
 Hiatus,STRINGS.COMMAND.HIATUS.EDIT.SUCCESS,I've successfully edited your hiatus.
 Hiatus,STRINGS.COMMAND.HIATUS.DELETE.SUCCESS,I've successfully ended your hiatus.
 Qotd,STRINGS.COMMAND.QOTD.SUCCESS,I've successfully added your question! It will be used as soon as the ones before it were used.
+Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.VALIDATION.AGE-NOT-A-NUMBER,The age you've given me is not a valid number. Please give me a number that represents the age in years.
+Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.ADD.SUCCESS,I've successfully added the following character to the original character list:
+Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.NOTHING-TO-REMOVE,There are no original characters that you can remove.
+Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.QUERY.QUESTION,Which OC would you like to remove? Please input a number.
+Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.SUCCESS,I've successfully removed the original character {0}.
+Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.FAILURE,I could not remove the original character {0}.
+Character,STRINGS.COMMAND.CANON-CHARACTER.VALIDATION.CANNOT-ADD-AVAILABLE-CHARACTER-WITH-CLAIMER,You cannot add a claimer to a character that is supposed to be available!
+Character,STRINGS.COMMAND.CANON-CHARACTER.VALIDATION.CANNOT-ADD-CLAIMED-CHARACTER-WITHOUT-CLAIMER,You cannot add a non-available canon character without a claimer!
+Character,STRINGS.COMMAND.CANON-CHARACTER.ADD.SUCCESS,I've successfully added the following character to the canon character list:
+Character,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.NOTHING-TO-REMOVE,There are no canon characters that you can remove.
+Character,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.QUERY.QUESTION,Which canon character would you like to remove? Please input a number.
+Character,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.SUCCESS,I've successfully removed the canon character {0}.
+Character,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.FAILURE,I could not remove the canon character {0}.
+Character,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.NOTHING-TO-ASSIGN,There are no canon characters that you can assign.
+Character,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.QUERY.QUESTION,Which canon character would you like to assign the user to? Please input a number.
+Character,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.SUCCESS,I've successfully assigned the canon character {0} to <@{1}>.
+Character,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.FAILURE,I could not assign the canon character {0}.
+Character,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.NOTHING-TO-UNASSIGN,There are no canon characters that you can unassign.
+Character,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.QUERY.QUESTION,Which canon character would you like to unassign? Please input a number.
+Character,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.SUCCESS,I've successfully unassigned the canon character {0}.
+Character,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.FAILURE,I could not unassign the canon character {0}.
 System,SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR,Internal Error: `Command validation failed unexpectedly.`
 System,SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR,Internal Error: `Command execution failed unexpectedly.`
 System,SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT,Internal Error: `Database rejection`
