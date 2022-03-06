@@ -30,6 +30,7 @@ import { QotdAdmin } from '@commands/system/qotd-admin';
 import { CharacterChannelController } from '@controllers/character-channel-controller';
 import { CanonCharacter } from '@commands/character/canon-character.command';
 import { OriginalCharacter } from '@commands/character/original-character.command';
+import { Info } from '@commands/system/info.command';
 
 const container = new Container();
 
@@ -47,6 +48,7 @@ container.bind<string>(TYPES.MongoDbConnectionString).toConstantValue(process.en
 container.bind<string>(TYPES.RedisHost).toConstantValue(process.env.REDIS_HOST);
 container.bind<string>(TYPES.RedisPort).toConstantValue(process.env.REDIS_PORT);
 container.bind<string>(TYPES.RedisPassword).toConstantValue(process.env.REDIS_PASS);
+container.bind<string>(TYPES.BotVersion).toConstantValue(process.env.BOT_VERSION);
 
 // Constants
 container.bind<Client>(TYPES.Client).toConstantValue(
@@ -148,5 +150,6 @@ container.bind<Qotd>('Qotd').to(Qotd).inRequestScope();
 container.bind<QotdAdmin>('Qotdadmin').to(QotdAdmin).inRequestScope();
 container.bind<CanonCharacter>('Cc').to(CanonCharacter).inRequestScope();
 container.bind<OriginalCharacter>('Oc').to(OriginalCharacter).inRequestScope();
+container.bind<Info>('Info').to(Info).inRequestScope();
 
 export default container;

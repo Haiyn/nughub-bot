@@ -64,6 +64,12 @@ export class Server {
                     100
                 )}`
             );
+            if (
+                message.content.startsWith(`<@${this.client.user.id}>`) ||
+                message.content.startsWith(`<@!${this.client.user.id}>`)
+            ) {
+                await this.messageController.handleBotMention(message);
+            }
         });
 
         /** A cached discord message was deleted */
