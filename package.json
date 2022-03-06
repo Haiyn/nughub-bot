@@ -1,7 +1,7 @@
 {
   "name": "xenon-bot",
-  "version": "0.2.0",
-  "description": "A Discord.js bot for The Nug Hub.",
+  "version": "1.0.0",
+  "description": "A Discord.js bot.",
   "main": "index.js",
   "scripts": {
     "start": "npm run build && node -r tsconfig-paths/register ./dist/index.js",

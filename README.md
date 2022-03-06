@@ -3,11 +3,27 @@
 
 ## Infrastructure
 
-t.b.a.
+All bot components run on separate docker images managed by docker-compose. The bot itself is defined by a docker image from dockerhub.
+
+A MongoDB stores data objects such as sessions, characters, qotds and more.
+
+A Redis Cache offers configuration values and translation strings.
 
 ## Architecture
 
-t.b.a.
+Internally, the bot uses inversify.js for Dependency Injection (DI). 
+
+**Controllers** are the central distributing logic that handle different tasks in the bot at runtime. 
+
+**Services** provide useful functions to the bot, mostly for repeating actions such as fetching a discord user.
+
+**Providers** provide data such as configuration values from external systems or interface data for libraries.
+
+**Models** provide the data structure and **Mappers** helps map them.
+
+**Commands** are definitions and logic of commands which represent the interface to the user.
+
+The starting point of the bot is the [index.ts](./src/index.ts) which starts up the bot. The [server.ts](./src/server.ts) starts the actual server and event subscribers.
 
 ### Naming Conventions
 
@@ -77,6 +93,8 @@ PROVIDER_LOG_LEVEL=trace
 IGNORE_STACK_LEVELS=6
 ```
 
+**NOTE:** Setting your environment to local will **not** execute command definitions against the discord API. To register commands, use a different environment value once.
+
 
 ### Setting up the application layer
 
@@ -134,9 +152,5 @@ Enter the connection string from the dotenv file and connect.
 ### Managing Strings
 
 To manage strings, either add them manually in RedisInsight or use the script in `orchestration/redis/import-strings.sh`. 
-The script needs a CSV file with a `;` delimiter to work. 
 
 The script will only work on the local machine.
-
-The best way to achieve data consistence is to either export it with that delimiter or use a `tsv` file and replace all tab characters with semicolons.
-
