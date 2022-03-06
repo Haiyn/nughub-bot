@@ -5,7 +5,7 @@ import { ConfigurationProvider } from '@providers/configuration-provider';
 import { SessionFinish } from '@src/commands';
 import container from '@src/inversify.config';
 import { CommandError, ConfigurationKeys } from '@src/models';
-import { EmbedProvider, PermissionProvider } from '@src/providers';
+import { EmbedProvider, PermissionProvider, StringProvider } from '@src/providers';
 import { ChannelService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, Message } from 'discord.js';
@@ -16,6 +16,7 @@ import { Logger } from 'tslog';
 @injectable()
 export class MessageController extends Controller {
     readonly channelService: ChannelService;
+    readonly stringProvider: StringProvider;
 
     constructor(
         @inject(TYPES.ChannelService) channelService: ChannelService,
@@ -25,10 +26,12 @@ export class MessageController extends Controller {
         @inject(TYPES.Token) token: string,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider
+        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider,
+        @inject(TYPES.StringProvider) stringProvider: StringProvider
     ) {
         super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
         this.channelService = channelService;
+        this.stringProvider = stringProvider;
     }
 
     /**
@@ -107,6 +110,20 @@ export class MessageController extends Controller {
             return;
         } catch (error) {
             await this.handleError(error);
+        }
+    }
+
+    public async handleBotMention(message: Message): Promise<void> {
+        this.logger.debug(`Found new bot mention.`);
+        const quotes = await this.stringProvider.getList('SYSTEM.XENON.QUOTES');
+        const position = Math.floor(Math.random() * quotes.length - 1);
+        const reply = quotes[position];
+        if (!reply) {
+            this.logger.warn(
+                `Could not fetch a quote with position ${position} at quotes length of ${quotes.length}`
+            );
+        } else {
+            await message.channel.send({ content: reply });
         }
     }
 

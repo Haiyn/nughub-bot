@@ -1,83 +1,114 @@
-Group,Key,Value
-Ping,STRINGS.COMMAND.PING.SUCCESS,(Manic cackling.)
-Ping,STRINGS.COMMAND.PING.PENDING,Checking...
-Session Finish,STRINGS.COMMAND.SESSION-FINISH.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in <#{0}>!
-Session Finish,STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-NOT-DELETED,I couldn't delete the session post from <#{0}> but the session is still finished! Please check if the session message was removed.
-Session Finish,STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-DELETED,The session in <#{0}> is now finished!
-Session Next,STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in <#{0}>!
-Session Next,STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NOT-USERS-TURN,It is currently <@{0}>'s turn! Only they are allowed to advance their turn.
-Session Next,STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP-IN-CURRENT-CHANNEL,There is no ongoing RP session in this channel! Please use this command in the RP channel or supply it when using the command.
-Session Next,STRINGS.COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED,"Uh-oh, I couldn't manage to update the session post in <#{0}!"
-Session Next,STRINGS.COMMAND.SESSION-NEXT.SUCCESS,I notified the next user!
-Session Next,STRINGS.COMMAND.SESSION-NEXT.NOTIFICATION-TITLE,It's your turn!
-Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.INVALID-RP-CHANNEL,<#{0}> is not a channel you can start a session in! Please pick a valid RP channel.
-Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.CHANNEL-ALREADY-USED,There is already a RP session running <#{0}>!
-Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.CHARACTER-NAME-NOT-PROVIDED,Please provide a character name for every user you've mentioned!
-Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.USER-NOT-PROVIDED,Please provide a user for every character name you've given!
-Session Start,STRINGS.COMMAND.SESSION-START.VALIDATION.DUPLICATE-CHARACTER-NAME,You can't start an RP that has the same character twice!
-Session Start,STRINGS.COMMAND.SESSION-START.ERROR.PARSE-SESSION-FAILED,"Uh-oh, something went wrong while I was trying to process your inputs!"
-Session Start,STRINGS.COMMAND.SESSION-START.ERROR.SAVE-TO-SESSION-CHANNEL-FAILED,"Uh-oh, something went wrong while I was trying to post the session!"
-Session Start,STRINGS.COMMAND.SESSION-START.ERROR.COULD-NOT-INITIALIZE-CHANNEL,I can't post the session in <#{0}> because there are messages in it that aren't from me!
-Session Start,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-TITLE,Ongoing RP Sessions
-Session Start,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION,You can find all currently running RPs here - including their turn order.\n\nA ➡️ shows you whose turn it is.\nA ⌛ shows you who is currently on a hiatus.
-Session Start,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER,(Manic cackling.)
-Session Start,STRINGS.COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED,"Uh-oh, I ran into some trouble while trying to initialize the sessions channel!"
-Session Start,STRINGS.COMMAND.SESSION-START.SUCCESS,I successfully started a new RP session in <#{0}>!
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in the channel you've provided!
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.CHARACTER-ALREADY-EXISTS, The character you've supplied already exists in the turn order.
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.ADD,I've successfully added the character to the turn order.
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.REMOVE,I've successfully removed the character from the turn order.
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.SET,I've successfully set the new current turn.
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.ERROR.COULD-NOT-ADD,Something failed internally while I was trying to add the character to the turn order!
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.ERROR.COULD-NOT-REMOVE,Something failed internally while I was trying to remove the character from the turn order!
-Session Edit,STRINGS.COMMAND.SESSION-EDIT.ERROR.COULD-NOT-SET,Something failed internally while I was trying to set a new current turn!
-Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.REASON-TOO-LONG,The reason you've given me is too long! Please keep it under 3500 characters.
-Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.INVALID-DATE,The date you've given me is not valid! Try to use a DD/MM format or something readable like 01 January.
-Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.DATE-IN-PAST,The date you've given me is in the past! Please pick a date in the future.
-Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.HIATUS-ALREADY-ACTIVE,You already have an active reminder! Use the `/hiatus edit` command if you want to change the date.
-Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-EDIT,You don't have an active hiatus you can edit! Try creating one with the `/hiatus create` command.
-Hiatus,STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-END,You don't have an active hiatus you can end! Try creating one with the `/hiatus create` command.
-Hiatus,STRINGS.COMMAND.HIATUS.CREATE.SUCCESS,I've successfully set a hiatus for you.
-Hiatus,STRINGS.COMMAND.HIATUS.EDIT.SUCCESS,I've successfully edited your hiatus.
-Hiatus,STRINGS.COMMAND.HIATUS.DELETE.SUCCESS,I've successfully ended your hiatus.
-Qotd,STRINGS.COMMAND.QOTD.SUCCESS,I've successfully added your question! It will be used as soon as the ones before it were used.
-Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.VALIDATION.AGE-NOT-A-NUMBER,The age you've given me is not a valid number. Please give me a number that represents the age in years.
-Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.ADD.SUCCESS,I've successfully added the following character to the original character list:
-Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.NOTHING-TO-REMOVE,There are no original characters that you can remove.
-Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.QUERY.QUESTION,Which OC would you like to remove? Please input a number.
-Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.SUCCESS,I've successfully removed the original character {0}.
-Character,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.FAILURE,I could not remove the original character {0}.
-Character,STRINGS.COMMAND.CANON-CHARACTER.VALIDATION.CANNOT-ADD-AVAILABLE-CHARACTER-WITH-CLAIMER,You cannot add a claimer to a character that is supposed to be available!
-Character,STRINGS.COMMAND.CANON-CHARACTER.VALIDATION.CANNOT-ADD-CLAIMED-CHARACTER-WITHOUT-CLAIMER,You cannot add a non-available canon character without a claimer!
-Character,STRINGS.COMMAND.CANON-CHARACTER.ADD.SUCCESS,I've successfully added the following character to the canon character list:
-Character,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.NOTHING-TO-REMOVE,There are no canon characters that you can remove.
-Character,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.QUERY.QUESTION,Which canon character would you like to remove? Please input a number.
-Character,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.SUCCESS,I've successfully removed the canon character {0}.
-Character,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.FAILURE,I could not remove the canon character {0}.
-Character,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.NOTHING-TO-ASSIGN,There are no canon characters that you can assign.
-Character,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.QUERY.QUESTION,Which canon character would you like to assign the user to? Please input a number.
-Character,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.SUCCESS,I've successfully assigned the canon character {0} to <@{1}>.
-Character,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.FAILURE,I could not assign the canon character {0}.
-Character,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.NOTHING-TO-UNASSIGN,There are no canon characters that you can unassign.
-Character,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.QUERY.QUESTION,Which canon character would you like to unassign? Please input a number.
-Character,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.SUCCESS,I've successfully unassigned the canon character {0}.
-Character,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.FAILURE,I could not unassign the canon character {0}.
-System,SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR,Internal Error: `Command validation failed unexpectedly.`
-System,SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR,Internal Error: `Command execution failed unexpectedly.`
-System,SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT,Internal Error: `Database rejection`
-System,STRINGS.SYSTEM.DECORATORS.SEPARATOR,༺═──────────────═༻
-Job,STRINGS.JOB.REMINDER.TITLE,Reminder: It's your turn!
-Job,STRINGS.JOB.REMINDER.DESCRIPTION.SECOND,"\n\n⚠️ Without a response you will be skipped 24 hours. Please remember being skipped is not a punishment and is meant to keep the flow of role play moving. You'll be pinged again in the turn order once it's your turn again!"
-Job,STRINGS.JOB.REMINDER.DESCRIPTION.SECOND.HIATUS-HINT,"\n\n⏳ If you need extra time (up to another week) please use `/hiatus create` to notify us that you are on a hiatus."
-Job,STRINGS.JOB.REMINDER.FOOTER.FIRST,This is your first reminder.
-Job,STRINGS.JOB.REMINDER.DESCRIPTION.HIATUS,⏳ You are on hiatus and get 2 weeks to reply.
-Job,STRINGS.JOB.REMINDER.FOOTER.SECOND,This is your second reminder.
-Job,STRINGS.JOB.REMINDER.WARNING.TITLE,⚠️ Last Reminder Warning
-Job,STRINGS.JOB.WELCOME-BACK.TITLE,🎉 Welcome back!
-Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION,Your hiatus has ended.
-Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES,You have no pending RP replies.
-Job,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-OPEN-REPLIES,You have following pending replies:
-Job,STRINGS.JOB.WELCOME-BACK.FOOTER.OVERDUE,Pending replies marked with ⚠️ are RPs where your reply is overdue.
-Reply Query,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.NOT-A-NUMBER,This is not a valid number.
-Reply Query,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE,This number is not in the valid range.
-Reply Query,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.TIMEOUT,You took too long to respond.
+Type,Key,Value
+STRING,STRINGS.COMMAND.PING.SUCCESS,(Manic cackling.)
+STRING,STRINGS.COMMAND.PING.PENDING,Checking...
+STRING,STRINGS.COMMAND.SESSION-FINISH.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in <#{0}>!
+STRING,STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-NOT-DELETED,I couldn't delete the session post from <#{0}> but the session is still finished! Please check if the session message was removed.
+STRING,STRINGS.COMMAND.SESSION-FINISH.SUCCESS.POST-DELETED,The session in <#{0}> is now finished!
+STRING,STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in <#{0}>!
+STRING,STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NOT-USERS-TURN,It is currently <@{0}>'s turn! Only they are allowed to advance their turn.
+STRING,STRINGS.COMMAND.SESSION-NEXT.VALIDATION.NO-ONGOING-RP-IN-CURRENT-CHANNEL,There is no ongoing RP session in this channel! Please use this command in the RP channel or supply it when using the command.
+STRING,STRINGS.COMMAND.SESSION-NEXT.ERROR.SESSION-POST-UPDATE-FAILED,"Uh-oh, I couldn't manage to update the session post in <#{0}!"
+STRING,STRINGS.COMMAND.SESSION-NEXT.SUCCESS,I notified the next user!
+STRING,STRINGS.COMMAND.SESSION-NEXT.NOTIFICATION-TITLE,It's your turn!
+STRING,STRINGS.COMMAND.SESSION-START.VALIDATION.INVALID-RP-CHANNEL,<#{0}> is not a channel you can start a session in! Please pick a valid RP channel.
+STRING,STRINGS.COMMAND.SESSION-START.VALIDATION.CHANNEL-ALREADY-USED,There is already a RP session running <#{0}>!
+STRING,STRINGS.COMMAND.SESSION-START.VALIDATION.CHARACTER-NAME-NOT-PROVIDED,Please provide a character name for every user you've mentioned!
+STRING,STRINGS.COMMAND.SESSION-START.VALIDATION.USER-NOT-PROVIDED,Please provide a user for every character name you've given!
+STRING,STRINGS.COMMAND.SESSION-START.VALIDATION.DUPLICATE-CHARACTER-NAME,You can't start an RP that has the same character twice!
+STRING,STRINGS.COMMAND.SESSION-START.ERROR.PARSE-SESSION-FAILED,"Uh-oh, something went wrong while I was trying to process your inputs!"
+STRING,STRINGS.COMMAND.SESSION-START.ERROR.SAVE-TO-SESSION-CHANNEL-FAILED,"Uh-oh, something went wrong while I was trying to post the session!"
+STRING,STRINGS.COMMAND.SESSION-START.ERROR.COULD-NOT-INITIALIZE-CHANNEL,I can't post the session in <#{0}> because there are messages in it that aren't from me!
+STRING,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-TITLE,Ongoing RP Sessions
+STRING,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-DESCRIPTION,You can find all currently running RPs here - including their turn order.\n\nA ➡️ shows you whose turn it is.\nA ⌛ shows you who is currently on a hiatus.
+STRING,STRINGS.COMMAND.SESSION-START.INITIALIZE.EMBED-FOOTER,(Manic cackling.)
+STRING,STRINGS.COMMAND.SESSION-START.ERROR.INITIALIZE-FAILED,"Uh-oh, I ran into some trouble while trying to initialize the sessions channel!"
+STRING,STRINGS.COMMAND.SESSION-START.SUCCESS,I successfully started a new RP session in <#{0}>!
+STRING,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.NO-ONGOING-RP,There is no ongoing RP session in the channel you've provided!
+STRING,STRINGS.COMMAND.SESSION-EDIT.VALIDATION.CHARACTER-ALREADY-EXISTS, The character you've supplied already exists in the turn order.
+STRING,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.ADD,I've successfully added the character to the turn order.
+STRING,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.REMOVE,I've successfully removed the character from the turn order.
+STRING,STRINGS.COMMAND.SESSION-EDIT.SUCCESS.SET,I've successfully set the new current turn.
+STRING,STRINGS.COMMAND.SESSION-EDIT.ERROR.COULD-NOT-ADD,Something failed internally while I was trying to add the character to the turn order!
+STRING,STRINGS.COMMAND.SESSION-EDIT.ERROR.COULD-NOT-REMOVE,Something failed internally while I was trying to remove the character from the turn order!
+STRING,STRINGS.COMMAND.SESSION-EDIT.ERROR.COULD-NOT-SET,Something failed internally while I was trying to set a new current turn!
+STRING,STRINGS.COMMAND.HIATUS.VALIDATION.REASON-TOO-LONG,The reason you've given me is too long! Please keep it under 3500 characters.
+STRING,STRINGS.COMMAND.HIATUS.VALIDATION.INVALID-DATE,The date you've given me is not valid! Try to use a DD/MM format or something readable like 01 January.
+STRING,STRINGS.COMMAND.HIATUS.VALIDATION.DATE-IN-PAST,The date you've given me is in the past! Please pick a date in the future.
+STRING,STRINGS.COMMAND.HIATUS.VALIDATION.HIATUS-ALREADY-ACTIVE,You already have an active reminder! Use the `/hiatus edit` command if you want to change the date.
+STRING,STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-EDIT,You don't have an active hiatus you can edit! Try creating one with the `/hiatus create` command.
+STRING,STRINGS.COMMAND.HIATUS.VALIDATION.NO-HIATUS-TO-END,You don't have an active hiatus you can end! Try creating one with the `/hiatus create` command.
+STRING,STRINGS.COMMAND.HIATUS.CREATE.SUCCESS,I've successfully set a hiatus for you.
+STRING,STRINGS.COMMAND.HIATUS.EDIT.SUCCESS,I've successfully edited your hiatus.
+STRING,STRINGS.COMMAND.HIATUS.DELETE.SUCCESS,I've successfully ended your hiatus.
+STRING,STRINGS.COMMAND.QOTD.SUCCESS,I've successfully added your question! It will be used as soon as the ones before it were used.
+STRING,STRINGS.COMMAND.ORIGINAL-CHARACTER.VALIDATION.AGE-NOT-A-NUMBER,The age you've given me is not a valid number. Please give me a number that represents the age in years.
+STRING,STRINGS.COMMAND.ORIGINAL-CHARACTER.ADD.SUCCESS,I've successfully added the following character to the original character list:
+STRING,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.NOTHING-TO-REMOVE,There are no original characters that you can remove.
+STRING,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.QUERY.QUESTION,Which OC would you like to remove? Please input a number.
+STRING,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.SUCCESS,I've successfully removed the original character {0}.
+STRING,STRINGS.COMMAND.ORIGINAL-CHARACTER.REMOVE.FAILURE,I could not remove the original character {0}.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.VALIDATION.CANNOT-ADD-AVAILABLE-CHARACTER-WITH-CLAIMER,You cannot add a claimer to a character that is supposed to be available!
+STRING,STRINGS.COMMAND.CANON-CHARACTER.VALIDATION.CANNOT-ADD-CLAIMED-CHARACTER-WITHOUT-CLAIMER,You cannot add a non-available canon character without a claimer!
+STRING,STRINGS.COMMAND.CANON-CHARACTER.ADD.SUCCESS,I've successfully added the following character to the canon character list:
+STRING,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.NOTHING-TO-REMOVE,There are no canon characters that you can remove.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.QUERY.QUESTION,Which canon character would you like to remove? Please input a number.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.SUCCESS,I've successfully removed the canon character {0}.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.REMOVE.FAILURE,I could not remove the canon character {0}.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.NOTHING-TO-ASSIGN,There are no canon characters that you can assign.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.QUERY.QUESTION,Which canon character would you like to assign the user to? Please input a number.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.SUCCESS,I've successfully assigned the canon character {0} to <@{1}>.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.ASSIGN.FAILURE,I could not assign the canon character {0}.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.NOTHING-TO-UNASSIGN,There are no canon characters that you can unassign.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.QUERY.QUESTION,Which canon character would you like to unassign? Please input a number.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.SUCCESS,I've successfully unassigned the canon character {0}.
+STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.FAILURE,I could not unassign the canon character {0}.
+STRING,STRINGS.SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR,Internal Error: `Command validation failed unexpectedly.`
+STRING,STRINGS.SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR,Internal Error: `Command execution failed unexpectedly.`
+STRING,STRINGS.SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT,Internal Error: `Database rejection`
+STRING,STRINGS.SYSTEM.DECORATORS.SEPARATOR,༺═──────────────═༻
+STRING,STRINGS.JOB.REMINDER.TITLE,Reminder: It's your turn!
+STRING,STRINGS.JOB.REMINDER.DESCRIPTION.SECOND,"\n\n⚠️ Without a response you will be skipped 24 hours. Please remember being skipped is not a punishment and is meant to keep the flow of role play moving. You'll be pinged again in the turn order once it's your turn again!"
+STRING,STRINGS.JOB.REMINDER.DESCRIPTION.SECOND.HIATUS-HINT,"\n\n⏳ If you need extra time (up to another week) please use `/hiatus create` to notify us that you are on a hiatus."
+STRING,STRINGS.JOB.REMINDER.FOOTER.FIRST,This is your first reminder.
+STRING,STRINGS.JOB.REMINDER.DESCRIPTION.HIATUS,⏳ You are on hiatus and get 2 weeks to reply.
+STRING,STRINGS.JOB.REMINDER.FOOTER.SECOND,This is your second reminder.
+STRING,STRINGS.JOB.REMINDER.WARNING.TITLE,⚠️ Last Reminder Warning
+STRING,STRINGS.JOB.WELCOME-BACK.TITLE,🎉 Welcome back!
+STRING,STRINGS.JOB.WELCOME-BACK.DESCRIPTION,Your hiatus has ended.
+STRING,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES,You have no pending RP replies.
+STRING,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-OPEN-REPLIES,You have following pending replies:
+STRING,STRINGS.JOB.WELCOME-BACK.FOOTER.OVERDUE,Pending replies marked with ⚠️ are RPs where your reply is overdue.
+STRING,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.NOT-A-NUMBER,This is not a valid number.
+STRING,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE,This number is not in the valid range.
+STRING,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.TIMEOUT,You took too long to respond.
+LIST,LIST,STRINGS.SYSTEM.XENON.QUOTES,I am the great and magnificent Xenon the Antiquarian.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,The Templars sometimes come here, you know. The blood stains take just weeks to clean up. Poor Thaddeus.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Some Dane fellow asked, 'Why make a shop so hard to find?' I mean, really! He just has no concept.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Few people are worthy of an invitation, you know. They search the sewers for the emporium and accost poor urchin. And I tell urchin to say, 'No! You are not worthy. Starve in the sewers!' Except urchin never speaks.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Don't manhandle the urchin, he's not for sale. Find your own!
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Please, don't fondle Andraste.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Do not stare too intently into that. On second thought\, please do.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,I have quite an extensive library on the history of forbidden magic. It's back there. Somewhere. I... think. I haven't been able to turn my head to look for two centuries.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,You may pet the tiny bear, but be gentle. A magister miniaturized him specially at great cost. He answers to 'Chauncey'.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Do not antagonize Chauncey, the tiny bear. He may be small, but he nips.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Help yourself to a sock from the basket. But only one!
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Everything is for sale! Except the rejuvenating oils. Those are for my personal use.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Watch your step. We received a shipment of invisible nugs the other day.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,I hear the Red Templars are trying to find this place. Not if I can help it! (Cackles.) They'd just break everything.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,We had a visitor the other day. Turned out to be a Venatori! We fed him to the monster under the floorboards. He made a delightful crunching noise. Are they all like that?
+LIST,STRINGS.SYSTEM.XENON.QUOTES,*(Manic cackling.)*
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Send my regards to the lady ambassador. Her ancestor visited the Emporium in the Blessed Age. I sold her a candle mounted within the severed hand of a first acolyte of Razikale. I wonder... do the Montilyets still have it in their possession? I should like to see it again.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Would you consider allowing me to acquire your hand? After your death, of course.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Handle the merchandise with care!
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Where's my backscratcher?
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Urchin! Bring me a moist towlette.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Where is the urchin? I require the services of the urchin!
+LIST,STRINGS.SYSTEM.XENON.QUOTES,I would throw in a free pickled apple, but the urchin ate them all.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,The Black Emporium shall not be held liable for death, demonic possession, or hives resulting from improper use of the product.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,More Inquisition gold to have sensually pressed against my desiccated flesh!
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Thank you for your patronage.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,Handle the mirror with care. It has been known to bite.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,You went with that? Well, I'm obviously in no position to judge.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,I liked your old nose better.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,No accounting for taste.
+LIST,STRINGS.SYSTEM.XENON.QUOTES,At least no one will point and laugh.
