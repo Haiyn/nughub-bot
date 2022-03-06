@@ -11,6 +11,7 @@ export const TYPES = {
     RedisHost: Symbol('RedisHost'),
     RedisPort: Symbol('RedisPort'),
     RedisPassword: Symbol('RedisPassword'),
+    BotVersion: Symbol('BotVersion'),
 
     // Controllers
     MessageController: Symbol('MessageController'),
@@ -51,6 +52,7 @@ export const TYPES = {
     QotdAdmin: Symbol('Qotdadmin'),
     CanonCharacter: Symbol('Cc'),
     OriginalCharacter: Symbol('Oc'),
+    Info: Symbol('Info'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

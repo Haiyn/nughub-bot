@@ -10,7 +10,7 @@ COUNTER=0
 IFS=","     # Set file separator to ; instead of a whitespace or shit breaks
 
 echo "Importing $INPUT..."
-while read -r group key value; do
+while read -r type key value; do
   # Skip the first line
   if [ "$key" = "Key" ]; then
     continue
@@ -20,9 +20,14 @@ while read -r group key value; do
 
   # Export the read key value pair to subshell
   export KEY=$key
-  export VALUE=$(echo $value)
+  export VALUE="$(echo "$value")"
   # Run redis SET command
-  sh -c 'redis-cli -h $HOSTIP SET $KEY "$VALUE"';
+  case "$type" in
+    ("STRING") sh -c 'redis-cli -h $HOSTIP SET $KEY "${VALUE}"'; ;;
+    ("SET") sh -c 'redis-cli -h $HOSTIP SADD $KEY "${VALUE}"'; ;;
+    ("LIST") sh -c 'redis-cli -h $HOSTIP LPUSH $KEY "${VALUE}"'; ;;
+    (*) echo "No case found for type $type" ;;
+  esac
   COUNTER=$((COUNTER+1))
 done < $INPUT
 echo "Done reading $INPUT, inserted $COUNTER strings."

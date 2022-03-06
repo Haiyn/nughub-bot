@@ -10,6 +10,7 @@ import { commandDefinition as canonCharacter } from './character/canon-character
 import { commandDefinition as originalCharacter } from './character/original-character.definition';
 import { commandDefinition as hiatus } from './hiatus/hiatus';
 import { commandDefinition as qotd } from './misc/qotd';
+import { commandDefinition as info } from './system/info';
 import { commandDefinition as show } from './user/show';
 
 /** a default export as an array so all commands can be registered dynamically */
@@ -27,6 +28,7 @@ export default [
     qotdAdmin(),
     canonCharacter(),
     originalCharacter(),
+    info(),
 ];
 export {
     sessionStart,
@@ -42,4 +44,5 @@ export {
     qotdAdmin,
     canonCharacter,
     originalCharacter,
+    info,
 };

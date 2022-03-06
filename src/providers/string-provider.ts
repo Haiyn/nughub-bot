@@ -79,4 +79,20 @@ export class StringProvider extends Provider {
         const successful = await this.redisClient.set(key, newValue);
         return successful === 'OK';
     }
+
+    /**
+     * Gets a string set and returns all members of that list
+     *
+     * @param key the key to search for
+     * @returns The found set or an empty array if key was not found
+     */
+    public async getList(key: string): Promise<string[]> {
+        const result: string[] = await this.redisClient.lrange(key, 0, -1);
+        if (!result) {
+            // Since strings are used in message sending, make sure that they are not null
+            this.logger.warn(`Failed to get string set with key STRINGS.${key} on GET request.`);
+            return [];
+        }
+        return result;
+    }
 }
