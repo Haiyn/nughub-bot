@@ -22,7 +22,7 @@ import moment = require('moment');
 
 @injectable()
 export class Qotd extends Command {
-    public permissionLevel: PermissionLevel = PermissionLevel.Moderator;
+    public permissionLevel: PermissionLevel = PermissionLevel.Member;
     private qotdController: QotdController;
 
     constructor(
