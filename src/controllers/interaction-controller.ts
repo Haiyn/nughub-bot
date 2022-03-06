@@ -63,10 +63,14 @@ export class InteractionController extends Controller {
             rest.get(Routes.applicationCommands(this.client.user.id)).then((data: any) => {
                 const promises = [];
                 for (const command of data) {
-                    const deleteUrl = `${Routes.applicationCommands(this.client.user.id)}/${
-                        command.id
-                    }`;
-                    promises.push(rest.delete(<RouteLike>deleteUrl));
+                    try {
+                        const deleteUrl = `${Routes.applicationCommands(this.client.user.id)}/${
+                            command.id
+                        }`;
+                        promises.push(rest.delete(<RouteLike>deleteUrl));
+                    } catch (error) {
+                        this.logger.debug(`Could not delete global command ${command.id}.`);
+                    }
                 }
                 return Promise.all(promises);
             });
