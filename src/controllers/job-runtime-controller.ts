@@ -163,7 +163,6 @@ export class JobRuntimeController extends Controller {
                     content: `${await this.userService.getUserById(reminder.user.id)}`,
                     embeds: [message],
                 });
-                this.scheduleService.cancelJob(reminder.name);
                 this.logger.info(
                     `Successfully sent reminder #${reminder.iteration} for ${reminder.name}.`
                 );
@@ -228,7 +227,7 @@ export class JobRuntimeController extends Controller {
                                 reminder.user.username
                             } (${await this.userService.getUserById(
                                 reminder.user.id
-                            )}>)\n**Channel:** <#${reminder.channel.id}>\n\n` +
+                            )})\n**Channel:** <#${reminder.channel.id}>\n\n` +
                             `${await this.userService.getUserHiatusStatus(reminder.user.id)}`,
                     }
                 );

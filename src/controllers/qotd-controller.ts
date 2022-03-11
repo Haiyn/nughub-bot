@@ -7,6 +7,7 @@ import { ChannelService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client } from 'discord.js';
 import { inject, injectable } from 'inversify';
+import { RecurrenceRule } from 'node-schedule';
 import { Logger } from 'tslog';
 import moment = require('moment');
 
@@ -50,7 +51,7 @@ export class QotdController extends Controller {
                 .exec();
 
             if (!questions || questions.length === 0 || questions[0] === undefined) {
-                this.logger.warn(`Trying to schedule a qotd but there are none left!`);
+                this.logger.info(`No QOTDs left.`);
                 return;
             }
 
@@ -74,18 +75,18 @@ export class QotdController extends Controller {
             questions[0].used = true;
             await questions[0].save();
             this.logger.debug(`Updated used qotd.`);
-
-            // Schedule new qotd message
-            if (questions.length > 1) {
-                this.logger.debug(`${questions.length - 1} qotds left: Scheduling new qotd.`);
-                await this.scheduleQotd();
-            }
         };
 
-        const date = await this.findNextQotdDay();
+        const hours = await this.configuration.getNumber(
+            ConfigurationKeys.Schedule_QotdSendTime_Hours
+        );
 
         // Schedule the job
-        this.scheduleService.scheduleJob('qotd', date, sendQotd);
+        const recurrenceRule = new RecurrenceRule();
+        recurrenceRule.second = 0;
+        recurrenceRule.minute = 0;
+        recurrenceRule.hour = hours;
+        this.scheduleService.scheduleRecurringJob('qotd', recurrenceRule, sendQotd);
     }
 
     /**
@@ -95,31 +96,7 @@ export class QotdController extends Controller {
      */
     public async restoreQotdJobs(): Promise<number> {
         const remainingQotds = await QuestionModel.find({ used: false }).exec();
-        if (remainingQotds.length > 0) {
-            await this.scheduleQotd();
-        }
-        return remainingQotds.length - 1;
-    }
-
-    /**
-     * Gets the next possible time (day) for the next qotd
-     *
-     * @returns the next possible date
-     */
-    private async findNextQotdDay(): Promise<Date> {
-        const hours = await this.configuration.getNumber(
-            ConfigurationKeys.Schedule_QotdSendTime_Hours
-        );
-        const date = moment().utc().set('hours', hours).set('minutes', 0).set('seconds', 0);
-
-        if (moment().utc().hours() >= hours) {
-            // If we are already past the configured hour mark, set it for the next day instead
-            this.logger.debug(
-                `We are already past ${hours}, adding one day to move qotd to tomorrow.`
-            );
-            date.add(1, 'days');
-        }
-
-        return date.toDate();
+        await this.scheduleQotd();
+        return remainingQotds.length;
     }
 }

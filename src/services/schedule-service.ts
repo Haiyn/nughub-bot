@@ -1,6 +1,6 @@
 import { Service } from '@services/service';
 import { injectable } from 'inversify';
-import { Job, rescheduleJob, scheduledJobs, scheduleJob } from 'node-schedule';
+import { Job, RecurrenceRule, rescheduleJob, scheduledJobs, scheduleJob } from 'node-schedule';
 
 /** Handles different functions in relation to the scheduling and time */
 @injectable()
@@ -13,8 +13,23 @@ export class ScheduleService extends Service {
      * @param callback The callback function that should be called when the job runs
      */
     public scheduleJob(name: string, date: Date, callback: () => void): void {
-        scheduleJob(name, this.dateToCron(date), callback);
+        scheduleJob(name, date, callback);
         this.logger.debug(`Scheduled job (${name}) for ${date}`);
+    }
+
+    /**
+     * Schedules a certain job with node-schedule
+     *
+     * @param name The name of the job
+     * @param cron The cron date when the scheduled job should run
+     * @param callback The callback function that should be called when the job runs
+     */
+    public scheduleRecurringJob(name: string, cron: RecurrenceRule, callback: () => void): void {
+        cron.tz = 'Etc/UTC';
+        const scheduledJob = scheduleJob(name, cron, callback);
+        this.logger.debug(
+            `Scheduled recurring job (${name}), next invocation at ${scheduledJob.nextInvocation()}`
+        );
     }
 
     /**
@@ -24,7 +39,7 @@ export class ScheduleService extends Service {
      * @param date the new date
      */
     public rescheduleJob(name: string, date: Date): void {
-        rescheduleJob(name, this.dateToCron(date));
+        rescheduleJob(name, date);
         this.logger.debug(`Rescheduled job (${name}) to ${date}.`);
     }
 
@@ -74,42 +89,8 @@ export class ScheduleService extends Service {
      */
     public jobExists(name: string): boolean {
         const job = scheduledJobs[name];
+        // noinspection RedundantIfStatementJS
         if (!job) return false;
         else return true;
-    }
-
-    /**
-     * Converts a unix timestamp to a Date object
-     *
-     * @param unixTimestamp The unix time to convert
-     * @returns The converted date
-     */
-    public unixToDate(unixTimestamp: number): Date {
-        // Create a new JavaScript Date object based on the timestamp
-        // multiplied by 1000 so that the argument is in milliseconds, not seconds.
-        const date = new Date(unixTimestamp * 1000);
-        this.logger.trace(`Converted unix (${unixTimestamp}) to Date (${date})`);
-        return date;
-    }
-
-    /**
-     * Converts a date object to a cron object
-     *
-     * @param date The date object to convert
-     * @returns The cron object (string)
-     */
-    public dateToCron(date: Date): string {
-        const seconds = date.getSeconds();
-        const minutes = date.getMinutes();
-        const hours = date.getHours();
-        const days = date.getDate();
-        const months = date.getMonth() + 1;
-        const weekday = date.getDay();
-
-        const cron = `${seconds} ${minutes} ${hours} ${days} ${months} ${weekday}`;
-
-        this.logger.trace(`Converted date (${date}) to cron (${cron})`);
-
-        return cron;
     }
 }
