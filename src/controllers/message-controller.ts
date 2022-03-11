@@ -88,6 +88,14 @@ export class MessageController extends Controller {
                 ),
                 this.channelService.getTextChannelByChannelId(
                     await this.configuration.getString(
+                        ConfigurationKeys.Channels_TimestampsChannelId
+                    )
+                ),
+                this.channelService.getTextChannelByChannelId(
+                    await this.configuration.getString(ConfigurationKeys.Channels_HiatusChannelId)
+                ),
+                this.channelService.getTextChannelByChannelId(
+                    await this.configuration.getString(
                         ConfigurationKeys.Channels_CanonCharacterChannelId
                     )
                 ),
