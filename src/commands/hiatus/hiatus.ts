@@ -108,7 +108,7 @@ export class Hiatus extends Command {
         });
 
         this.logger.debug(
-            `Adjusting ${currentTurnsForUser.length} reminders to accommodate hiatus...`
+            `Trying to adjust ${currentTurnsForUser.length} reminders to accommodate hiatus...`
         );
         for (const session of currentTurnsForUser) {
             const isAfterLastReminder = await this.rescheduleReminder(session.channelId);

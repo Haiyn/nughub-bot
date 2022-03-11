@@ -1,5 +1,6 @@
 /** The status messages timestamps can have */
 export enum TimestampStatus {
+    JustStarted = `🆕 Just Started`,
     InTime = `✅ In Time`,
     FirstReminder = `❕ First reminder sent`,
     SecondReminder = `❗ Last reminder sent`,

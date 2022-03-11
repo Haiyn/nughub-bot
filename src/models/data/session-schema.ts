@@ -17,6 +17,9 @@ export interface ISessionSchema {
 
     /** The ID of the discord message in the timestamps channel. Only set after the first notification */
     timestampPostId: string;
+
+    /** The date of the last turn advance. Only set after first next command for session */
+    lastTurnAdvance: Date;
 }
 
 /** The mongoose schema of the session database object */
@@ -27,6 +30,7 @@ const sessionSchema = new Schema<ISessionSchema>(
         currentTurn: { type: characterSchema, required: true },
         sessionPostId: { type: String, required: true },
         timestampPostId: { type: String, required: false },
+        lastTurnAdvance: { type: Date, required: false },
     },
     { collection: 'Sessions' }
 );
