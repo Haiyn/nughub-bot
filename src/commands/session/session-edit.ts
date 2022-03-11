@@ -1,3 +1,4 @@
+import { ReminderModel } from '@models/jobs/reminder-schema';
 import { NextReason } from '@models/ui/next-reason.enum';
 import { Command, SessionNext } from '@src/commands';
 import container from '@src/inversify.config';
@@ -533,6 +534,13 @@ export class SessionEdit extends Command {
                 { currentTurn: newSession.currentTurn }
             ).exec();
 
+            // cancel the existing reminder
+            await ReminderModel.findOneAndDelete({ channelId: session.channel.id }).exec();
+            const jobName = `reminder:${session.channel.id}`;
+            if (this.scheduleService.jobExists(jobName)) {
+                this.scheduleService.cancelJob(jobName);
+            }
+
             // We also need to edit the timestamp
             const footer = await this.userService.getUserHiatusStatus(session.currentTurn.user.id);
             let content = `**Channel:**\t<#${
@@ -549,8 +557,9 @@ export class SessionEdit extends Command {
                 content,
                 footer
             );
-        }
 
-        await this.messageService.updateSessionPost(newSession);
+            // and the turn order post
+            await this.messageService.updateSessionPost(newSession);
+        }
     }
 }
