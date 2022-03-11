@@ -2,6 +2,7 @@ import { Command } from '@commands/command';
 import { CommandResult } from '@models/commands/command-result';
 import { Hiatus as HiatusData } from '@models/jobs/hiatus';
 import { HiatusModel, IHiatusSchema } from '@models/jobs/hiatus-schema';
+import { ReminderModel } from '@models/jobs/reminder-schema';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import {
     CommandError,
@@ -158,9 +159,7 @@ export class Hiatus extends Command {
         // (Re)schedule hiatus with new date
         const jobName = `hiatus:${activeHiatus.userId}`;
         if (this.scheduleService.jobExists(jobName)) {
-            this.scheduleService
-                .getJob(jobName)
-                .reschedule(this.scheduleService.dateToCron(newDate));
+            this.scheduleService.rescheduleJob(jobName, newDate);
         } else {
             await this.jobRuntime.scheduleHiatusFinish(hiatusData);
         }
@@ -210,13 +209,28 @@ export class Hiatus extends Command {
      * @returns true when it is an extension request after the last reminder, false otherwise
      */
     private async rescheduleReminder(channelId: string): Promise<boolean> {
-        const name = `reminder:${channelId}`;
+        const reminder = await ReminderModel.findOne({ channelId: channelId }).exec();
+
+        if (!reminder) {
+            this.logger.debug(
+                `Trying to find non-existent reminder for channel ID ${channelId} while rescheduling reminders after hiatus create.`
+            );
+            return true;
+        }
+
+        if (reminder.iteration === 0) {
+            this.logger.debug(`${reminder.name} is still on first reminder, do not reschedule.`);
+            return false;
+        }
+
         // workaround for shitty node-schedule return: typed as Date but returns cron date without time accuracy
-        const invocation = this.scheduleService.getJob(name)?.nextInvocation();
+        const invocation = this.scheduleService.getJob(reminder.name)?.nextInvocation();
         const date = new Date(invocation);
         if (!date || isNaN(date.getTime())) {
-            this.logger.info(`Hiatus creation happened after last reminder.`);
-            return true;
+            this.logger.error(
+                `Trying to access non-existent job ${reminder.name} for saved reminder model.`
+            );
+            return false;
         }
         // add the the time to the date
         const newDate = moment(date)
@@ -225,7 +239,7 @@ export class Hiatus extends Command {
             .toDate();
         this.logger.trace(`Found next invocation for ${channelId} on ${date}. Moved to ${newDate}`);
 
-        this.scheduleService.rescheduleJob(name, newDate);
+        this.scheduleService.rescheduleJob(reminder.name, newDate);
 
         return false;
     }
