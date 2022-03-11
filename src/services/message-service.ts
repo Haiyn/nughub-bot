@@ -11,8 +11,8 @@ import {
     EmbedType,
     HiatusModel,
     ISessionSchema,
+    Session,
     SessionModel,
-    SessionTimestamp,
 } from '@src/models';
 import { EmbedProvider } from '@src/providers';
 import { TYPES } from '@src/types';
@@ -120,43 +120,41 @@ export class MessageService extends Service {
     /**
      * Sends an internal timestamp post to the timestamp channel
      *
-     * @param sessionTimestamp the timestamp data to use
+     * @param session the session data to use
      * @returns the message id of the sent timestamp message
      */
-    public async sendTimestamp(sessionTimestamp: SessionTimestamp): Promise<string> {
-        const session = await SessionModel.findOne({
-            channelId: sessionTimestamp.channelId,
-        }).exec();
-
-        if (!session) {
-            this.logger.error(`Couldn't find session for sessionTimestamp: ${sessionTimestamp}`);
-            return '';
-        }
-
+    public async sendTimestamp(session: Session): Promise<string> {
         // Construct message
-        const user = await this.userService.getUserById(session.currentTurn.userId);
-        let content = `**Channel:**\t<#${sessionTimestamp.channelId}>\n**User:** ${user.username} (${user})\n**Character:**\t${session.currentTurn.name}\n\n`;
-        content += `**Last Turn Advance:** <t:${sessionTimestamp.timestamp}:F> (<t:${sessionTimestamp.timestamp}:R>)\n`;
+        const content = `**Channel:**\t<#${session.channel.id}>\n**User:** ${session.currentTurn.user.username} (${session.currentTurn.user})\n**Character:**\t${session.currentTurn.name}\n\n`;
+        const footer = await this.userService.getUserHiatusStatus(session.currentTurn.user.id);
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
-            title: TimestampStatus.InTime,
+            title: TimestampStatus.JustStarted,
             content: content,
+            footer: footer,
         });
 
         const components = new MessageActionRow().addComponents([
             new MessageButton()
                 .setCustomId(
-                    `${ButtonType.Timestamp}:${TimestampActions.AdvanceTurn}:${sessionTimestamp.channelId}`
+                    `${ButtonType.Timestamp}:${TimestampActions.NotifyUser}:${session.channel.id}`
+                )
+                .setLabel('Notify User')
+                .setStyle('PRIMARY')
+                .setEmoji('💬'),
+            new MessageButton()
+                .setCustomId(
+                    `${ButtonType.Timestamp}:${TimestampActions.AdvanceTurn}:${session.channel.id}`
                 )
                 .setLabel('Skip User')
                 .setStyle('PRIMARY')
                 .setEmoji('⏩'),
             new MessageButton()
                 .setCustomId(
-                    `${ButtonType.Timestamp}:${TimestampActions.Finish}:${sessionTimestamp.channelId}`
+                    `${ButtonType.Timestamp}:${TimestampActions.Finish}:${session.channel.id}`
                 )
                 .setLabel('Finish RP')
                 .setStyle('DANGER')
-                .setEmoji('❌'),
+                .setEmoji('✖️'),
         ]);
 
         const timestampChannelId = await this.configuration.getString(
@@ -166,12 +164,30 @@ export class MessageService extends Service {
         const message = await channel.send({ embeds: [embed], components: [components] });
 
         await SessionModel.findOneAndUpdate(
-            { channelId: sessionTimestamp.channelId },
-            { timestampPostId: message.id },
-            { new: true }
+            { channelId: session.channel.id },
+            { timestampPostId: message.id }
         );
 
         return message.id;
+    }
+
+    /**
+     * Automatically update a timestamp with new data
+     *
+     * @param session the session to use
+     * @param status the new timestamp status to set
+     * @returns when done
+     */
+    public async updateTimestamp(session: ISessionSchema, status: TimestampStatus): Promise<void> {
+        const user = await this.userService.getUserById(session.currentTurn.userId);
+        const footer = await this.userService.getUserHiatusStatus(session.currentTurn.userId);
+        let content = `**Channel:**\t<#${session.channelId}>\n**User:** ${user.username} (${user})\n**Character:**\t${session.currentTurn.name}\n\n`;
+        if (session.lastTurnAdvance)
+            content += `**Last Turn Advance:** <t:${moment(
+                session.lastTurnAdvance
+            ).unix()}:F> (<t:${moment(session.lastTurnAdvance).unix()}:R>)\n`;
+
+        await this.editTimestamp(session.channelId, status, content, footer);
     }
 
     /**

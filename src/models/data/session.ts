@@ -17,17 +17,22 @@ export class Session {
 
     timestampPost?: Message;
 
+    lastTurnAdvance?: Date;
+
     constructor(
         channel: TextChannel,
         turnOrder: Character[],
         currentTurn: Character,
         sessionPost: Message,
-        timestampPost?: Message
+        timestampPost?: Message,
+        lastTurnAdvance?: Date
     ) {
         this.channel = channel;
         this.turnOrder = turnOrder;
         this.currentTurn = currentTurn;
         this.sessionPost = sessionPost;
         this.timestampPost = timestampPost;
+        this.timestampPost = timestampPost;
+        this.lastTurnAdvance = lastTurnAdvance;
     }
 }

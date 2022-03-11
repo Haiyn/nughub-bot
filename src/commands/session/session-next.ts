@@ -8,8 +8,7 @@ import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import { NextReason } from '@models/ui/next-reason.enum';
-import { TimestampStatus } from '@models/ui/timestamp-status';
-import { ConfigurationKeys, SessionTimestamp } from '@src/models';
+import { ConfigurationKeys, TimestampStatus } from '@src/models';
 import { CommandValidationError } from '@src/models/commands/command-validation-error';
 import { CommandInteraction, CommandInteractionOptionResolver, TextChannel } from 'discord.js';
 import { injectable } from 'inversify';
@@ -65,7 +64,7 @@ export class SessionNext extends Command {
         await this.jobRuntime.scheduleReminder(reminder, true);
 
         this.logger.debug('Sending timestamp message...');
-        await this.sendTimestamp(newSession);
+        await this.messageService.updateTimestamp(newSession, TimestampStatus.InTime);
 
         const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-NEXT.SUCCESS'),
@@ -119,8 +118,8 @@ export class SessionNext extends Command {
         this.logger.debug('Scheduling reminder...');
         await this.jobRuntime.scheduleReminder(reminder, true);
 
-        this.logger.debug('Sending timestamp message...');
-        await this.sendTimestamp(newSession);
+        this.logger.debug('Updating timestamp message...');
+        await this.messageService.updateTimestamp(newSession, TimestampStatus.InTime);
 
         return true;
     }
@@ -198,7 +197,7 @@ export class SessionNext extends Command {
         );
         const newSession: ISessionSchema = await SessionModel.findOneAndUpdate(
             { channelId: session.channelId },
-            { currentTurn: nextTurn },
+            { currentTurn: nextTurn, lastTurnAdvance: moment.utc().toDate() },
             { new: true }
         ).catch(async (error) => {
             throw new CommandError(
@@ -312,39 +311,5 @@ export class SessionNext extends Command {
         );
 
         return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
-    }
-
-    /**
-     * Sends a timestamp to the timestamp channel or edits it if it already exists for this session
-     *
-     * @param session the session for which the timestamp should be sent/edited
-     * @returns when done
-     */
-    public async sendTimestamp(session: ISessionSchema): Promise<void> {
-        const timestamp = moment.utc().unix();
-        if (!session.timestampPostId) {
-            // If there is no timestamp pots yet, send one
-            const sessionTimestamp: SessionTimestamp = {
-                channelId: session.channelId,
-                userId: session.currentTurn.userId,
-                timestamp: timestamp,
-            };
-            await this.messageService.sendTimestamp(sessionTimestamp);
-        }
-
-        // See if the current turn user is on hiatus, if so add a footer
-        const footer = await this.userService.getUserHiatusStatus(session.currentTurn.userId);
-        let content = `**Channel:**\t<#${
-            session.channelId
-        }>\n**User:**\t${await this.userService.getUserById(
-            session.currentTurn.userId
-        )}\n**Character:**\t${session.currentTurn.name}\n\n`;
-        content += `**Last Turn Advance:** <t:${timestamp}:F> (<t:${timestamp}:R>)\n`;
-        await this.messageService.editTimestamp(
-            session.channelId,
-            TimestampStatus.InTime,
-            content,
-            footer
-        );
     }
 }

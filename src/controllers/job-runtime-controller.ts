@@ -25,7 +25,7 @@ import {
 } from '@src/providers';
 import { ChannelService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
-import { ButtonInteraction, Client } from 'discord.js';
+import { ButtonInteraction, Client, TextChannel } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 import moment = require('moment');
@@ -281,7 +281,41 @@ export class JobRuntimeController extends Controller {
         const action = interaction.customId.split(':')[1];
         const channelId = interaction.customId.split(':')[2];
 
-        if (action === TimestampActions.AdvanceTurn) {
+        if (action === TimestampActions.NotifyUser) {
+            this.logger.info(`Received notify request from timestamp interaction. Notifying...`);
+            const session = await SessionModel.findOne({ channelId: channelId }).exec();
+
+            if (!session) {
+                this.logger.error(
+                    `Could not find a session for channelId ${channelId} while trying to notify user on timestamp interaction.`
+                );
+                return;
+            }
+
+            const content = `*${session.currentTurn.name}* in <#${session.channelId}>`;
+            const user = await this.client.users.fetch(session.currentTurn.userId);
+            const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
+                title: await this.stringProvider.get('COMMAND.SESSION-NEXT.NOTIFICATION-TITLE'),
+                content: content,
+                authorName: user.username,
+                authorIcon: user.avatarURL(),
+                footer: `You've been manually notified by a Moderator.`,
+            });
+            const ping = `${await this.userService.getUserById(session.currentTurn.userId)}`;
+            const notificationChannel: TextChannel =
+                await this.channelService.getTextChannelByChannelId(
+                    await this.configuration.getString('Channels_NotificationChannelId')
+                );
+            await notificationChannel.send({
+                content: ping,
+                embeds: [embed],
+                allowedMentions: { users: [session.currentTurn.userId] },
+            });
+
+            this.logger.debug(
+                `Notified user (ID: ${session.currentTurn.userId}) in via timestamp.`
+            );
+        } else if (action === TimestampActions.AdvanceTurn) {
             this.logger.info(`Received skip request from timestamp interaction. Skipping...`);
             const command: SessionNext = container.get('Next');
             await command.runInternally(channelId, NextReason.Skipped);
@@ -423,6 +457,13 @@ export class JobRuntimeController extends Controller {
                         );
 
                         content += `**${reminderModel.characterName}** in <#${reminderModel.channelId}>`;
+
+                        await this.messageService.editTimestamp(
+                            session.channelId,
+                            undefined,
+                            undefined,
+                            HiatusStatus.NoHiatus
+                        );
                     }
                 }
                 if (content.includes('⚠')) {

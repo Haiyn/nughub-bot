@@ -45,6 +45,9 @@ export class SessionStart extends Command {
         this.logger.debug('Saving Session to database...');
         await this.saveSessionToDatabase(sessionToSave);
 
+        this.logger.debug('Sending Timestamp...');
+        await this.messageService.sendTimestamp(sessionToSave);
+
         const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-START.SUCCESS', [
                 sessionToSave.channel.id,
