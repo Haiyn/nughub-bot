@@ -138,7 +138,8 @@ export class CharacterChannelController extends Controller {
     public async getCanonCharacterEntry(character: CanonCharacterSchema): Promise<string> {
         let messageContent = `${character.name}: `;
         if (character.claimerId) {
-            messageContent += `${await this.userService.getUserById(character.claimerId)}`;
+            const claimer = await this.userService.getUserById(character.claimerId);
+            messageContent += `${claimer.username} (${claimer})`;
             if (character.availability === CanonCharacterAvailability.TemporaryClaim) {
                 messageContent += ` **(temporary claim)**`;
             }
@@ -275,9 +276,8 @@ export class CharacterChannelController extends Controller {
             game
         )}**__\n\n`.toUpperCase();
         for (const character of originalCharacters) {
-            messageContent += `• **${character.name}** (${character.race}, ${
-                character.age
-            }) ${await this.userService.getUserById(character.userId)}\n`;
+            const user = await this.userService.getUserById(character.userId);
+            messageContent += `• **${character.name}** (${character.race}, ${character.age}) ${user.username} (${user})\n`;
         }
 
         if (messageContent.length > 4096) {

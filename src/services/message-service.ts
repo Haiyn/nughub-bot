@@ -134,11 +134,8 @@ export class MessageService extends Service {
         }
 
         // Construct message
-        let content = `**Channel:**\t<#${
-            sessionTimestamp.channelId
-        }>\n**User:**\t${await this.userService.getUserById(
-            session.currentTurn.userId
-        )}\n**Character:**\t${session.currentTurn.name}\n\n`;
+        const user = await this.userService.getUserById(session.currentTurn.userId);
+        let content = `**Channel:**\t<#${sessionTimestamp.channelId}>\n**User:** ${user.username} (${user})\n**Character:**\t${session.currentTurn.name}\n\n`;
         content += `**Last Turn Advance:** <t:${sessionTimestamp.timestamp}:F> (<t:${sessionTimestamp.timestamp}:R>)\n`;
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: TimestampStatus.InTime,
@@ -250,12 +247,13 @@ export class MessageService extends Service {
      * @returns the message id
      */
     public async sendHiatus(hiatus: Hiatus): Promise<string> {
-        let content = `**User:** ${await this.userService.getUserById(hiatus.user.id)}\n`;
+        const user = await this.userService.getUserById(hiatus.user.id);
+        let content = `**User:** ${user.username} (${user})\n`;
         hiatus.expires
             ? (content += `**Until:** <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
                   hiatus.expires
               ).unix()}:R>)\n\n`)
-            : '\n\n';
+            : (content += '\n');
         content += `**Reason:** ${hiatus.reason}`;
 
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
@@ -279,7 +277,8 @@ export class MessageService extends Service {
      * @returns when done
      */
     public async editHiatus(hiatus: Hiatus): Promise<void> {
-        let content = `**User:** ${await this.userService.getUserById(hiatus.user.id)}\n`;
+        const user = await this.userService.getUserById(hiatus.user.id);
+        let content = `**User:** ${user.username} (${user})\n`;
         hiatus.expires
             ? (content += `**Until:** <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
                   hiatus.expires
