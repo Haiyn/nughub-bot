@@ -71,6 +71,7 @@ export class SessionNext extends Command {
         });
         await this.interactionService.reply(interaction, {
             embeds: [embedReply],
+            ephemeral: true,
         });
 
         return {

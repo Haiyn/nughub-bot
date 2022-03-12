@@ -28,7 +28,7 @@ async function run() {
  * @returns Resolves when connected to mongoDB
  */
 async function databaseStartup(): Promise<void> {
-    logger.debug(`Connecting to ${mongoDbConnectionString}`);
+    logger.debug(`Connecting to MongoDB...`);
     return connect(mongoDbConnectionString)
         .then(() => {
             logger.info('#1 Successfully connected to MongoDB');

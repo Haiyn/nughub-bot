@@ -73,6 +73,9 @@ export class JobRuntimeController extends Controller {
         let restored = 0;
 
         for (const reminderEntry of activeReminders) {
+            this.logger.debug(
+                `Restoring reminder entry for Channel ID ${reminderEntry.channelId}...`
+            );
             const user = await this.userService.getUserById(reminderEntry.userId);
             const channel = await this.channelService.getTextChannelByChannelId(
                 reminderEntry.channelId
@@ -342,11 +345,14 @@ export class JobRuntimeController extends Controller {
      * @returns The number of active hiatus restored (excluding orphaned ones)
      */
     public async restoreHiatusFromDatabase(): Promise<number> {
-        const activeHiatus: IHiatusSchema[] = await HiatusModel.find({});
+        const allHiatus: IHiatusSchema[] = await HiatusModel.find().exec();
+        const activeHiatus: IHiatusSchema[] = allHiatus.filter(
+            (hiatus) => hiatus.expires !== undefined
+        );
         let restored = 0;
 
         for (const hiatusEntry of activeHiatus) {
-            if (!hiatusEntry.expires) return;
+            this.logger.debug(`Restoring hiatus entry for User ID ${hiatusEntry.userId}...`);
             const user = await this.userService.getUserById(hiatusEntry.userId);
 
             if (moment(hiatusEntry.expires).isBefore(moment().utc())) {
@@ -369,7 +375,7 @@ export class JobRuntimeController extends Controller {
             restored++;
         }
 
-        return restored;
+        return Promise.resolve(restored);
     }
 
     public async scheduleHiatusFinish(hiatus: Hiatus): Promise<void> {
