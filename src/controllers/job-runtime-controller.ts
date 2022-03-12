@@ -69,7 +69,7 @@ export class JobRuntimeController extends Controller {
      * @returns The number of active reminders restored (excluding orphaned ones)
      */
     public async restoreRemindersFromDatabase(): Promise<number> {
-        const activeReminders: IReminderSchema[] = await ReminderModel.find({});
+        const activeReminders: IReminderSchema[] = await ReminderModel.find({}).exec();
         let restored = 0;
 
         for (const reminderEntry of activeReminders) {
@@ -97,7 +97,7 @@ export class JobRuntimeController extends Controller {
                 reminderEntry.iteration
             );
 
-            await this.scheduleReminder(reminder, false);
+            await this.scheduleReminder(reminder, true);
             restored++;
         }
 
