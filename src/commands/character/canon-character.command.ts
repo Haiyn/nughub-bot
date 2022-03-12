@@ -167,7 +167,7 @@ export class CanonCharacter extends Command {
         // Send reply
         let content =
             (await this.stringProvider.get('COMMAND.CANON-CHARACTER.ADD.SUCCESS')) + `\n\n`;
-        content += this.characterChannelController.getCanonCharacterEntry(canonCharacter);
+        content += await this.characterChannelController.getCanonCharacterEntry(canonCharacter);
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
         });
