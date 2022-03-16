@@ -101,14 +101,18 @@ export class OriginalCharacter extends Command {
     }
 
     public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
-        const number = Number(options.getString('age'));
-        if (!number || isNaN(number)) {
-            throw new CommandValidationError(
-                `User gave an invalid number for the age parameter: ${options.getString('age')}`,
-                await this.stringProvider.get(
-                    'COMMAND.ORIGINAL-CHARACTER.VALIDATION.AGE-NOT-A-NUMBER'
-                )
-            );
+        if (options.getString('age')) {
+            const number = Number(options.getString('age'));
+            if (!number || isNaN(number)) {
+                throw new CommandValidationError(
+                    `User gave an invalid number for the age parameter: ${options.getString(
+                        'age'
+                    )}`,
+                    await this.stringProvider.get(
+                        'COMMAND.ORIGINAL-CHARACTER.VALIDATION.AGE-NOT-A-NUMBER'
+                    )
+                );
+            }
         }
     }
 
