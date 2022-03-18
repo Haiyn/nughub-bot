@@ -11,6 +11,7 @@ import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import { ConfigurationKeys, HiatusModel } from '@src/models';
 import {
+    CacheType,
     Channel,
     CommandInteraction,
     CommandInteractionOptionResolver,
@@ -62,7 +63,9 @@ export class SessionStart extends Command {
         });
     }
 
-    public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
+    public async validateOptions(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<void> {
         // Channel
         const channel = this.channelService.getTextChannelByChannelId(
             options.getChannel('channel').id
@@ -143,7 +146,9 @@ export class SessionStart extends Command {
      * @returns The parsed session
      * @throws {CommandError} Throws if options could not be parsed
      */
-    private async parseSession(options: CommandInteractionOptionResolver): Promise<Session> {
+    private async parseSession(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<Session> {
         try {
             const channel = this.channelService.getTextChannelByChannelId(
                 options.getChannel('channel').id

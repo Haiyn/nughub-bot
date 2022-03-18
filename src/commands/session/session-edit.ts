@@ -16,6 +16,7 @@ import {
 } from '@src/models';
 import {
     AwaitMessagesOptions,
+    CacheType,
     CommandInteraction,
     CommandInteractionOptionResolver,
     Message,
@@ -53,7 +54,9 @@ export class SessionEdit extends Command {
         };
     }
 
-    public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
+    public async validateOptions(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<void> {
         const channel = this.channelService.getTextChannelByChannelId(
             options.getChannel('channel').id
         );

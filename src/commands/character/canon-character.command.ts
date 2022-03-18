@@ -25,6 +25,7 @@ import { ChannelService, HelperService, InteractionService, UserService } from '
 import { TYPES } from '@src/types';
 import {
     AwaitMessagesOptions,
+    CacheType,
     Client,
     CommandInteraction,
     CommandInteractionOptionResolver,
@@ -104,7 +105,9 @@ export class CanonCharacter extends Command {
         };
     }
 
-    public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
+    public async validateOptions(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<void> {
         const subcommand = options.getSubcommand();
         if (subcommand === 'add') {
             if (

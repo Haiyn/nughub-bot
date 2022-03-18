@@ -13,7 +13,7 @@ import {
     ISessionSchema,
     SessionModel,
 } from '@src/models';
-import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
+import { CacheType, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
 import { injectable } from 'inversify';
 import moment = require('moment');
 
@@ -46,7 +46,9 @@ export class Hiatus extends Command {
         };
     }
 
-    async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
+    async validateOptions(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<void> {
         const reason = options.getString('reason');
         if (reason?.length > 3500) {
             throw new CommandValidationError(

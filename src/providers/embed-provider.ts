@@ -68,7 +68,7 @@ export class EmbedProvider extends Provider {
             data
         );
 
-        return new MessageEmbed({ ...embedData, color: color });
+        return new MessageEmbed({ ...embedData }).setColor(color);
     }
 
     /**

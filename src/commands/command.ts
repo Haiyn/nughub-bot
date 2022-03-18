@@ -8,7 +8,12 @@ import { SessionMapper } from '@src/mappers/session.mapper';
 import { EmbedProvider, EmojiProvider, StringProvider } from '@src/providers';
 import { ChannelService, HelperService, InteractionService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
-import { Client, CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
+import {
+    CacheType,
+    Client,
+    CommandInteraction,
+    CommandInteractionOptionResolver,
+} from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
@@ -105,5 +110,7 @@ export abstract class Command {
      * @param options The command options
      * @returns Resolves if all options are valid
      */
-    abstract validateOptions(options: CommandInteractionOptionResolver): Promise<void>;
+    abstract validateOptions(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<void>;
 }

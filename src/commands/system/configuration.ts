@@ -3,6 +3,7 @@ import { CommandResult } from '@models/commands/command-result';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { CommandValidationError, EmbedLevel, EmbedType } from '@src/models';
 import {
+    CacheType,
     CategoryChannel,
     Channel,
     CommandInteraction,
@@ -43,7 +44,9 @@ export class Configuration extends Command {
         };
     }
 
-    async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
+    async validateOptions(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<void> {
         // subcommand show does not have any options to validate
         if (options.getSubcommand() === 'show') return;
 

@@ -10,7 +10,12 @@ import { EmbedType } from '@models/ui/embed-type';
 import { NextReason } from '@models/ui/next-reason.enum';
 import { ConfigurationKeys, TimestampStatus } from '@src/models';
 import { CommandValidationError } from '@src/models/commands/command-validation-error';
-import { CommandInteraction, CommandInteractionOptionResolver, TextChannel } from 'discord.js';
+import {
+    CacheType,
+    CommandInteraction,
+    CommandInteractionOptionResolver,
+    TextChannel,
+} from 'discord.js';
 import { injectable } from 'inversify';
 import moment = require('moment');
 
@@ -125,7 +130,9 @@ export class SessionNext extends Command {
         return true;
     }
 
-    public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
+    public async validateOptions(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<void> {
         const channel = options.getChannel('channel');
         if (!channel) return Promise.resolve(); // It is valid to provide no channel, the interaction channel will be checked instead
         const foundSession = await SessionModel.findOne({

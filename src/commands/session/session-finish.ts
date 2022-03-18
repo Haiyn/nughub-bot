@@ -7,7 +7,12 @@ import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import { ConfigurationKeys } from '@src/models';
-import { CommandInteraction, CommandInteractionOptionResolver, TextChannel } from 'discord.js';
+import {
+    CacheType,
+    CommandInteraction,
+    CommandInteractionOptionResolver,
+    TextChannel,
+} from 'discord.js';
 import { injectable } from 'inversify';
 
 @injectable()
@@ -94,7 +99,9 @@ export class SessionFinish extends Command {
         }
     }
 
-    public async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
+    public async validateOptions(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<void> {
         const channel = this.channelService.getTextChannelByChannelId(
             options.getChannel('channel').id
         );

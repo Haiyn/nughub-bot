@@ -2,7 +2,12 @@ import { Command } from '@commands/command';
 import { CommandResult } from '@models/commands/command-result';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { CommandValidationError, EmbedLevel, EmbedType } from '@src/models';
-import { CommandInteraction, CommandInteractionOptionResolver, MessageEmbed } from 'discord.js';
+import {
+    CacheType,
+    CommandInteraction,
+    CommandInteractionOptionResolver,
+    MessageEmbed,
+} from 'discord.js';
 import { injectable } from 'inversify';
 
 @injectable()
@@ -33,7 +38,9 @@ export class Strings extends Command {
         };
     }
 
-    async validateOptions(options: CommandInteractionOptionResolver): Promise<void> {
+    async validateOptions(
+        options: Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'>
+    ): Promise<void> {
         // subcommand show does not have any options to validate
         if (options.getSubcommand() === 'show') return;
 
