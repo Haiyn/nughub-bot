@@ -26,7 +26,7 @@ export class SessionFinish extends Command {
         if (session.timestampPostId) {
             // If there is a timestamp post ID, there is a reminder and a timestamp to delete
             await this.scheduleService.cancelJob(`reminder:${session.channelId}`);
-            await this.messageService.deleteTimestamp(session.channelId);
+            await this.timestampService.deleteTimestamp(session.channelId);
         }
 
         await this.deleteSessionFromDatabase(channel.id);
@@ -70,7 +70,7 @@ export class SessionFinish extends Command {
         if (sessionToFinish.timestampPostId) {
             // If there is a timestamp post ID, there is a reminder and a timestamp to delete
             await this.scheduleService.cancelJob(`reminder:${sessionToFinish.channelId}`);
-            await this.messageService.deleteTimestamp(sessionToFinish.channelId);
+            await this.timestampService.deleteTimestamp(sessionToFinish.channelId);
         }
 
         await this.deleteSessionFromDatabase(rpSessionChannel.id);

@@ -454,7 +454,7 @@ export class SessionEdit extends Command {
             { turnOrder: newSession.turnOrder }
         ).exec();
 
-        await this.messageService.updateSessionPost(newSession);
+        await this.sessionService.updateSessionPost(newSession);
     }
 
     /**
@@ -485,7 +485,7 @@ export class SessionEdit extends Command {
             { turnOrder: newSession.turnOrder }
         ).exec();
 
-        await this.messageService.updateSessionPost(newSession);
+        await this.sessionService.updateSessionPost(newSession);
     }
 
     /**
@@ -542,7 +542,9 @@ export class SessionEdit extends Command {
             }
 
             // We also need to edit the timestamp
-            const footer = await this.userService.getUserHiatusStatus(session.currentTurn.user.id);
+            const footer = await this.hiatusService.getUserHiatusStatus(
+                session.currentTurn.user.id
+            );
             let content = `**Channel:**\t<#${
                 session.channel.id
             }>\n**User:**\t${await this.userService.getUserById(
@@ -551,7 +553,7 @@ export class SessionEdit extends Command {
             content += `**Last Turn Advance:** <t:${moment.utc().unix()}:F> (<t:${moment
                 .utc()
                 .unix()}:R>)\n`;
-            await this.messageService.editTimestamp(
+            await this.timestampService.editTimestamp(
                 session.channel.id,
                 TimestampStatus.ManuallySetTurn,
                 content,
@@ -559,7 +561,7 @@ export class SessionEdit extends Command {
             );
 
             // and the turn order post
-            await this.messageService.updateSessionPost(newSession);
+            await this.sessionService.updateSessionPost(newSession);
         }
     }
 }

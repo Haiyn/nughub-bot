@@ -1,45 +1,14 @@
-import { Controller } from '@controllers/controller';
+import { FeatureController } from '@controllers/feature/feature-controller';
 import { CanonCharacterModel, CanonCharacterSchema } from '@models/data/canon-character-schema';
 import { CanonCharacterAvailability } from '@models/misc/canon-character-availability.enum';
 import { DragonAgeGame } from '@models/misc/dragon-age-game.enum';
-import { MessageService } from '@services/message-service';
-import { ScheduleService } from '@services/schedule-service';
 import { DragonAgeGameMapper } from '@src/mappers/dragon-age-game.mapper';
 import { ConfigurationKeys, OriginalCharacterModel, OriginalCharacterSchema } from '@src/models';
-import { ConfigurationProvider, EmbedProvider, PermissionProvider } from '@src/providers';
-import { ChannelService, UserService } from '@src/services';
-import { TYPES } from '@src/types';
-import { Client, Collection, Message, TextChannel } from 'discord.js';
-import { inject, injectable } from 'inversify';
-import { Logger } from 'tslog';
+import { Collection, Message, TextChannel } from 'discord.js';
+import { injectable } from 'inversify';
 
 @injectable()
-export class CharacterChannelController extends Controller {
-    private readonly channelService: ChannelService;
-    private readonly scheduleService: ScheduleService;
-    private readonly messageService: MessageService;
-    private readonly userService: UserService;
-
-    constructor(
-        @inject(TYPES.ChannelService) channelService: ChannelService,
-        @inject(TYPES.ScheduleService) scheduleService: ScheduleService,
-        @inject(TYPES.MessageService) messageService: MessageService,
-        @inject(TYPES.UserService) userService: UserService,
-        @inject(TYPES.BaseLogger) logger: Logger,
-        @inject(TYPES.Client) client: Client,
-        @inject(TYPES.GuildId) guildId: string,
-        @inject(TYPES.Token) token: string,
-        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
-        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider
-    ) {
-        super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
-        this.channelService = channelService;
-        this.scheduleService = scheduleService;
-        this.messageService = messageService;
-        this.userService = userService;
-    }
-
+export class CharacterController extends FeatureController {
     /**
      * Schedules a qotd at the next possible time
      *

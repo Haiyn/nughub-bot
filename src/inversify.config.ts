@@ -17,7 +17,6 @@ import { Client, Intents } from 'discord.js';
 import { Container } from 'inversify';
 import { Logger, TLogLevelName } from 'tslog';
 import { ScheduleService } from '@services/schedule-service';
-import { JobRuntimeController } from '@controllers/job-runtime-controller';
 import { MessageService } from '@services/message-service';
 import { Strings } from '@commands/system/strings';
 import { Hiatus } from '@commands/hiatus/hiatus';
@@ -25,12 +24,22 @@ import { SessionMapper } from '@src/mappers/session.mapper';
 import { SessionEdit } from '@commands/session/session-edit';
 import { Show } from '@commands/user/show';
 import { Qotd } from '@commands/misc/qotd';
-import { QotdController } from '@controllers/qotd-controller';
+import { QotdController } from '@controllers/feature/qotd-controller';
 import { QotdAdmin } from '@commands/system/qotd-admin';
-import { CharacterChannelController } from '@controllers/character-channel-controller';
+import { CharacterController } from '@controllers/feature/character-controller';
 import { CanonCharacter } from '@commands/character/canon-character.command';
 import { OriginalCharacter } from '@commands/character/original-character.command';
 import { Info } from '@commands/system/info.command';
+import { HiatusController } from '@controllers/feature/hiatus-controller';
+import { ReminderController } from '@controllers/feature/reminder-controller';
+import { TimestampController } from '@controllers/feature/timestamp-controller';
+import { CharacterService } from '@services/feature/character-service';
+import { HiatusService } from '@services/feature/hiatus-service';
+import { QotdService } from '@services/feature/qotd-service';
+import { ReminderService } from '@services/feature/reminder-service';
+import { SessionService } from '@services/feature/session-service';
+import { TimestampService } from '@services/feature/timestamp-service';
+import { HiatusMapper } from '@src/mappers';
 
 const container = new Container();
 
@@ -99,14 +108,19 @@ container
     .bind<InteractionController>(TYPES.InteractionController)
     .to(InteractionController)
     .inSingletonScope();
-container
-    .bind<JobRuntimeController>(TYPES.JobRuntimeController)
-    .to(JobRuntimeController)
-    .inSingletonScope();
+container.bind<HiatusController>(TYPES.HiatusController).to(HiatusController).inSingletonScope();
 container.bind<QotdController>(TYPES.QotdController).to(QotdController).inSingletonScope();
 container
-    .bind<CharacterChannelController>(TYPES.CharacterChannelController)
-    .to(CharacterChannelController)
+    .bind<CharacterController>(TYPES.CharacterController)
+    .to(CharacterController)
+    .inSingletonScope();
+container
+    .bind<ReminderController>(TYPES.ReminderController)
+    .to(ReminderController)
+    .inSingletonScope();
+container
+    .bind<TimestampController>(TYPES.TimestampController)
+    .to(TimestampController)
     .inSingletonScope();
 
 // Providers
@@ -132,9 +146,16 @@ container.bind<UserService>(TYPES.UserService).to(UserService).inSingletonScope(
 container.bind<ChannelService>(TYPES.ChannelService).to(ChannelService).inSingletonScope();
 container.bind<ScheduleService>(TYPES.ScheduleService).to(ScheduleService).inSingletonScope();
 container.bind<MessageService>(TYPES.MessageService).to(MessageService).inSingletonScope();
+container.bind<CharacterService>(TYPES.CharacterService).to(CharacterService).inSingletonScope();
+container.bind<HiatusService>(TYPES.HiatusService).to(HiatusService).inSingletonScope();
+container.bind<QotdService>(TYPES.QotdService).to(QotdService).inSingletonScope();
+container.bind<ReminderService>(TYPES.ReminderService).to(ReminderService).inSingletonScope();
+container.bind<SessionService>(TYPES.SessionService).to(SessionService).inSingletonScope();
+container.bind<TimestampService>(TYPES.TimestampService).to(TimestampService).inSingletonScope();
 
 // Mappers
 container.bind<SessionMapper>(TYPES.SessionMapper).to(SessionMapper).inSingletonScope();
+container.bind<HiatusMapper>(TYPES.HiatusMapper).to(HiatusMapper).inSingletonScope();
 
 // Commands
 container.bind<Ping>('Ping').to(Ping).inRequestScope();

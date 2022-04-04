@@ -1,3 +1,4 @@
+import { Reminder } from '@models/jobs/reminder';
 import { Mapper } from '@src/mappers/mapper';
 import {
     Character,
@@ -73,5 +74,59 @@ export class SessionMapper extends Mapper {
             userId: character.user.id,
             name: character.name,
         };
+    }
+
+    /**
+     * Parses a session into a reminder
+     *
+     * @param session the session to parse
+     * @returns the parsed reminder
+     */
+    public async mapSessionSchemaToReminder(session: ISessionSchema): Promise<Reminder> {
+        const name = `reminder:${session.channelId}`;
+        const user = await this.userService.getUserById(session.currentTurn.userId);
+        const channel = await this.channelService.getTextChannelByChannelId(session.channelId);
+
+        // Get the new reminder date
+        const currentDate = new Date(new Date().getTime());
+        const reminderHours = Number.parseInt(
+            await this.configuration.getString('Schedule_Reminder_0_Hours')
+        );
+        const reminderMinutes = Number.parseInt(
+            await this.configuration.getString('Schedule_Reminder_0_Minutes')
+        );
+        currentDate.setHours(
+            currentDate.getHours() + reminderHours,
+            currentDate.getMinutes() + reminderMinutes
+        );
+
+        return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
+    }
+
+    /**
+     * Parses a session into a reminder
+     *
+     * @param session the session to parse
+     * @returns the parsed reminder
+     */
+    public async mapSessionToReminder(session: Session): Promise<Reminder> {
+        const name = `reminder:${session.channel.id}`;
+        const user = await this.userService.getUserById(session.currentTurn.user.id);
+        const channel = await this.channelService.getTextChannelByChannelId(session.channel.id);
+
+        // Get the new reminder date
+        const currentDate = new Date(new Date().getTime());
+        const reminderHours = Number.parseInt(
+            await this.configuration.getString('Schedule_Reminder_0_Hours')
+        );
+        const reminderMinutes = Number.parseInt(
+            await this.configuration.getString('Schedule_Reminder_0_Minutes')
+        );
+        currentDate.setHours(
+            currentDate.getHours() + reminderHours,
+            currentDate.getMinutes() + reminderMinutes
+        );
+
+        return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
     }
 }

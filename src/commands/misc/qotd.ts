@@ -1,65 +1,14 @@
 import { Command } from '@commands/command';
-import { QotdController } from '@controllers/qotd-controller';
 import { CommandResult } from '@models/commands/command-result';
 import { PermissionLevel } from '@models/permissions/permission-level';
-import { MessageService } from '@services/message-service';
-import { ScheduleService } from '@services/schedule-service';
-import { JobRuntimeController } from '@src/controllers';
-import { SessionMapper } from '@src/mappers';
 import { CommandError, EmbedLevel, EmbedType, QuestionModel } from '@src/models';
-import {
-    ConfigurationProvider,
-    EmbedProvider,
-    EmojiProvider,
-    StringProvider,
-} from '@src/providers';
-import { ChannelService, HelperService, InteractionService, UserService } from '@src/services';
-import { TYPES } from '@src/types';
-import { Client, CommandInteraction } from 'discord.js';
-import { inject, injectable } from 'inversify';
-import { Logger } from 'tslog';
+import { CommandInteraction } from 'discord.js';
+import { injectable } from 'inversify';
 import moment = require('moment');
 
 @injectable()
 export class Qotd extends Command {
     public permissionLevel: PermissionLevel = PermissionLevel.Member;
-    private qotdController: QotdController;
-
-    constructor(
-        @inject(TYPES.CommandLogger) logger: Logger,
-        @inject(TYPES.Client) client: Client,
-        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
-        @inject(TYPES.ChannelService) channelService: ChannelService,
-        @inject(TYPES.HelperService) helperService: HelperService,
-        @inject(TYPES.InteractionService) interactionService: InteractionService,
-        @inject(TYPES.UserService) userService: UserService,
-        @inject(TYPES.ScheduleService) scheduleService: ScheduleService,
-        @inject(TYPES.MessageService) messageService: MessageService,
-        @inject(TYPES.StringProvider) stringProvider: StringProvider,
-        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.EmojiProvider) emojiProvider: EmojiProvider,
-        @inject(TYPES.JobRuntimeController) jobRuntime: JobRuntimeController,
-        @inject(TYPES.SessionMapper) sessionMapper: SessionMapper,
-        @inject(TYPES.QotdController) qotdController: QotdController
-    ) {
-        super(
-            logger,
-            client,
-            configuration,
-            channelService,
-            helperService,
-            interactionService,
-            userService,
-            scheduleService,
-            messageService,
-            stringProvider,
-            embedProvider,
-            emojiProvider,
-            jobRuntime,
-            sessionMapper
-        );
-        this.qotdController = qotdController;
-    }
 
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         this.logger.info('Saving new question to database.');
