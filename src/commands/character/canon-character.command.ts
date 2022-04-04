@@ -1,12 +1,7 @@
-import { CharacterChannelController } from '@controllers/character-channel-controller';
 import { CanonCharacterModel, CanonCharacterSchema } from '@models/data/canon-character-schema';
 import { CanonCharacterAvailability } from '@models/misc/canon-character-availability.enum';
 import { DragonAgeGame } from '@models/misc/dragon-age-game.enum';
-import { MessageService } from '@services/message-service';
-import { ScheduleService } from '@services/schedule-service';
 import { Command } from '@src/commands';
-import { JobRuntimeController } from '@src/controllers';
-import { SessionMapper } from '@src/mappers';
 import {
     CommandError,
     CommandResult,
@@ -16,65 +11,17 @@ import {
     PermissionLevel,
 } from '@src/models';
 import {
-    ConfigurationProvider,
-    EmbedProvider,
-    EmojiProvider,
-    StringProvider,
-} from '@src/providers';
-import { ChannelService, HelperService, InteractionService, UserService } from '@src/services';
-import { TYPES } from '@src/types';
-import {
     AwaitMessagesOptions,
-    Client,
     CommandInteraction,
     CommandInteractionOptionResolver,
     Message,
     MessageEmbed,
 } from 'discord.js';
-import { inject, injectable } from 'inversify';
-import { Logger } from 'tslog';
+import { injectable } from 'inversify';
 
 @injectable()
 export class CanonCharacter extends Command {
     public permissionLevel: PermissionLevel = PermissionLevel.Moderator;
-    private readonly characterChannelController: CharacterChannelController;
-
-    constructor(
-        @inject(TYPES.CommandLogger) logger: Logger,
-        @inject(TYPES.Client) client: Client,
-        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
-        @inject(TYPES.ChannelService) channelService: ChannelService,
-        @inject(TYPES.HelperService) helperService: HelperService,
-        @inject(TYPES.InteractionService) interactionService: InteractionService,
-        @inject(TYPES.UserService) userService: UserService,
-        @inject(TYPES.ScheduleService) scheduleService: ScheduleService,
-        @inject(TYPES.MessageService) messageService: MessageService,
-        @inject(TYPES.StringProvider) stringProvider: StringProvider,
-        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.EmojiProvider) emojiProvider: EmojiProvider,
-        @inject(TYPES.JobRuntimeController) jobRuntime: JobRuntimeController,
-        @inject(TYPES.SessionMapper) sessionMapper: SessionMapper,
-        @inject(TYPES.CharacterChannelController)
-        characterChannelController: CharacterChannelController
-    ) {
-        super(
-            logger,
-            client,
-            configuration,
-            channelService,
-            helperService,
-            interactionService,
-            userService,
-            scheduleService,
-            messageService,
-            stringProvider,
-            embedProvider,
-            emojiProvider,
-            jobRuntime,
-            sessionMapper
-        );
-        this.characterChannelController = characterChannelController;
-    }
 
     public async run(interaction: CommandInteraction): Promise<CommandResult> {
         const subcommand = interaction.options.getSubcommand();
@@ -160,14 +107,14 @@ export class CanonCharacter extends Command {
         }
 
         // Update character list
-        await this.characterChannelController.updateCanonCharacterList(
+        await this.characterController.updateCanonCharacterList(
             Number.parseInt(interaction.options.getString('game'))
         );
 
         // Send reply
         let content =
             (await this.stringProvider.get('COMMAND.CANON-CHARACTER.ADD.SUCCESS')) + `\n\n`;
-        content += await this.characterChannelController.getCanonCharacterEntry(canonCharacter);
+        content += await this.characterController.getCanonCharacterEntry(canonCharacter);
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
         });
@@ -251,7 +198,7 @@ export class CanonCharacter extends Command {
                     })
                         .exec()
                         .then(async () => {
-                            await this.characterChannelController.updateCanonCharacterList(game);
+                            await this.characterController.updateCanonCharacterList(game);
                             queryReply = await this.embedProvider.get(
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
@@ -383,7 +330,7 @@ export class CanonCharacter extends Command {
                     )
                         .exec()
                         .then(async () => {
-                            await this.characterChannelController.updateCanonCharacterList(game);
+                            await this.characterController.updateCanonCharacterList(game);
                             queryReply = await this.embedProvider.get(
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
@@ -512,7 +459,7 @@ export class CanonCharacter extends Command {
                     )
                         .exec()
                         .then(async () => {
-                            await this.characterChannelController.updateCanonCharacterList(game);
+                            await this.characterController.updateCanonCharacterList(game);
                             queryReply = await this.embedProvider.get(
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,

@@ -40,7 +40,7 @@ export class SessionNext extends Command {
         const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
 
         this.logger.debug('Updating user turn in sessions channel...');
-        await this.messageService.updateSessionPost(newSession).catch(async () => {
+        await this.sessionService.updateSessionPost(newSession).catch(async () => {
             throw new CommandError(
                 'Failed to update session post with new current turn marker',
                 await this.stringProvider.get(
@@ -61,10 +61,10 @@ export class SessionNext extends Command {
         const reminder: Reminder = await this.parseReminder(newSession);
 
         this.logger.debug('Scheduling reminder...');
-        await this.jobRuntime.scheduleReminder(reminder, true);
+        await this.reminderController.scheduleReminder(reminder, true);
 
         this.logger.debug('Sending timestamp message...');
-        await this.messageService.updateTimestamp(newSession, TimestampStatus.InTime);
+        await this.timestampService.updateTimestamp(newSession, TimestampStatus.InTime);
 
         const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-NEXT.SUCCESS'),
@@ -96,7 +96,7 @@ export class SessionNext extends Command {
         const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
 
         this.logger.debug('Updating user turn in sessions channel...');
-        await this.messageService.updateSessionPost(newSession).catch(async () => {
+        await this.sessionService.updateSessionPost(newSession).catch(async () => {
             throw new CommandError(
                 'Failed to update session post with new current turn marker',
                 await this.stringProvider.get(
@@ -117,10 +117,10 @@ export class SessionNext extends Command {
         const reminder: Reminder = await this.parseReminder(newSession);
 
         this.logger.debug('Scheduling reminder...');
-        await this.jobRuntime.scheduleReminder(reminder, true);
+        await this.reminderController.scheduleReminder(reminder, true);
 
         this.logger.debug('Updating timestamp message...');
-        await this.messageService.updateTimestamp(newSession, TimestampStatus.InTime);
+        await this.timestampService.updateTimestamp(newSession, TimestampStatus.InTime);
 
         return true;
     }

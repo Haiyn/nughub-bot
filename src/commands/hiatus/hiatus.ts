@@ -116,12 +116,12 @@ export class Hiatus extends Command {
         }
 
         this.logger.debug(`Sending hiatus to hiatus channel...`);
-        hiatus.hiatusPostId = await this.messageService.sendHiatus(hiatus);
+        hiatus.hiatusPostId = await this.hiatusService.sendHiatus(hiatus);
 
         this.logger.debug(`Saving hiatus to database...`);
         await this.saveHiatusToDatabase(hiatus);
 
-        if (hiatus.expires) await this.jobRuntime.scheduleHiatusFinish(hiatus);
+        if (hiatus.expires) await this.hiatusController.scheduleHiatusFinish(hiatus);
 
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.HIATUS.CREATE.SUCCESS'),
@@ -154,14 +154,14 @@ export class Hiatus extends Command {
 
         // Edit the hiatus post
         const hiatusData = await this.mapHiatusModelToHiatusData(activeHiatus);
-        await this.messageService.editHiatus(hiatusData);
+        await this.hiatusService.editHiatus(hiatusData);
 
         // (Re)schedule hiatus with new date
         const jobName = `hiatus:${activeHiatus.userId}`;
         if (this.scheduleService.jobExists(jobName)) {
             this.scheduleService.rescheduleJob(jobName, newDate);
         } else {
-            await this.jobRuntime.scheduleHiatusFinish(hiatusData);
+            await this.hiatusController.scheduleHiatusFinish(hiatusData);
         }
 
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
@@ -188,7 +188,7 @@ export class Hiatus extends Command {
                 expires: moment().add(1, 'seconds').toDate(),
                 hiatusPostId: activeHiatus.hiatusPostId,
             };
-            await this.jobRuntime.scheduleHiatusFinish(hiatus);
+            await this.hiatusController.scheduleHiatusFinish(hiatus);
         } else {
             this.scheduleService.rescheduleJob(
                 `hiatus:${activeHiatus.userId}`,
@@ -257,14 +257,14 @@ export class Hiatus extends Command {
         channelId: string,
         askedForExtension: boolean
     ): Promise<void> {
-        let timestampFooter = await this.userService.getUserHiatusStatus(hiatus.user.id);
+        let timestampFooter = await this.hiatusService.getUserHiatusStatus(hiatus.user.id);
         if (askedForExtension) timestampFooter = HiatusStatus.AskedForExtension;
         hiatus.expires
             ? (timestampFooter += ` expires <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
                   hiatus.expires
               ).unix()}:R>)`)
             : '';
-        await this.messageService.editTimestamp(channelId, undefined, undefined, timestampFooter);
+        await this.timestampService.editTimestamp(channelId, undefined, undefined, timestampFooter);
     }
 
     /**

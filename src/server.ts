@@ -1,7 +1,8 @@
-import { CharacterChannelController } from '@controllers/character-channel-controller';
+import { CharacterController } from '@controllers/feature/character-controller';
+import { HiatusController } from '@controllers/feature/hiatus-controller';
+import { QotdController } from '@controllers/feature/qotd-controller';
+import { ReminderController } from '@controllers/feature/reminder-controller';
 import { InteractionController, MessageController } from '@controllers/index';
-import { JobRuntimeController } from '@controllers/job-runtime-controller';
-import { QotdController } from '@controllers/qotd-controller';
 import container from '@src/inversify.config';
 import { TYPES } from '@src/types';
 import { Client, Guild, Interaction, Message } from 'discord.js';
@@ -16,9 +17,10 @@ export class Server {
     private readonly logger: Logger;
     private readonly messageController: MessageController;
     private readonly interactionController: InteractionController;
-    private readonly jobRuntimeController: JobRuntimeController;
     private readonly qotdController: QotdController;
-    private readonly characterChannelController: CharacterChannelController;
+    private readonly characterController: CharacterController;
+    private readonly reminderController: ReminderController;
+    private readonly hiatusController: HiatusController;
 
     constructor(
         @inject(TYPES.Client) client: Client,
@@ -26,19 +28,21 @@ export class Server {
         @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.MessageController) messageController: MessageController,
         @inject(TYPES.InteractionController) interactionController: InteractionController,
-        @inject(TYPES.JobRuntimeController) jobRuntimeController: JobRuntimeController,
+        @inject(TYPES.ReminderController) reminderController: ReminderController,
+        @inject(TYPES.HiatusController) hiatusController: HiatusController,
         @inject(TYPES.QotdController) qotdController: QotdController,
-        @inject(TYPES.CharacterChannelController)
-        characterChannelController: CharacterChannelController
+        @inject(TYPES.CharacterController)
+        characterController: CharacterController
     ) {
         this.client = client;
         this.token = token;
         this.logger = logger;
         this.messageController = messageController;
         this.interactionController = interactionController;
-        this.jobRuntimeController = jobRuntimeController;
+        this.reminderController = reminderController;
+        this.hiatusController = hiatusController;
         this.qotdController = qotdController;
-        this.characterChannelController = characterChannelController;
+        this.characterController = characterController;
     }
 
     /**
@@ -139,7 +143,7 @@ export class Server {
         }
 
         this.logger.info('Restoring active reminders from database...');
-        await this.jobRuntimeController
+        await this.reminderController
             .restoreRemindersFromDatabase()
             .then((result) => {
                 this.logger.info(`Restored ${result} reminders.`);
@@ -149,7 +153,7 @@ export class Server {
             });
 
         this.logger.info('Restoring active hiatus finish events from database...');
-        await this.jobRuntimeController
+        await this.hiatusController
             .restoreHiatusFromDatabase()
             .then((result) => {
                 this.logger.info(`Restored ${result} hiatus finish events.`);
@@ -173,7 +177,7 @@ export class Server {
             });
 
         this.logger.info('Initializing character lists...');
-        await this.characterChannelController
+        await this.characterController
             .initializeCharacterChannels()
             .then(() => {
                 this.logger.info(`Successfully initialized character lists.`);

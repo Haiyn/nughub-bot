@@ -1,7 +1,7 @@
 import { Command } from '@commands/command';
 import commandDefinitions from '@commands/definitions';
 import { Controller } from '@controllers/controller';
-import { JobRuntimeController } from '@controllers/job-runtime-controller';
+import { TimestampController } from '@controllers/feature/timestamp-controller';
 import { REST, RouteLike } from '@discordjs/rest';
 import { CommandError } from '@models/commands/command-error';
 import { CommandValidationError } from '@models/commands/command-validation-error';
@@ -22,7 +22,7 @@ import { Logger } from 'tslog';
 @injectable()
 export class InteractionController extends Controller {
     readonly interactionService: InteractionService;
-    readonly jobRuntimeController: JobRuntimeController;
+    readonly timestampController: TimestampController;
 
     constructor(
         @inject(TYPES.InteractionService) interactionService: InteractionService,
@@ -33,11 +33,11 @@ export class InteractionController extends Controller {
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
         @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider,
-        @inject(TYPES.JobRuntimeController) jobRuntimeController: JobRuntimeController
+        @inject(TYPES.TimestampController) timestampController: TimestampController
     ) {
         super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
         this.interactionService = interactionService;
-        this.jobRuntimeController = jobRuntimeController;
+        this.timestampController = timestampController;
     }
 
     /**
@@ -214,7 +214,7 @@ export class InteractionController extends Controller {
         const buttonType = interaction.customId.slice(0, interaction.customId.indexOf(':'));
         switch (buttonType) {
             case ButtonType.Timestamp:
-                await this.jobRuntimeController.handleTimestampInteraction(interaction);
+                await this.timestampController.handleTimestampInteraction(interaction);
                 break;
         }
     }
