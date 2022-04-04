@@ -1,7 +1,7 @@
 import { Command } from '@commands/command';
 import { CommandResult } from '@models/commands/command-result';
 import { Hiatus as HiatusData } from '@models/jobs/hiatus';
-import { HiatusModel, IHiatusSchema } from '@models/jobs/hiatus-schema';
+import { HiatusModel } from '@models/jobs/hiatus-schema';
 import { ReminderModel } from '@models/jobs/reminder-schema';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import {
@@ -153,7 +153,7 @@ export class Hiatus extends Command {
         await activeHiatus.save();
 
         // Edit the hiatus post
-        const hiatusData = await this.mapHiatusModelToHiatusData(activeHiatus);
+        const hiatusData = await this.hiatusMapper.mapHiatusSchemaToHiatus(activeHiatus);
         await this.hiatusService.editHiatus(hiatusData);
 
         // (Re)schedule hiatus with new date
@@ -181,20 +181,9 @@ export class Hiatus extends Command {
             );
         }
 
-        if (!this.scheduleService.jobExists(`hiatus:${activeHiatus.userId}`)) {
-            const hiatus: HiatusData = {
-                user: await this.userService.getUserById(activeHiatus.userId),
-                reason: activeHiatus.reason,
-                expires: moment().add(1, 'seconds').toDate(),
-                hiatusPostId: activeHiatus.hiatusPostId,
-            };
-            await this.hiatusController.scheduleHiatusFinish(hiatus);
-        } else {
-            this.scheduleService.rescheduleJob(
-                `hiatus:${activeHiatus.userId}`,
-                moment().add(1, 'seconds').toDate()
-            );
-        }
+        await this.hiatusController.finishHiatus(
+            await this.hiatusMapper.mapHiatusSchemaToHiatus(activeHiatus)
+        );
 
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.HIATUS.DELETE.SUCCESS'),
@@ -257,13 +246,9 @@ export class Hiatus extends Command {
         channelId: string,
         askedForExtension: boolean
     ): Promise<void> {
-        let timestampFooter = await this.hiatusService.getUserHiatusStatus(hiatus.user.id);
+        let timestampFooter = HiatusStatus.ActiveIndefiniteHiatus;
         if (askedForExtension) timestampFooter = HiatusStatus.AskedForExtension;
-        hiatus.expires
-            ? (timestampFooter += ` expires <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
-                  hiatus.expires
-              ).unix()}:R>)`)
-            : '';
+        if (hiatus.expires) timestampFooter = HiatusStatus.ActiveHiatus;
         await this.timestampService.editTimestamp(channelId, undefined, undefined, timestampFooter);
     }
 
@@ -292,16 +277,5 @@ export class Hiatus extends Command {
                 error
             );
         }
-    }
-
-    private async mapHiatusModelToHiatusData(hiatusModel: IHiatusSchema): Promise<HiatusData> {
-        const hiatusData: HiatusData = {
-            user: await this.userService.getUserById(hiatusModel.userId),
-            reason: hiatusModel.reason,
-            hiatusPostId: hiatusModel.hiatusPostId,
-        };
-        if (hiatusModel.expires) hiatusData.expires = hiatusModel.expires;
-
-        return hiatusData;
     }
 }

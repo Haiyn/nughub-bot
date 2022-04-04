@@ -6,6 +6,7 @@ import { Character } from '@models/data/character';
 import { ICharacterSchema } from '@models/data/character-schema';
 import { Session } from '@models/data/session';
 import { SessionModel } from '@models/data/session-schema';
+import { Reminder } from '@models/jobs/reminder';
 import { PermissionLevel } from '@models/permissions/permission-level';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
@@ -42,11 +43,17 @@ export class SessionStart extends Command {
             sessionToSave.sessionPost = result;
         });
 
-        this.logger.debug('Saving Session to database...');
+        this.logger.debug('Saving Session to database for session start...');
         await this.saveSessionToDatabase(sessionToSave);
 
-        this.logger.debug('Sending Timestamp...');
+        this.logger.debug('Sending Timestamp for session start...');
         await this.timestampService.sendTimestamp(sessionToSave);
+
+        this.logger.debug('Parsing reminder...');
+        const reminder: Reminder = await this.sessionMapper.mapSessionToReminder(sessionToSave);
+
+        this.logger.debug('Scheduling reminder for session start...');
+        await this.reminderController.scheduleFirstReminder(reminder);
 
         const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-START.SUCCESS', [

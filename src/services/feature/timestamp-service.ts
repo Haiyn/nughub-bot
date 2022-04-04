@@ -10,8 +10,8 @@ import {
     Session,
     SessionModel,
 } from '@src/models';
-import { ConfigurationProvider, EmbedProvider } from '@src/providers';
-import { ChannelService, UserService } from '@src/services';
+import { ConfigurationProvider, EmbedProvider, StringProvider } from '@src/providers';
+import { ChannelService, MessageService, ScheduleService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
 import { inject, injectable } from 'inversify';
@@ -30,9 +30,22 @@ export class TimestampService extends FeatureService {
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
         @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.UserService) userService: UserService,
-        @inject(TYPES.HiatusService) hiatusService: HiatusService
+        @inject(TYPES.HiatusService) hiatusService: HiatusService,
+        @inject(TYPES.StringProvider) stringProvider: StringProvider,
+        @inject(TYPES.ScheduleService) scheduleService: ScheduleService,
+        @inject(TYPES.MessageService) messageService: MessageService
     ) {
-        super(client, logger, configuration, embedProvider, channelService, userService);
+        super(
+            client,
+            logger,
+            configuration,
+            embedProvider,
+            channelService,
+            userService,
+            stringProvider,
+            scheduleService,
+            messageService
+        );
         this.hiatusService = hiatusService;
     }
 

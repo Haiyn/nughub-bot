@@ -11,6 +11,7 @@ import {
     SessionService,
     TimestampService,
 } from '@services/feature';
+import { HiatusMapper } from '@src/mappers';
 import { SessionMapper } from '@src/mappers/session.mapper';
 import { EmbedProvider, EmojiProvider, StringProvider } from '@src/providers';
 import {
@@ -55,6 +56,9 @@ export abstract class Command {
     protected readonly sessionService: SessionService;
     protected readonly timestampService: TimestampService;
 
+    protected readonly sessionMapper: SessionMapper;
+    protected readonly hiatusMapper: HiatusMapper;
+
     constructor(
         @inject(TYPES.CommandLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
@@ -76,7 +80,8 @@ export abstract class Command {
         @inject(TYPES.HiatusService) hiatusService: HiatusService,
         @inject(TYPES.SessionService) sessionService: SessionService,
         @inject(TYPES.TimestampService) timestampService: TimestampService,
-        @inject(TYPES.SessionMapper) sessionMapper: SessionMapper
+        @inject(TYPES.SessionMapper) sessionMapper: SessionMapper,
+        @inject(TYPES.HiatusMapper) hiatusMapper: HiatusMapper
     ) {
         this.logger = logger;
         this.client = client;
@@ -99,9 +104,8 @@ export abstract class Command {
         this.sessionService = sessionService;
         this.timestampService = timestampService;
         this.sessionMapper = sessionMapper;
+        this.hiatusMapper = hiatusMapper;
     }
-
-    protected readonly sessionMapper: SessionMapper;
 
     /**
      * Executes the command

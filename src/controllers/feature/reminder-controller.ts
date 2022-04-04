@@ -1,13 +1,15 @@
 import { FeatureController } from '@controllers/feature/feature-controller';
 import { Reminder } from '@models/jobs/reminder';
 import { IReminderSchema, ReminderModel } from '@models/jobs/reminder-schema';
-import { EmbedLevel, EmbedType, HiatusModel, TimestampStatus } from '@src/models';
+import { TimestampStatus } from '@src/models';
 import { injectable } from 'inversify';
 import moment = require('moment');
 
 /** Controls the logic of reminders */
 @injectable()
 export class ReminderController extends FeatureController {
+    // region DATA PERSISTENCE
+
     /**
      * Restores all active reminders from the Reminders collection in the Mongodb
      *
@@ -42,7 +44,18 @@ export class ReminderController extends FeatureController {
                 reminderEntry.iteration
             );
 
-            await this.scheduleReminder(reminder, true);
+            switch (reminder.iteration) {
+                case 0:
+                    await this.scheduleFirstReminder(reminder);
+                    break;
+                case 1:
+                    await this.scheduleSecondReminder(reminder);
+                    break;
+                default:
+                    this.logger.error(
+                        `No reminder mapping for reminder iteration ${reminder.iteration} on ${reminder.name}!`
+                    );
+            }
             restored++;
         }
 
@@ -50,168 +63,190 @@ export class ReminderController extends FeatureController {
     }
 
     /**
-     * Schedules a reminder internally
+     * Adds a reminder to mongodb for persistence between restarts
      *
-     * @param reminder The reminder to schedule
-     * @param saveToDatabase Whether the scheduling should be saved to the db or not
-     * @returns Resolves when done
+     * @param reminder The reminder to store
+     * @returns true when successful, false otherwise
      */
-    public async scheduleReminder(reminder: Reminder, saveToDatabase: boolean): Promise<void> {
+    private async storeReminderInDatabase(reminder: Reminder): Promise<boolean> {
+        //
+        const reminderModel = new ReminderModel({
+            name: reminder.name,
+            userId: reminder.user.id,
+            characterName: reminder.characterName,
+            date: reminder.date,
+            channelId: reminder.channel.id,
+            iteration: reminder.iteration,
+        });
+
+        try {
+            const databaseResult = await reminderModel.save();
+            this.logger.debug(
+                `Saved one ReminderModel to the database (ID: ${databaseResult._id}).`
+            );
+            return true;
+        } catch (error) {
+            this.logger.error(`Failed to save to MongoDB: `, this.logger.prettyError(error));
+            return false;
+        }
+    }
+
+    /**
+     * Deletes a reminder model from the db
+     *
+     * @param reminder the reminder to delete
+     */
+    private async deleteReminderFromDatabase(reminder: Reminder): Promise<void> {
+        try {
+            await ReminderModel.findOneAndDelete({
+                channelId: reminder.channel.id,
+            }).exec();
+        } catch (error) {
+            this.logger.error(
+                `Failed to delete reminder from database for ${reminder.user.username} and channel ${reminder.channel.name}`
+            );
+        }
+    }
+
+    /**
+     * Deletes a scheduled reminder job
+     *
+     * @param reminder the reminder job to delete
+     */
+    private async deleteReminderJob(reminder: Reminder): Promise<void> {
         // See if a previous reminder exists. If so, delete it
         if (this.scheduleService.jobExists(reminder.name)) {
             const success = this.scheduleService.cancelJob(reminder.name);
-            if (!success) this.logger.error(`Could not cancel reminder job internally`);
+            if (!success)
+                this.logger.error(
+                    `Could not cancel reminder job for channel ${reminder.channel.name}!`
+                );
+        } else {
+            this.logger.debug(
+                `No reminder job for channel ${reminder.channel.name} that needs to be refreshed.`
+            );
         }
-        // Delete any existing reminder jobs in the database
-        await ReminderModel.findOneAndDelete({
-            channelId: reminder.channel.id,
-        }).exec();
+    }
+
+    // endregion
+
+    // region SCHEDULING
+
+    /**
+     * Schedules a reminder internally
+     *
+     * @param reminder The reminder to schedule
+     * @returns Resolves when done
+     */
+    public async scheduleFirstReminder(reminder: Reminder): Promise<void> {
+        // Clean up old reminder (if there is one)
+        await this.deleteReminderFromDatabase(reminder);
+        await this.deleteReminderJob(reminder);
+
+        // Create new reminder in database
+        await this.storeReminderInDatabase(reminder);
 
         // Define the job action
-        const sendReminder = async (): Promise<void> => {
-            this.logger.info(`Sending reminder ${reminder.name}...`);
-            try {
-                const hiatus = await HiatusModel.findOne({ userId: reminder.user.id }).exec();
-                // Construct message
-                let footer = '';
-                let content = `*${reminder.characterName}* in <#${reminder.channel.id}>`;
-                if (reminder.iteration === 0) {
-                    footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.FIRST');
-                    if (await this.hiatusService.userHasActiveHiatus(reminder.user.id)) {
-                        content +=
-                            `\n\n` +
-                            (await this.stringProvider.get('JOB.REMINDER.DESCRIPTION.HIATUS'));
-                    }
-                } else if (reminder.iteration === 1) {
-                    footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.SECOND');
-                    content += await this.stringProvider.get('JOB.REMINDER.DESCRIPTION.SECOND');
-                    if (!hiatus) {
-                        content += await this.stringProvider.get(
-                            'JOB.REMINDER.DESCRIPTION.SECOND.HIATUS-HINT'
-                        );
-                    }
-                }
-
-                const message = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
-                    title: await this.stringProvider.get('JOB.REMINDER.TITLE'),
-                    content: content,
-                    authorName: reminder.user.username,
-                    authorIcon: reminder.user.avatarURL(),
-                    footer: footer,
-                });
-
-                // Send message to reminder channel
-                const reminderChannelId = await this.configuration.getString(
-                    'Channels_NotificationChannelId'
-                );
-                const channel = await this.channelService.getTextChannelByChannelId(
-                    reminderChannelId
-                );
-                await channel.send({
-                    content: `${await this.userService.getUserById(reminder.user.id)}`,
-                    embeds: [message],
-                });
-                this.logger.info(
-                    `Successfully sent reminder #${reminder.iteration} for ${reminder.name}.`
-                );
-
-                // Update the timestamp that the first reminder was sent
-                await this.timestampService.editTimestamp(
-                    reminder.channel.id,
-                    reminder.iteration === 0
-                        ? TimestampStatus.FirstReminder
-                        : TimestampStatus.SecondReminder
-                );
-
-                // Reschedule with the new time if it is under the limit for reminder iterations
-                reminder.iteration++;
-                if (reminder.iteration === 1) {
-                    let newDate = moment()
-                        .utc()
-                        .add(
-                            await this.configuration.getNumber(`Schedule_Reminder_1_Hours`),
-                            'hours'
-                        )
-                        .add(
-                            await this.configuration.getNumber(`Schedule_Reminder_1_Minutes`),
-                            'minutes'
-                        );
-
-                    // Check if user is on hiatus
-                    if (hiatus) {
-                        newDate = newDate
-                            .add(
-                                await this.configuration.getNumber(`Schedule_Hiatus_Hours`),
-                                'hours'
-                            )
-                            .add(
-                                await this.configuration.getNumber(`Schedule_Hiatus_Minutes`),
-                                'minutes'
-                            );
-                    }
-
-                    reminder.date = newDate.toDate();
-                    await this.scheduleReminder(reminder, true);
-                    this.logger.info(
-                        `Successfully rescheduled reminder #${reminder.iteration} for ${reminder.name}.`
-                    );
-                    return;
-                }
-
-                // Delete the job from the database
-                await ReminderModel.findOneAndDelete({
-                    channelId: reminder.channel.id,
-                }).exec();
-                this.logger.info(`Finished reminder job ${reminder.name}.`);
-
-                // Last reminder before skip, send warning and set up skip prompt scheduling
-                const embed = await this.embedProvider.get(
-                    EmbedType.Technical,
-                    EmbedLevel.Warning,
-                    {
-                        title: await this.stringProvider.get('JOB.REMINDER.WARNING.TITLE'),
-                        content:
-                            `**User:** ${
-                                reminder.user.username
-                            } (${await this.userService.getUserById(
-                                reminder.user.id
-                            )})\n**Channel:** <#${reminder.channel.id}>\n\n` +
-                            `${await this.hiatusService.getUserHiatusStatus(reminder.user.id)}`,
-                    }
-                );
-
-                await this.messageService.sendInternalMessage({ embeds: [embed] });
-            } catch (error) {
-                this.logger.error(
-                    `Failed to send reminder #${reminder.iteration} for ${reminder.name}: `,
-                    this.logger.prettyError(error)
-                );
-            }
+        const handleReminderTrigger = async (): Promise<void> => {
+            await this.handleFirstReminderTrigger(reminder);
+            this.logger.info(
+                `Finished first reminder trigger for ${reminder.user.username} and channel ${reminder.channel.name}.`
+            );
         };
 
         // Schedule the job
-        this.scheduleService.scheduleJob(reminder.name, reminder.date, sendReminder);
+        this.scheduleService.scheduleJob(reminder.name, reminder.date, handleReminderTrigger);
 
-        if (saveToDatabase) {
-            // Add the reminder to mongodb for persistence
-            const reminderModel = new ReminderModel({
-                name: reminder.name,
-                userId: reminder.user.id,
-                characterName: reminder.characterName,
-                date: reminder.date,
-                channelId: reminder.channel.id,
-                iteration: reminder.iteration,
-            });
-
-            try {
-                const databaseResult = await reminderModel.save();
-                this.logger.debug(
-                    `Saved one ReminderModel to the database (ID: ${databaseResult._id}).`
-                );
-                return Promise.resolve();
-            } catch (error) {
-                this.logger.error(`Failed to save to MongoDB: `, this.logger.prettyError(error));
-            }
-        }
+        this.logger.info(
+            `Scheduled first reminder for ${reminder.user.username} and channel ${reminder.channel.name}.`
+        );
     }
+
+    public async scheduleSecondReminder(reminder: Reminder): Promise<void> {
+        // Define the job action
+        const handleReminderTrigger = async (): Promise<void> => {
+            await this.handleSecondReminderTrigger(reminder);
+            this.logger.info(
+                `Finished second reminder trigger for ${reminder.user.username} and channel ${reminder.channel.name}.`
+            );
+        };
+
+        // Schedule the job
+        this.scheduleService.scheduleJob(reminder.name, reminder.date, handleReminderTrigger);
+
+        this.logger.info(
+            `Scheduled second reminder for ${reminder.user.username} and channel ${reminder.channel.name}.`
+        );
+    }
+
+    private async handleFirstReminderTrigger(reminder: Reminder): Promise<void> {
+        // Reminder is done, delete any jobs for this reminder
+        await this.deleteReminderJob(reminder);
+
+        // See if user is on hiatus
+        const hasActiveHiatus = await this.hiatusService.userHasActiveHiatus(reminder.user.id);
+
+        // Send the reminder message
+        await this.reminderService.sendReminder(reminder, hasActiveHiatus);
+
+        // Update the timestamp that the first reminder was sent
+        await this.timestampService.editTimestamp(
+            reminder.channel.id,
+            TimestampStatus.FirstReminder
+        );
+
+        // Reschedule with the new time
+        let newDate = moment()
+            .utc()
+            .add(await this.configuration.getNumber(`Schedule_Reminder_1_Hours`), 'hours')
+            .add(await this.configuration.getNumber(`Schedule_Reminder_1_Minutes`), 'minutes');
+
+        // Check if user is on hiatus
+        if (hasActiveHiatus) {
+            newDate = newDate
+                .add(await this.configuration.getNumber(`Schedule_Hiatus_Hours`), 'hours')
+                .add(await this.configuration.getNumber(`Schedule_Hiatus_Minutes`), 'minutes');
+        }
+
+        // Update in the database
+        await this.deleteReminderFromDatabase(reminder);
+        reminder.date = newDate.toDate();
+        reminder.iteration = 1;
+        await this.storeReminderInDatabase(reminder);
+
+        // Schedule second reminder
+        await this.scheduleSecondReminder(reminder);
+    }
+
+    /**
+     * Handles the action that should run when the second reminder should trigger.
+     * Deletes the reminder model and sends a warning in addition to the reminder message for the user.
+     *
+     * @param reminder The second reminder
+     */
+    private async handleSecondReminderTrigger(reminder: Reminder): Promise<void> {
+        // Reminder is done, delete any jobs for this reminder
+        await this.deleteReminderJob(reminder);
+
+        // See if user is on hiatus
+        const hasActiveHiatus = await this.hiatusService.userHasActiveHiatus(reminder.user.id);
+
+        // Send the reminder message
+        await this.reminderService.sendReminder(reminder, hasActiveHiatus);
+
+        // Update the timestamp that the first reminder was sent
+        await this.timestampService.editTimestamp(
+            reminder.channel.id,
+            TimestampStatus.SecondReminder
+        );
+
+        // notify mods
+        const hiatusAddition = await this.hiatusService.getUserHiatusStatus(reminder.user.id); // Gets the hiatus status as an addition in the warning message
+        await this.reminderService.sendReminderWarning(reminder, hiatusAddition);
+
+        // Delete the reminder from the database because it no longer needs to be restored
+        await this.deleteReminderFromDatabase(reminder);
+    }
+
+    // endregion
 }
