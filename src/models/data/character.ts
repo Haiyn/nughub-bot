@@ -1,21 +1,21 @@
-import { User } from 'discord.js';
+import { GuildMember } from 'discord.js';
 
 /** The interface of a character object */
 export interface ICharacter {
-    user: User;
+    member: GuildMember;
     name: string;
 }
 
 /** A RP character */
 export class Character implements ICharacter {
     /** The Discord user that plays the character */
-    public readonly user: User;
+    public readonly member: GuildMember;
 
     /** The character name */
     public readonly name: string;
 
-    constructor(user: User, name: string) {
-        this.user = user;
+    constructor(member: GuildMember, name: string) {
+        this.member = member;
         this.name = name;
     }
 }

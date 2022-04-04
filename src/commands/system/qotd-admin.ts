@@ -141,6 +141,7 @@ export class QotdAdmin extends Command {
                             { content: interaction.options.getString('content') }
                         );
                     }
+                    const member = await this.userService.getGuildMemberById(qotd.submitterId);
                     queryReply = await this.embedProvider.get(
                         EmbedType.Minimal,
                         EmbedLevel.Success,
@@ -149,9 +150,7 @@ export class QotdAdmin extends Command {
                                 isRemove ? 'removed' : 'edited'
                             } the QOT:\n\n${position}. ${
                                 qotd.content
-                            } (submitted by ${await this.userService.getUserById(
-                                qotd.submitterId
-                            )})`,
+                            } (submitted by ${await this.userService.getMemberDisplay(member)})`,
                         }
                     );
                 }

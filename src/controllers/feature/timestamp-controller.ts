@@ -78,7 +78,7 @@ export class TimestampController extends FeatureController {
             authorIcon: user.avatarURL(),
             footer: `You've been manually notified by a Moderator.`,
         });
-        const ping = `${await this.userService.getUserById(session.currentTurn.userId)}`;
+        const ping = `${await this.userService.getGuildMemberById(session.currentTurn.userId)}`;
         const notificationChannel: TextChannel =
             await this.channelService.getTextChannelByChannelId(
                 await this.configuration.getString('Channels_NotificationChannelId')

@@ -159,7 +159,9 @@ export class SessionStart extends Command {
             for (let i = 1; i <= 10; i++) {
                 if (!options.getUser(`user${i}`)) break;
                 turnOrder.push({
-                    user: options.getUser(`user${i}`),
+                    member: await this.userService.getGuildMemberById(
+                        options.getUser(`user${i}`).id
+                    ),
                     name: options.getString(`character${i}`),
                 });
             }
@@ -221,13 +223,16 @@ export class SessionStart extends Command {
             let content = `${session.channel}\n\n\n`;
             for (const character of session.turnOrder) {
                 if (
-                    character.user.id === session.currentTurn.user.id &&
+                    character.member.id === session.currentTurn.member.id &&
                     character.name === session.currentTurn.name
-                )
+                ) {
                     content += ':arrow_right: ';
-                content += `**${character.name}** - ${character.user.username} (${character.user}) `;
+                }
+                content += `**${character.name}** - ${this.userService.getMemberDisplay(
+                    character.member
+                )}`;
 
-                const hasHiatus = await HiatusModel.findOne({ userId: character.user.id }).exec();
+                const hasHiatus = await HiatusModel.findOne({ userId: character.member.id }).exec();
                 if (hasHiatus) {
                     content += '⌛';
                 }
@@ -321,7 +326,7 @@ export class SessionStart extends Command {
     private async saveSessionToDatabase(data: Session): Promise<void> {
         const turnOrder: Array<ICharacterSchema> = [];
         data.turnOrder.forEach((character) => {
-            turnOrder.push({ userId: character.user.id, name: character.name });
+            turnOrder.push({ userId: character.member.id, name: character.name });
         });
 
         const session = new SessionModel({

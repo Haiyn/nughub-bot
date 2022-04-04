@@ -16,13 +16,14 @@ export class QotdService extends FeatureService {
         }
 
         // Construct and send message
-        const submitter = await this.userService.getUserById(questions[0].submitterId);
+        const member = await this.userService.getGuildMemberById(questions[0].submitterId);
+        const display = await this.userService.getEscapedDisplayName(member);
         const qotdEmbed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
             title: `❔❓ Question of the Day (${moment.utc().format('dddd, MMMM Do YYYY')})`,
             content: questions[0].content,
-            footer: `Submitted by ${
-                submitter.username
-            } • Submit your own with the /qotd command! • ${questions.length - 1} left`,
+            footer: `Submitted by ${display} • Submit your own with the /qotd command! • ${
+                questions.length - 1
+            } left`,
         });
         const qotdChannel = this.channelService.getTextChannelByChannelId(
             await this.configuration.getString(ConfigurationKeys.Channels_QotdChannelId)

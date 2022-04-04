@@ -6,7 +6,7 @@ import { injectable } from 'inversify';
 export class HiatusMapper extends Mapper {
     public async mapHiatusSchemaToHiatus(hiatusModel: IHiatusSchema): Promise<HiatusData> {
         const hiatusData: HiatusData = {
-            user: await this.userService.getUserById(hiatusModel.userId),
+            member: await this.userService.getGuildMemberById(hiatusModel.userId),
             reason: hiatusModel.reason,
             hiatusPostId: hiatusModel.hiatusPostId,
         };

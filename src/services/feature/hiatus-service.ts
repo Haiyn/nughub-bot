@@ -22,8 +22,8 @@ export class HiatusService extends FeatureService {
      * @returns the message id
      */
     public async sendHiatus(hiatus: Hiatus): Promise<string> {
-        const user = await this.userService.getUserById(hiatus.user.id);
-        let content = `**User:** ${user.username} (${user})\n`;
+        const display = await this.userService.getMemberDisplay(hiatus.member);
+        let content = `**User:** ${display}\n`;
         hiatus.expires
             ? (content += `**Until:** <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
                   hiatus.expires
@@ -32,8 +32,8 @@ export class HiatusService extends FeatureService {
         content += `**Reason:** ${hiatus.reason}`;
 
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
-            authorName: hiatus.user.username,
-            authorIcon: hiatus.user.avatarURL(),
+            authorName: await this.userService.getEscapedDisplayName(hiatus.member),
+            authorIcon: hiatus.member.user.avatarURL(),
             content: content,
         });
 
@@ -52,8 +52,8 @@ export class HiatusService extends FeatureService {
      * @returns when done
      */
     public async editHiatus(hiatus: Hiatus): Promise<void> {
-        const user = await this.userService.getUserById(hiatus.user.id);
-        let content = `**User:** ${user.username} (${user})\n`;
+        const display = await this.userService.getMemberDisplay(hiatus.member);
+        let content = `**User:** ${display}\n`;
         hiatus.expires
             ? (content += `**Until:** <t:${moment(hiatus.expires).unix()}:D> (<t:${moment(
                   hiatus.expires
@@ -63,8 +63,8 @@ export class HiatusService extends FeatureService {
         const footer = `✏️ Hiatus was edited on ${moment().utc().format('MMMM Do YYYY, h:mm A')}`;
 
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
-            authorName: hiatus.user.username,
-            authorIcon: hiatus.user.avatarURL(),
+            authorName: await this.userService.getEscapedDisplayName(hiatus.member),
+            authorIcon: hiatus.member.user.avatarURL(),
             content: content,
             footer: footer,
         });
@@ -136,8 +136,8 @@ export class HiatusService extends FeatureService {
         }
 
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
-            authorIcon: hiatus.user.avatarURL(),
-            authorName: hiatus.user.username,
+            authorIcon: hiatus.member.user.avatarURL(),
+            authorName: await this.userService.getEscapedDisplayName(hiatus.member),
             title: title,
             content: content,
             footer: hasOverdueReply
@@ -151,10 +151,12 @@ export class HiatusService extends FeatureService {
             await this.configuration.getString('Channels_NotificationChannelId')
         );
 
-        this.logger.debug(`Sending welcome back message for user ${hiatus.user.username}...`);
+        this.logger.debug(
+            `Sending welcome back message for user ${hiatus.member.user.username}...`
+        );
         try {
             await reminderChannel.send({
-                content: `${await this.userService.getUserById(hiatus.user.id)}`,
+                content: `${hiatus.member}`,
                 embeds: [embed],
             });
         } catch (error) {

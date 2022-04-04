@@ -92,10 +92,11 @@ export class OriginalCharacter extends Command {
         );
 
         // Send reply
+        const member = await this.userService.getGuildMemberById(originalCharacter.userId);
         let content = await this.stringProvider.get('COMMAND.ORIGINAL-CHARACTER.ADD.SUCCESS');
         content += `\n\n**${originalCharacter.name}** (${originalCharacter.race}, ${
             originalCharacter.age
-        }) ${await this.userService.getUserById(originalCharacter.userId)}`;
+        }) ${await this.userService.getMemberDisplay(member)}`;
 
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
@@ -232,10 +233,10 @@ export class OriginalCharacter extends Command {
         let content = `Current original characters:\n\n`;
         for (const character of characters) {
             const index = characters.indexOf(character);
-            const user = await this.userService.getUserById(character.userId);
+            const member = await this.userService.getGuildMemberById(character.userId);
             content += `${index + 1}. **${character.name}** (${character.race}, ${
                 character.age
-            }) ${user}\n`;
+            }) ${await this.userService.getMemberDisplay(member)}\n`;
         }
         content += `\n${queryText}`;
         return await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {

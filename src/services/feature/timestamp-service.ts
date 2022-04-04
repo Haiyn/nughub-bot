@@ -57,8 +57,9 @@ export class TimestampService extends FeatureService {
      */
     public async sendTimestamp(session: Session): Promise<string> {
         // Construct message
-        const content = `**Channel:**\t<#${session.channel.id}>\n**User:** ${session.currentTurn.user.username} (${session.currentTurn.user})\n**Character:**\t${session.currentTurn.name}\n\n`;
-        const footer = await this.hiatusService.getUserHiatusStatus(session.currentTurn.user.id);
+        const display = await this.userService.getMemberDisplay(session.currentTurn.member);
+        const content = `**Channel:**\t<#${session.channel.id}>\n**User:** ${display}\n**Character:**\t${session.currentTurn.name}\n\n`;
+        const footer = await this.hiatusService.getUserHiatusStatus(session.currentTurn.member.id);
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: TimestampStatus.JustStarted,
             content: content,
@@ -111,9 +112,10 @@ export class TimestampService extends FeatureService {
      * @returns when done
      */
     public async updateTimestamp(session: ISessionSchema, status: TimestampStatus): Promise<void> {
-        const user = await this.userService.getUserById(session.currentTurn.userId);
+        const member = await this.userService.getGuildMemberById(session.currentTurn.userId);
+        const display = await this.userService.getMemberDisplay(member);
         const footer = await this.hiatusService.getUserHiatusStatus(session.currentTurn.userId);
-        let content = `**Channel:**\t<#${session.channelId}>\n**User:** ${user.username} (${user})\n**Character:**\t${session.currentTurn.name}\n\n`;
+        let content = `**Channel:**\t<#${session.channelId}>\n**User:** ${display}\n**Character:**\t${session.currentTurn.name}\n\n`;
         if (session.lastTurnAdvance)
             content += `**Last Turn Advance:** <t:${moment(
                 session.lastTurnAdvance

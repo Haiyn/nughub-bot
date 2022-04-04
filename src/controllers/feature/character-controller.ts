@@ -107,8 +107,8 @@ export class CharacterController extends FeatureController {
     public async getCanonCharacterEntry(character: CanonCharacterSchema): Promise<string> {
         let messageContent = `${character.name}: `;
         if (character.claimerId) {
-            const claimer = await this.userService.getUserById(character.claimerId);
-            messageContent += `${claimer.username} (${claimer})`;
+            const member = await this.userService.getGuildMemberById(character.claimerId);
+            messageContent += await this.userService.getMemberDisplay(member);
             if (character.availability === CanonCharacterAvailability.TemporaryClaim) {
                 messageContent += ` **(temporary claim)**`;
             }
@@ -245,8 +245,9 @@ export class CharacterController extends FeatureController {
             game
         )}**__\n\n`.toUpperCase();
         for (const character of originalCharacters) {
-            const user = await this.userService.getUserById(character.userId);
-            messageContent += `• **${character.name}** (${character.race}, ${character.age}) ${user.username} (${user})\n`;
+            const member = await this.userService.getGuildMemberById(character.userId);
+            const display = await this.userService.getMemberDisplay(member);
+            messageContent += `• **${character.name}** (${character.race}, ${character.age}) ${display}\n`;
         }
 
         if (messageContent.length > 4096) {
