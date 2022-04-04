@@ -230,18 +230,20 @@ export class SessionNext extends Command {
     ): Promise<void> {
         let content = `*${newSession.currentTurn.name}* in <#${newSession.channelId}>`;
         if (userMessage)
-            content += `\n\n${await this.userService.getUserById(
+            content += `\n\n${await this.userService.getGuildMemberById(
                 previousTurn.userId
             )} said: \\"${userMessage}\\"`;
-        const user = await this.client.users.fetch(newSession.currentTurn.userId);
+
+        const member = await this.userService.getGuildMemberById(newSession.currentTurn.userId);
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: await this.stringProvider.get('COMMAND.SESSION-NEXT.NOTIFICATION-TITLE'),
             content: content,
-            authorName: user.username,
-            authorIcon: user.avatarURL(),
+            authorName: await this.userService.getEscapedDisplayName(member),
+            authorIcon: member.user.avatarURL(),
             footer: reason,
         });
-        const ping = `${await this.userService.getUserById(newSession.currentTurn.userId)}`;
+
+        const ping = `${await this.userService.getGuildMemberById(newSession.currentTurn.userId)}`;
         const notificationChannel: TextChannel =
             await this.channelService.getTextChannelByChannelId(
                 await this.configuration.getString('Channels_NotificationChannelId')

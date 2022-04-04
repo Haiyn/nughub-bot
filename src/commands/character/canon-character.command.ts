@@ -517,7 +517,8 @@ export class CanonCharacter extends Command {
                 character.availability === CanonCharacterAvailability.TemporaryClaim
                     ? (content += `temp`)
                     : '';
-                content += ` claimed by ${await this.userService.getUserById(character.claimerId)}`;
+                const member = await this.userService.getGuildMemberById(character.claimerId);
+                content += ` claimed by ${await this.userService.getMemberDisplay(member)}`;
             } else {
                 content += ` available`;
             }

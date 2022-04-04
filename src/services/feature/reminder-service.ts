@@ -39,8 +39,8 @@ export class ReminderService extends FeatureService {
         const message = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: await this.stringProvider.get('JOB.REMINDER.TITLE'),
             content: content,
-            authorName: reminder.user.username,
-            authorIcon: reminder.user.avatarURL(),
+            authorName: await this.userService.getEscapedDisplayName(reminder.member),
+            authorIcon: reminder.member.user.avatarURL(),
             footer: footer,
         });
 
@@ -53,7 +53,7 @@ export class ReminderService extends FeatureService {
         // Send message to reminder channel
         try {
             await channel.send({
-                content: `${await this.userService.getUserById(reminder.user.id)}`,
+                content: `${await this.userService.getGuildMemberById(reminder.member.id)}`,
                 embeds: [message],
             });
             this.logger.info(
@@ -77,9 +77,9 @@ export class ReminderService extends FeatureService {
         const embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
             title: await this.stringProvider.get('JOB.REMINDER.WARNING.TITLE'),
             content:
-                `**User:** ${reminder.user.username} (${await this.userService.getUserById(
-                    reminder.user.id
-                )})\n**Channel:** <#${reminder.channel.id}>\n\n` + `${hiatusStatus}`,
+                `**User:** ${await this.userService.getMemberDisplay(
+                    reminder.member
+                )}\n**Channel:** <#${reminder.channel.id}>\n\n` + `${hiatusStatus}`,
         });
 
         await this.messageService.sendInternalMessage({ embeds: [embed] });

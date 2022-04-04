@@ -28,11 +28,11 @@ export class HiatusController extends FeatureController {
 
         for (const hiatusEntry of activeHiatus) {
             this.logger.debug(`Restoring hiatus entry for User ID ${hiatusEntry.userId}...`);
-            const user = await this.userService.getUserById(hiatusEntry.userId);
+            const member = await this.userService.getGuildMemberById(hiatusEntry.userId);
 
             if (moment(hiatusEntry.expires).isBefore(moment().utc())) {
                 this.logger.warn(
-                    `Hiatus for (${user.username}) is orphaned: Ran out at ${moment(
+                    `Hiatus for (${member.user.username}) is orphaned: Ran out at ${moment(
                         hiatusEntry.expires
                     ).toDate()}`
                 );
@@ -40,7 +40,7 @@ export class HiatusController extends FeatureController {
             }
 
             const hiatus: Hiatus = {
-                user: user,
+                member: member,
                 reason: hiatusEntry.reason,
                 hiatusPostId: hiatusEntry.hiatusPostId,
                 expires: hiatusEntry.expires,
@@ -62,14 +62,14 @@ export class HiatusController extends FeatureController {
         };
 
         // Schedule the job
-        this.scheduleService.scheduleJob(`hiatus:${hiatus.user.id}`, date, finishHiatus);
+        this.scheduleService.scheduleJob(`hiatus:${hiatus.member.user.id}`, date, finishHiatus);
     }
 
     public async finishHiatus(hiatus: Hiatus): Promise<void> {
-        this.logger.info(`Finishing hiatus for ${hiatus.user.username}...`);
+        this.logger.info(`Finishing hiatus for ${hiatus.member.user.username}...`);
 
         const currentTurnsForUser: ISessionSchema[] = await SessionModel.find({
-            'currentTurn.userId': hiatus.user.id,
+            'currentTurn.userId': hiatus.member.user.id,
         })
             .sort({ lastTurnAdvance: 'ascending' })
             .exec();
@@ -78,7 +78,7 @@ export class HiatusController extends FeatureController {
 
         if (currentTurnsForUser && currentTurnsForUser?.length > 0) {
             this.logger.debug(
-                `User ${hiatus.user.username} has ${currentTurnsForUser.length} pending replies. Handling...`
+                `User ${hiatus.member.user.username} has ${currentTurnsForUser.length} pending replies. Handling...`
             );
 
             for (const session of currentTurnsForUser) {
@@ -118,10 +118,10 @@ export class HiatusController extends FeatureController {
         );
 
         // Delete hiatus post
-        this.logger.debug(`Deleting hiatus for ${hiatus.user.username}...`);
+        this.logger.debug(`Deleting hiatus for ${hiatus.member.user.username}...`);
         await this.hiatusService.deleteHiatus(hiatus.hiatusPostId);
-        await HiatusModel.findOneAndDelete({ userId: hiatus.user.id }).exec();
+        await HiatusModel.findOneAndDelete({ userId: hiatus.member.user.id }).exec();
 
-        this.logger.info(`Finished hiatus for ${hiatus.user.username}`);
+        this.logger.info(`Finished hiatus for ${hiatus.member.user.username}`);
     }
 }

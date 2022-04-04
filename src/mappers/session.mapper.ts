@@ -7,7 +7,7 @@ import {
     ISessionSchema,
     Session,
 } from '@src/models';
-import { User } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import { injectable } from 'inversify';
 
 @injectable()
@@ -45,9 +45,11 @@ export class SessionMapper extends Mapper {
     public async mapCharacterSchemaToCharacter(
         characterSchema: ICharacterSchema
     ): Promise<Character> {
-        const user: User = await this.userService.getUserById(characterSchema.userId);
+        const member: GuildMember = await this.userService.getGuildMemberById(
+            characterSchema.userId
+        );
         return {
-            user: user,
+            member: member,
             name: characterSchema.name,
         };
     }
@@ -71,7 +73,7 @@ export class SessionMapper extends Mapper {
 
     public mapCharacterToCharacterSchema(character: Character): ICharacterSchema {
         return {
-            userId: character.user.id,
+            userId: character.member.id,
             name: character.name,
         };
     }
@@ -84,7 +86,7 @@ export class SessionMapper extends Mapper {
      */
     public async mapSessionSchemaToReminder(session: ISessionSchema): Promise<Reminder> {
         const name = `reminder:${session.channelId}`;
-        const user = await this.userService.getUserById(session.currentTurn.userId);
+        const member = await this.userService.getGuildMemberById(session.currentTurn.userId);
         const channel = await this.channelService.getTextChannelByChannelId(session.channelId);
 
         // Get the new reminder date
@@ -100,7 +102,7 @@ export class SessionMapper extends Mapper {
             currentDate.getMinutes() + reminderMinutes
         );
 
-        return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
+        return new Reminder(name, member, session.currentTurn.name, currentDate, channel, 0);
     }
 
     /**
@@ -111,8 +113,8 @@ export class SessionMapper extends Mapper {
      */
     public async mapSessionToReminder(session: Session): Promise<Reminder> {
         const name = `reminder:${session.channel.id}`;
-        const user = await this.userService.getUserById(session.currentTurn.user.id);
-        const channel = await this.channelService.getTextChannelByChannelId(session.channel.id);
+        const member = session.currentTurn.member;
+        const channel = session.channel;
 
         // Get the new reminder date
         const currentDate = new Date(new Date().getTime());
@@ -127,6 +129,6 @@ export class SessionMapper extends Mapper {
             currentDate.getMinutes() + reminderMinutes
         );
 
-        return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
+        return new Reminder(name, member, session.currentTurn.name, currentDate, channel, 0);
     }
 }

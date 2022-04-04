@@ -13,7 +13,7 @@ import {
     ISessionSchema,
     SessionModel,
 } from '@src/models';
-import { CommandInteraction, CommandInteractionOptionResolver } from 'discord.js';
+import { CommandInteraction, CommandInteractionOptionResolver, GuildMember } from 'discord.js';
 import { injectable } from 'inversify';
 import moment = require('moment');
 
@@ -91,7 +91,7 @@ export class Hiatus extends Command {
         }
 
         const hiatus: HiatusData = {
-            user: await this.userService.getUserById(interaction.member.user.id),
+            member: interaction.member as GuildMember,
             reason: interaction.options.getString('reason'),
         };
         const expires = interaction.options.getString('until');
@@ -104,7 +104,7 @@ export class Hiatus extends Command {
                 .toDate();
 
         const currentTurnsForUser: ISessionSchema[] = await SessionModel.find({
-            'currentTurn.userId': hiatus.user.id,
+            'currentTurn.userId': hiatus.member.user.id,
         });
 
         this.logger.debug(
@@ -261,7 +261,7 @@ export class Hiatus extends Command {
      */
     private async saveHiatusToDatabase(hiatus: HiatusData): Promise<void> {
         const hiatusModel = new HiatusModel({
-            userId: hiatus.user.id,
+            userId: hiatus.member.user.id,
             reason: hiatus.reason,
             hiatusPostId: hiatus.hiatusPostId,
         });

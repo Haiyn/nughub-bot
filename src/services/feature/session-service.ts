@@ -23,13 +23,15 @@ export class SessionService extends FeatureService {
 
             let content = `<#${session.channelId}>\n\n\n`;
             for (const character of session.turnOrder) {
-                const user = await this.userService.getUserById(character.userId);
+                const user = await this.userService.getGuildMemberById(character.userId);
                 if (
                     user.id === session.currentTurn.userId &&
                     character.name === session.currentTurn.name
                 )
                     content += ':arrow_right: ';
-                content += `**${character.name}** - ${user.username} (${user}) `;
+                content += `**${character.name}** - ${await this.userService.getMemberDisplay(
+                    user
+                )}`;
 
                 const hasHiatus = await HiatusModel.findOne({ userId: user.id }).exec();
                 if (hasHiatus) {

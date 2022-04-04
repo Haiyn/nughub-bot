@@ -1,7 +1,7 @@
-import { User } from 'discord.js';
+import { GuildMember } from 'discord.js';
 
 export interface Hiatus {
-    user: User;
+    member: GuildMember;
     reason: string;
     expires?: Date;
     hiatusPostId?: string;
