@@ -2,6 +2,7 @@ import {
     OriginalCharacterModel,
     OriginalCharacterSchema,
 } from '@models/data/original-character-schema';
+import { CharacterListType } from '@models/misc/character-list-type.enum';
 import { DragonAgeGame } from '@models/misc/dragon-age-game.enum';
 import { Command } from '@src/commands';
 import {
@@ -87,8 +88,9 @@ export class OriginalCharacter extends Command {
         }
 
         // Update character list
-        await this.characterController.updateOriginalCharacterList(
-            Number.parseInt(interaction.options.getString('game'))
+        await this.characterService.updateCharacterList(
+            Number.parseInt(interaction.options.getString('game')),
+            CharacterListType.Original
         );
 
         // Send reply
@@ -181,7 +183,10 @@ export class OriginalCharacter extends Command {
                     })
                         .exec()
                         .then(async () => {
-                            await this.characterController.updateOriginalCharacterList(game);
+                            await this.characterService.updateCharacterList(
+                                game,
+                                CharacterListType.Original
+                            );
                             queryReply = await this.embedProvider.get(
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,

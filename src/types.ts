@@ -46,6 +46,7 @@ export const TYPES = {
     // Mappers
     SessionMapper: Symbol('SessionMapper'),
     HiatusMapper: Symbol('HiatusMapper'),
+    CharacterMapper: Symbol('CharacterMapper'),
 
     // Commands
     Ping: Symbol('Ping'),

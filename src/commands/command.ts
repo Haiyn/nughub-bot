@@ -1,6 +1,4 @@
-import { CharacterController } from '@controllers/feature/character-controller';
 import { HiatusController } from '@controllers/feature/hiatus-controller';
-import { QotdController } from '@controllers/feature/qotd-controller';
 import { ReminderController } from '@controllers/feature/reminder-controller';
 import { CommandResult } from '@models/commands/command-result';
 import { PermissionLevel } from '@models/permissions/permission-level';
@@ -37,8 +35,6 @@ export abstract class Command {
 
     protected readonly hiatusController: HiatusController;
     protected readonly reminderController: ReminderController;
-    protected readonly qotdController: QotdController;
-    protected readonly characterController: CharacterController;
 
     protected readonly configuration: ConfigurationProvider;
     protected readonly embedProvider: EmbedProvider;
@@ -64,8 +60,6 @@ export abstract class Command {
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.HiatusController) hiatusController: HiatusController,
         @inject(TYPES.ReminderController) reminderController: ReminderController,
-        @inject(TYPES.QotdController) qotdController: QotdController,
-        @inject(TYPES.CharacterController) characterController: CharacterController,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
         @inject(TYPES.EmojiProvider) emojiProvider: EmojiProvider,
@@ -87,8 +81,6 @@ export abstract class Command {
         this.client = client;
         this.hiatusController = hiatusController;
         this.reminderController = reminderController;
-        this.qotdController = qotdController;
-        this.characterController = characterController;
         this.configuration = configuration;
         this.embedProvider = embedProvider;
         this.emojiProvider = emojiProvider;

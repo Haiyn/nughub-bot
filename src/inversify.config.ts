@@ -40,6 +40,7 @@ import { ReminderService } from '@services/feature/reminder-service';
 import { SessionService } from '@services/feature/session-service';
 import { TimestampService } from '@services/feature/timestamp-service';
 import { HiatusMapper } from '@src/mappers';
+import { CharacterMapper } from '@src/mappers/character.mapper';
 
 const container = new Container();
 
@@ -156,6 +157,7 @@ container.bind<TimestampService>(TYPES.TimestampService).to(TimestampService).in
 // Mappers
 container.bind<SessionMapper>(TYPES.SessionMapper).to(SessionMapper).inSingletonScope();
 container.bind<HiatusMapper>(TYPES.HiatusMapper).to(HiatusMapper).inSingletonScope();
+container.bind<CharacterMapper>(TYPES.CharacterMapper).to(CharacterMapper).inSingletonScope();
 
 // Commands
 container.bind<Ping>('Ping').to(Ping).inRequestScope();

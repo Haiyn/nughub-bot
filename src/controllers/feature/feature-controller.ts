@@ -1,4 +1,4 @@
-import { QotdService, ReminderService } from '@services/feature';
+import { CharacterService, QotdService, ReminderService } from '@services/feature';
 import { HiatusService } from '@services/feature/hiatus-service';
 import { TimestampService } from '@services/feature/timestamp-service';
 import { MessageService } from '@services/message-service';
@@ -28,6 +28,7 @@ export class FeatureController extends Controller {
     protected readonly hiatusService: HiatusService;
     protected readonly qotdService: QotdService;
     protected readonly reminderService: ReminderService;
+    protected readonly characterService: CharacterService;
 
     constructor(
         @inject(TYPES.ChannelService) channelService: ChannelService,
@@ -45,7 +46,8 @@ export class FeatureController extends Controller {
         @inject(TYPES.TimestampService) timestampService: TimestampService,
         @inject(TYPES.HiatusService) hiatusService: HiatusService,
         @inject(TYPES.QotdService) qotdService: QotdService,
-        @inject(TYPES.ReminderService) reminderService: ReminderService
+        @inject(TYPES.ReminderService) reminderService: ReminderService,
+        @inject(TYPES.CharacterService) characterService: CharacterService
     ) {
         super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
         this.channelService = channelService;
@@ -57,5 +59,6 @@ export class FeatureController extends Controller {
         this.hiatusService = hiatusService;
         this.qotdService = qotdService;
         this.reminderService = reminderService;
+        this.characterService = characterService;
     }
 }

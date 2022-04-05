@@ -2,6 +2,7 @@ import { TimestampActions } from '@models/components/timestamp-actions';
 import { TimestampStatus } from '@models/ui/timestamp-status';
 import { FeatureService } from '@services/feature/feature-service';
 import { HiatusService } from '@services/feature/hiatus-service';
+import { CharacterMapper } from '@src/mappers/character.mapper';
 import {
     ButtonType,
     EmbedLevel,
@@ -10,7 +11,12 @@ import {
     Session,
     SessionModel,
 } from '@src/models';
-import { ConfigurationProvider, EmbedProvider, StringProvider } from '@src/providers';
+import {
+    ConfigurationProvider,
+    EmbedProvider,
+    EmojiProvider,
+    StringProvider,
+} from '@src/providers';
 import { ChannelService, MessageService, ScheduleService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
@@ -28,23 +34,27 @@ export class TimestampService extends FeatureService {
         @inject(TYPES.CommandLogger) logger: Logger,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
+        @inject(TYPES.EmojiProvider) emojiProvider: EmojiProvider,
         @inject(TYPES.ChannelService) channelService: ChannelService,
         @inject(TYPES.UserService) userService: UserService,
         @inject(TYPES.HiatusService) hiatusService: HiatusService,
         @inject(TYPES.StringProvider) stringProvider: StringProvider,
         @inject(TYPES.ScheduleService) scheduleService: ScheduleService,
-        @inject(TYPES.MessageService) messageService: MessageService
+        @inject(TYPES.MessageService) messageService: MessageService,
+        @inject(TYPES.CharacterMapper) characterMapper: CharacterMapper
     ) {
         super(
             client,
             logger,
             configuration,
             embedProvider,
+            emojiProvider,
             channelService,
             userService,
             stringProvider,
             scheduleService,
-            messageService
+            messageService,
+            characterMapper
         );
         this.hiatusService = hiatusService;
     }
