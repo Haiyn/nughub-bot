@@ -118,7 +118,7 @@ export class CanonCharacter extends Command {
             (await this.stringProvider.get('COMMAND.CANON-CHARACTER.ADD.SUCCESS')) + `\n\n`;
         content += await this.characterService.getCharacterListEntry(
             CharacterListType.Canon,
-            canonCharacter
+            await this.characterMapper.mapCanonCharacterSchemaToCanonCharacter(canonCharacter)
         );
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
