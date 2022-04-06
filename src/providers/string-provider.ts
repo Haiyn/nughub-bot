@@ -49,7 +49,7 @@ export class StringProvider extends Provider {
         // Append the parameters, if there are any
         if (parameters) {
             try {
-                result = String.Format(result, parameters);
+                result = String.Format(result, ...parameters);
             } catch (error) {
                 this.logger.warn(
                     `Supplied the wrong parameters for STRINGS.${key}: ${result}\nSupplied ${

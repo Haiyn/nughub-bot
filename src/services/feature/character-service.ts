@@ -137,28 +137,35 @@ export class CharacterService extends FeatureService {
      * @param data the data for that entry
      * @returns the entry as a string
      */
-    public getCharacterListEntry(listType: CharacterListType, data: unknown): string {
+    public getCharacterListEntry(
+        listType: CharacterListType,
+        data: CanonCharacter | OriginalCharacter
+    ): string {
         let character;
         switch (listType) {
             case CharacterListType.Canon:
                 character = data as CanonCharacter;
-                return `• **${character.name}** 
-                ${character.claimer ? this.userService.getMemberDisplay(character.claimer) : ''} 
+                this.logger.debug(character);
+                this.logger.debug(character.claimer);
+                return `• **${character.name}**: \
+                ${
+                    character.claimer.id ? this.userService.getMemberDisplay(character.claimer) : ''
+                } \
                 ${
                     character.availability === CanonCharacterAvailability.TemporaryClaim
-                        ? '**(temporary claim)**'
+                        ? '*(temporary claim)*'
                         : ''
-                }
+                } \
                 ${
                     character.availability === CanonCharacterAvailability.Available
-                        ? '**available**'
+                        ? '*available*'
                         : ''
                 }`;
             case CharacterListType.Original:
                 character = data as OriginalCharacter;
-                return `• **${character.name}** (${character.race}, ${
+                return `• **${character.name}** (${character.pronouns}, ${character.race}, ${
                     character.age
-                }) ${this.userService.getMemberDisplay(character.member)}\n`;
+                }) ${this.userService.getMemberDisplay(character.member)}`;
         }
     }
 
@@ -282,7 +289,7 @@ export class CharacterService extends FeatureService {
     private async getCharacters(
         listType: CharacterListType,
         game: DragonAgeGame
-    ): Promise<unknown[]> {
+    ): Promise<CanonCharacter[] | OriginalCharacter[]> {
         if (listType === CharacterListType.Original) {
             const foundOcs = await OriginalCharacterModel.find({ game: game })
                 .sort({ name: 'desc' })

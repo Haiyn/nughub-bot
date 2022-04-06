@@ -18,6 +18,7 @@ export class CharacterMapper extends Mapper {
             race: originalCharacterSchema.race,
             age: originalCharacterSchema.age,
             member: await this.userService.getGuildMemberById(originalCharacterSchema.userId),
+            pronouns: originalCharacterSchema.pronouns,
         };
     }
 

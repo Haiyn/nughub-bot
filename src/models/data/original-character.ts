@@ -7,4 +7,5 @@ export interface OriginalCharacter {
     race: string;
     age: number;
     member: GuildMember;
+    pronouns: string;
 }

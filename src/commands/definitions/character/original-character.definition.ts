@@ -47,6 +47,12 @@ export function commandDefinition(): SlashCommandBuilder {
                         .setDescription('The age of the character')
                         .setRequired(true)
                 )
+                .addStringOption((option) =>
+                    option
+                        .setName('pronouns')
+                        .setDescription('The pronouns for the character')
+                        .setRequired(true)
+                )
         )
         .addSubcommand((option) =>
             option

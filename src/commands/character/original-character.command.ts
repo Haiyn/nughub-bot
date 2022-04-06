@@ -73,6 +73,7 @@ export class OriginalCharacter extends Command {
             game: Number.parseInt(interaction.options.getString('game')),
             race: interaction.options.getString('race'),
             age: interaction.options.getString('age'),
+            pronouns: interaction.options.getString('pronouns'),
         });
 
         // Save to db
@@ -94,11 +95,14 @@ export class OriginalCharacter extends Command {
         );
 
         // Send reply
-        const member = await this.userService.getGuildMemberById(originalCharacter.userId);
         let content = await this.stringProvider.get('COMMAND.ORIGINAL-CHARACTER.ADD.SUCCESS');
-        content += `\n\n**${originalCharacter.name}** (${originalCharacter.race}, ${
-            originalCharacter.age
-        }) ${await this.userService.getMemberDisplay(member)}`;
+        content += `\n\n`;
+        content += this.characterService.getCharacterListEntry(
+            CharacterListType.Original,
+            await this.characterMapper.mapOriginalCharacterSchemaToOriginalCharacter(
+                originalCharacter
+            )
+        );
 
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
@@ -238,10 +242,12 @@ export class OriginalCharacter extends Command {
         let content = `Current original characters:\n\n`;
         for (const character of characters) {
             const index = characters.indexOf(character);
-            const member = await this.userService.getGuildMemberById(character.userId);
-            content += `${index + 1}. **${character.name}** (${character.race}, ${
-                character.age
-            }) ${await this.userService.getMemberDisplay(member)}\n`;
+            content += `${index + 1}. `;
+            content += await this.characterService.getCharacterListEntry(
+                CharacterListType.Original,
+                await this.characterMapper.mapOriginalCharacterSchemaToOriginalCharacter(character)
+            );
+            content += '\n';
         }
         content += `\n${queryText}`;
         return await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {

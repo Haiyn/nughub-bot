@@ -348,7 +348,7 @@ export class CanonCharacter extends Command {
                                 {
                                     content: await this.stringProvider.get(
                                         'COMMAND.CANON-CHARACTER.ASSIGN.SUCCESS',
-                                        [characterToAssign.name, characterToAssign.claimerId]
+                                        [characterToAssign.name, claimer.id]
                                     ),
                                 }
                             );
@@ -526,17 +526,12 @@ export class CanonCharacter extends Command {
         let content = `Current canon characters:\n\n`;
         for (const character of characters) {
             const index = characters.indexOf(character);
-            content += `${index + 1}. **${character.name}** `;
-            if (character.claimerId) {
-                character.availability === CanonCharacterAvailability.TemporaryClaim
-                    ? (content += `temp`)
-                    : '';
-                const member = await this.userService.getGuildMemberById(character.claimerId);
-                content += ` claimed by ${await this.userService.getMemberDisplay(member)}`;
-            } else {
-                content += ` available`;
-            }
-            content += `\n`;
+            content += `${index + 1}. `;
+            content += await this.characterService.getCharacterListEntry(
+                CharacterListType.Canon,
+                await this.characterMapper.mapCanonCharacterSchemaToCanonCharacter(character)
+            );
+            content += '\n';
         }
         content += `\n${queryText}`;
         return await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
