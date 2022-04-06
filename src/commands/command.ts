@@ -1,6 +1,4 @@
-import { CharacterController } from '@controllers/feature/character-controller';
 import { HiatusController } from '@controllers/feature/hiatus-controller';
-import { QotdController } from '@controllers/feature/qotd-controller';
 import { ReminderController } from '@controllers/feature/reminder-controller';
 import { CommandResult } from '@models/commands/command-result';
 import { PermissionLevel } from '@models/permissions/permission-level';
@@ -12,6 +10,7 @@ import {
     TimestampService,
 } from '@services/feature';
 import { HiatusMapper } from '@src/mappers';
+import { CharacterMapper } from '@src/mappers/character.mapper';
 import { SessionMapper } from '@src/mappers/session.mapper';
 import { EmbedProvider, EmojiProvider, StringProvider } from '@src/providers';
 import {
@@ -37,8 +36,6 @@ export abstract class Command {
 
     protected readonly hiatusController: HiatusController;
     protected readonly reminderController: ReminderController;
-    protected readonly qotdController: QotdController;
-    protected readonly characterController: CharacterController;
 
     protected readonly configuration: ConfigurationProvider;
     protected readonly embedProvider: EmbedProvider;
@@ -58,14 +55,13 @@ export abstract class Command {
 
     protected readonly sessionMapper: SessionMapper;
     protected readonly hiatusMapper: HiatusMapper;
+    protected readonly characterMapper: CharacterMapper;
 
     constructor(
         @inject(TYPES.CommandLogger) logger: Logger,
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.HiatusController) hiatusController: HiatusController,
         @inject(TYPES.ReminderController) reminderController: ReminderController,
-        @inject(TYPES.QotdController) qotdController: QotdController,
-        @inject(TYPES.CharacterController) characterController: CharacterController,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
         @inject(TYPES.EmojiProvider) emojiProvider: EmojiProvider,
@@ -81,14 +77,13 @@ export abstract class Command {
         @inject(TYPES.SessionService) sessionService: SessionService,
         @inject(TYPES.TimestampService) timestampService: TimestampService,
         @inject(TYPES.SessionMapper) sessionMapper: SessionMapper,
-        @inject(TYPES.HiatusMapper) hiatusMapper: HiatusMapper
+        @inject(TYPES.HiatusMapper) hiatusMapper: HiatusMapper,
+        @inject(TYPES.CharacterMapper) characterMapper: CharacterMapper
     ) {
         this.logger = logger;
         this.client = client;
         this.hiatusController = hiatusController;
         this.reminderController = reminderController;
-        this.qotdController = qotdController;
-        this.characterController = characterController;
         this.configuration = configuration;
         this.embedProvider = embedProvider;
         this.emojiProvider = emojiProvider;
@@ -105,6 +100,7 @@ export abstract class Command {
         this.timestampService = timestampService;
         this.sessionMapper = sessionMapper;
         this.hiatusMapper = hiatusMapper;
+        this.characterMapper = characterMapper;
     }
 
     /**

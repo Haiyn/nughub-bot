@@ -96,12 +96,12 @@ export class MessageController extends Controller {
                 ),
                 this.channelService.getTextChannelByChannelId(
                     await this.configuration.getString(
-                        ConfigurationKeys.Channels_CanonCharacterChannelId
+                        ConfigurationKeys.Channels_CharacterListChannelId_0
                     )
                 ),
                 this.channelService.getTextChannelByChannelId(
                     await this.configuration.getString(
-                        ConfigurationKeys.Channels_OriginalCharacterChannelId
+                        ConfigurationKeys.Channels_CharacterListChannelId_1
                     )
                 ),
             ];

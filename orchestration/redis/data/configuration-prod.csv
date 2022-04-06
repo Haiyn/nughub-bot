@@ -5,8 +5,8 @@ CONFIGURATION_Channels_NotificationChannelId;833131441415782401;STRING;The ID of
 CONFIGURATION_Channels_TimestampsChannelId;833120604190015519;STRING;The ID of the channel where timestamp channels are sent to
 CONFIGURATION_Channels_HiatusChannelId;833131296170704945;STRING;The ID of the channel where hiatuses are sent to
 CONFIGURATION_Channels_QotdChannelId;937180877732073492;STRING;The ID of the channel where qotds are sent to
-CONFIGURATION_Channels_CanonCharacterChannelId;833129028516970606;STRING;The ID of the channel where canon character lists are sent to
-CONFIGURATION_Channels_OriginalCharacterChannelId;833129063153270804;STRING;The ID of the channel where original character lists are sent to
+CONFIGURATION_Channels_CharacterListChannelId_0;833129028516970606;STRING;The ID of the channel where canon character lists are sent to
+CONFIGURATION_Channels_CharacterListChannelId_1;833129063153270804;STRING;The ID of the channel where original character lists are sent to
 CONFIGURATION_Channels_RpChannelIds;890287133376528446;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Channels_RpChannelIds;890287167421681665;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Category_Origins;Origins;STRING;The name of the Dragon Age Origins category

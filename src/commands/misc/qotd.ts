@@ -35,7 +35,6 @@ export class Qotd extends Command {
             this.logger.debug(
                 `New qotd added. There are now at least one qotd again, scheduling...`
             );
-            await this.qotdController.scheduleQotd();
         }
 
         const reply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {

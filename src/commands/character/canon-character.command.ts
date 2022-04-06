@@ -1,5 +1,6 @@
 import { CanonCharacterModel, CanonCharacterSchema } from '@models/data/canon-character-schema';
 import { CanonCharacterAvailability } from '@models/misc/canon-character-availability.enum';
+import { CharacterListType } from '@models/misc/character-list-type.enum';
 import { DragonAgeGame } from '@models/misc/dragon-age-game.enum';
 import { Command } from '@src/commands';
 import {
@@ -107,14 +108,18 @@ export class CanonCharacter extends Command {
         }
 
         // Update character list
-        await this.characterController.updateCanonCharacterList(
-            Number.parseInt(interaction.options.getString('game'))
+        await this.characterService.updateCharacterList(
+            Number.parseInt(interaction.options.getString('game')),
+            CharacterListType.Canon
         );
 
         // Send reply
         let content =
             (await this.stringProvider.get('COMMAND.CANON-CHARACTER.ADD.SUCCESS')) + `\n\n`;
-        content += await this.characterController.getCanonCharacterEntry(canonCharacter);
+        content += await this.characterService.getCharacterListEntry(
+            CharacterListType.Canon,
+            canonCharacter
+        );
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
         });
@@ -198,7 +203,10 @@ export class CanonCharacter extends Command {
                     })
                         .exec()
                         .then(async () => {
-                            await this.characterController.updateCanonCharacterList(game);
+                            await this.characterService.updateCharacterList(
+                                game,
+                                CharacterListType.Canon
+                            );
                             queryReply = await this.embedProvider.get(
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
@@ -330,14 +338,17 @@ export class CanonCharacter extends Command {
                     )
                         .exec()
                         .then(async () => {
-                            await this.characterController.updateCanonCharacterList(game);
+                            await this.characterService.updateCharacterList(
+                                game,
+                                CharacterListType.Canon
+                            );
                             queryReply = await this.embedProvider.get(
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
                                 {
                                     content: await this.stringProvider.get(
                                         'COMMAND.CANON-CHARACTER.ASSIGN.SUCCESS',
-                                        [characterToAssign.name, characterToAssign.claimerId]
+                                        [characterToAssign.name, claimer.id]
                                     ),
                                 }
                             );
@@ -459,7 +470,10 @@ export class CanonCharacter extends Command {
                     )
                         .exec()
                         .then(async () => {
-                            await this.characterController.updateCanonCharacterList(game);
+                            await this.characterService.updateCharacterList(
+                                game,
+                                CharacterListType.Canon
+                            );
                             queryReply = await this.embedProvider.get(
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
@@ -512,17 +526,12 @@ export class CanonCharacter extends Command {
         let content = `Current canon characters:\n\n`;
         for (const character of characters) {
             const index = characters.indexOf(character);
-            content += `${index + 1}. **${character.name}** `;
-            if (character.claimerId) {
-                character.availability === CanonCharacterAvailability.TemporaryClaim
-                    ? (content += `temp`)
-                    : '';
-                const member = await this.userService.getGuildMemberById(character.claimerId);
-                content += ` claimed by ${await this.userService.getMemberDisplay(member)}`;
-            } else {
-                content += ` available`;
-            }
-            content += `\n`;
+            content += `${index + 1}. `;
+            content += await this.characterService.getCharacterListEntry(
+                CharacterListType.Canon,
+                await this.characterMapper.mapCanonCharacterSchemaToCanonCharacter(character)
+            );
+            content += '\n';
         }
         content += `\n${queryText}`;
         return await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
