@@ -510,10 +510,12 @@ export class SessionEdit extends Command {
             // For this, we set the current turn to the user before it, then next command them
             if (atPosition === 0) {
                 atPosition = session.turnOrder.length - 1;
+            } else {
+                atPosition = atPosition - 1;
             }
 
             this.logger.debug(
-                `Setting new turn for user ${session.turnOrder[atPosition]}. User for edit set at position ${atPosition} will be next-ed.`
+                `Setting new turn for user ${session.turnOrder[atPosition].member.displayName}. User for edit set at position ${atPosition} will be next-ed.`
             );
 
             session.currentTurn = session.turnOrder[atPosition];
