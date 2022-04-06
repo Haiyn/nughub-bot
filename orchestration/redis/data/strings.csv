@@ -62,6 +62,11 @@ STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.NOTHING-TO-UNASSIGN,There are no
 STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.QUERY.QUESTION,Which canon character would you like to unassign? Please input a number.
 STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.SUCCESS,I've successfully unassigned the canon character {0}.
 STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.FAILURE,I could not unassign the canon character {0}.
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.ADD.SUCCESS,I've successfully added the following character pairing to the canon character list:
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.REMOVE.NOTHING-TO-REMOVE,There are no character pairings that you can remove.
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.REMOVE.QUERY.QUESTION,Which character pairing would you like to remove? Please input a number.
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.REMOVE.SUCCESS,I've successfully removed the character pairing.
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.REMOVE.FAILURE,I could not remove the character pairing.
 STRING,STRINGS.SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR,Internal Error: `Command validation failed unexpectedly.`
 STRING,STRINGS.SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR,Internal Error: `Command execution failed unexpectedly.`
 STRING,STRINGS.SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT,Internal Error: `Database rejection`

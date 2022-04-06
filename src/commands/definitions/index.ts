@@ -7,6 +7,7 @@ import { commandDefinition as ping } from '@commands/definitions/system/ping';
 import { commandDefinition as qotdAdmin } from '@commands/definitions/system/qotd-admin';
 import { commandDefinition as strings } from '@commands/definitions/system/strings';
 import { commandDefinition as canonCharacter } from './character/canon-character.definition';
+import { commandDefinition as characterPairing } from './character/character-pairing.definition';
 import { commandDefinition as originalCharacter } from './character/original-character.definition';
 import { commandDefinition as hiatus } from './hiatus/hiatus';
 import { commandDefinition as qotd } from './misc/qotd';
@@ -29,6 +30,7 @@ export default [
     canonCharacter(),
     originalCharacter(),
     info(),
+    characterPairing(),
 ];
 export {
     sessionStart,
@@ -45,4 +47,5 @@ export {
     canonCharacter,
     originalCharacter,
     info,
+    characterPairing,
 };

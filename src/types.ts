@@ -62,6 +62,7 @@ export const TYPES = {
     QotdAdmin: Symbol('Qotdadmin'),
     CanonCharacter: Symbol('Cc'),
     OriginalCharacter: Symbol('Oc'),
+    CharacterPairing: Symbol('Cp'),
     Info: Symbol('Info'),
 
     // Logging
