@@ -41,6 +41,7 @@ import { SessionService } from '@services/feature/session-service';
 import { TimestampService } from '@services/feature/timestamp-service';
 import { HiatusMapper } from '@src/mappers';
 import { CharacterMapper } from '@src/mappers/character.mapper';
+import { CharacterPairing } from '@commands/character/caracter-pairing.command';
 
 const container = new Container();
 
@@ -173,6 +174,7 @@ container.bind<Qotd>('Qotd').to(Qotd).inRequestScope();
 container.bind<QotdAdmin>('Qotdadmin').to(QotdAdmin).inRequestScope();
 container.bind<CanonCharacter>('Cc').to(CanonCharacter).inRequestScope();
 container.bind<OriginalCharacter>('Oc').to(OriginalCharacter).inRequestScope();
+container.bind<CharacterPairing>('Cp').to(CharacterPairing).inRequestScope();
 container.bind<Info>('Info').to(Info).inRequestScope();
 
 export default container;

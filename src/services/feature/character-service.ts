@@ -6,6 +6,8 @@ import { DragonAgeGameMapper } from '@src/mappers';
 import {
     CanonCharacter,
     CanonCharacterModel,
+    CharacterPairing,
+    CharacterPairingModel,
     CommandError,
     EmbedLevel,
     EmbedType,
@@ -139,7 +141,7 @@ export class CharacterService extends FeatureService {
      */
     public getCharacterListEntry(
         listType: CharacterListType,
-        data: CanonCharacter | OriginalCharacter
+        data: CanonCharacter | OriginalCharacter | CharacterPairing
     ): string {
         let character;
         switch (listType) {
@@ -166,6 +168,13 @@ export class CharacterService extends FeatureService {
                 return `• **${character.name}** (${character.pronouns}, ${character.race}, ${
                     character.age
                 }) ${this.userService.getMemberDisplay(character.member)}`;
+            case CharacterListType.Pairing:
+                character = data as CharacterPairing;
+                return `• **${character.name1}** (${this.userService.getMemberDisplay(
+                    character.member1
+                )}) / **${character.name2}** (${this.userService.getMemberDisplay(
+                    character.member2
+                )})`;
         }
     }
 
@@ -289,7 +298,7 @@ export class CharacterService extends FeatureService {
     private async getCharacters(
         listType: CharacterListType,
         game: DragonAgeGame
-    ): Promise<CanonCharacter[] | OriginalCharacter[]> {
+    ): Promise<CanonCharacter[] | OriginalCharacter[] | CharacterPairing[]> {
         if (listType === CharacterListType.Original) {
             const foundOcs = await OriginalCharacterModel.find({ game: game })
                 .sort({ name: 'desc' })
@@ -314,6 +323,19 @@ export class CharacterService extends FeatureService {
                 );
             }
             return mappedCcs;
+        }
+
+        if (listType === CharacterListType.Pairing) {
+            const foundCps = await CharacterPairingModel.find({ game: game })
+                .sort({ name: 'desc' })
+                .exec();
+            const mappedCps: CharacterPairing[] = [];
+            for (const cp of foundCps) {
+                mappedCps.push(
+                    await this.characterMapper.mapCharacterPairingSchemaToCharacterPairing(cp)
+                );
+            }
+            return mappedCps;
         }
 
         this.logger.error(`No mapping for character model in database for list type ${listType}`);

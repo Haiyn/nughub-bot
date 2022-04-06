@@ -2,6 +2,8 @@ import { Mapper } from '@src/mappers/mapper';
 import {
     CanonCharacter,
     CanonCharacterSchema,
+    CharacterPairing,
+    CharacterPairingSchema,
     OriginalCharacter,
     OriginalCharacterSchema,
 } from '@src/models';
@@ -30,6 +32,18 @@ export class CharacterMapper extends Mapper {
             game: canonCharacterSchema.game,
             availability: canonCharacterSchema.availability,
             claimer: await this.userService.getGuildMemberById(canonCharacterSchema.claimerId),
+        };
+    }
+
+    public async mapCharacterPairingSchemaToCharacterPairing(
+        characterPairingSchema: CharacterPairingSchema
+    ): Promise<CharacterPairing> {
+        return {
+            game: characterPairingSchema.game,
+            member1: await this.userService.getGuildMemberById(characterPairingSchema.userId1),
+            name1: characterPairingSchema.name1,
+            member2: await this.userService.getGuildMemberById(characterPairingSchema.userId2),
+            name2: characterPairingSchema.name2,
         };
     }
 }
