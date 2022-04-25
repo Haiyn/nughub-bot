@@ -300,7 +300,7 @@ export class Configuration extends Command {
         // Validate that non-owner isn't trying to change the owner ID
         if (
             key === 'Permission_User_4_Id' &&
-            interaction.member.user.id !==
+            interaction.member?.user?.id !==
                 (await this.configuration.getString('Permission_User_4_Id'))
         ) {
             throw new CommandValidationError(

@@ -81,7 +81,8 @@ export class QotdAdmin extends Command {
         await this.interactionService.reply(interaction, { embeds: embeds });
 
         // Wait for response and handle it
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,

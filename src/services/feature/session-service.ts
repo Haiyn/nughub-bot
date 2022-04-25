@@ -25,7 +25,7 @@ export class SessionService extends FeatureService {
             for (const character of session.turnOrder) {
                 const user = await this.userService.getGuildMemberById(character.userId);
                 if (
-                    user.id === session.currentTurn.userId &&
+                    user?.id === session.currentTurn.userId &&
                     character.name === session.currentTurn.name
                 )
                     content += ':arrow_right: ';
@@ -33,7 +33,7 @@ export class SessionService extends FeatureService {
                     user
                 )}`;
 
-                const hasHiatus = await HiatusModel.findOne({ userId: user.id }).exec();
+                const hasHiatus = await HiatusModel.findOne({ userId: user?.id }).exec();
                 if (hasHiatus) {
                     content += '⌛';
                 }

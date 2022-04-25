@@ -149,7 +149,8 @@ export class CanonCharacter extends Command {
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -274,7 +275,8 @@ export class CanonCharacter extends Command {
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -332,7 +334,7 @@ export class CanonCharacter extends Command {
                             _id: characterToAssign._id,
                         },
                         {
-                            claimerId: claimer.id,
+                            claimerId: claimer?.id,
                             availability: availability,
                         }
                     )
@@ -348,7 +350,7 @@ export class CanonCharacter extends Command {
                                 {
                                     content: await this.stringProvider.get(
                                         'COMMAND.CANON-CHARACTER.ASSIGN.SUCCESS',
-                                        [characterToAssign.name, claimer.id]
+                                        [characterToAssign.name, claimer?.id]
                                     ),
                                 }
                             );
@@ -409,7 +411,8 @@ export class CanonCharacter extends Command {
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,

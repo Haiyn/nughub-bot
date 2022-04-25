@@ -73,7 +73,7 @@ export class SessionMapper extends Mapper {
 
     public mapCharacterToCharacterSchema(character: Character): ICharacterSchema {
         return {
-            userId: character.member.id,
+            userId: character.member?.id ? character.member.id : '0',
             name: character.name,
         };
     }

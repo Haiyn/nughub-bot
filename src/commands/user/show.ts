@@ -17,7 +17,7 @@ export class Show extends Command {
 
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         const pendingSessions = await SessionModel.find({
-            'currentTurn.userId': interaction.member.user.id,
+            'currentTurn.userId': interaction.member?.user?.id,
         }).exec();
 
         let content = '';

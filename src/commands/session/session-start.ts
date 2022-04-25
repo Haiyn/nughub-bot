@@ -223,7 +223,7 @@ export class SessionStart extends Command {
             let content = `${session.channel}\n\n\n`;
             for (const character of session.turnOrder) {
                 if (
-                    character.member.id === session.currentTurn.member.id &&
+                    character.member?.id === session.currentTurn.member?.id &&
                     character.name === session.currentTurn.name
                 ) {
                     content += ':arrow_right: ';
@@ -232,7 +232,9 @@ export class SessionStart extends Command {
                     character.member
                 )}`;
 
-                const hasHiatus = await HiatusModel.findOne({ userId: character.member.id }).exec();
+                const hasHiatus = await HiatusModel.findOne({
+                    userId: character.member?.id,
+                }).exec();
                 if (hasHiatus) {
                     content += '⌛';
                 }
@@ -326,7 +328,16 @@ export class SessionStart extends Command {
     private async saveSessionToDatabase(data: Session): Promise<void> {
         const turnOrder: Array<ICharacterSchema> = [];
         data.turnOrder.forEach((character) => {
-            turnOrder.push({ userId: character.member.id, name: character.name });
+            if (!character.member) {
+                throw new CommandError(
+                    `No member for character name ${character.name}.`,
+                    `I could not find a Discord user in this server for the character name ${character.name}!`
+                );
+            }
+            turnOrder.push({
+                userId: character.member.id,
+                name: character.name,
+            });
         });
 
         const session = new SessionModel({
