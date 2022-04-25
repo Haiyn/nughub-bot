@@ -40,7 +40,7 @@ export class ReminderService extends FeatureService {
             title: await this.stringProvider.get('JOB.REMINDER.TITLE'),
             content: content,
             authorName: await this.userService.getEscapedDisplayName(reminder.member),
-            authorIcon: reminder.member.user.avatarURL(),
+            authorIcon: reminder.member?.user?.avatarURL(),
             footer: footer,
         });
 
@@ -53,7 +53,7 @@ export class ReminderService extends FeatureService {
         // Send message to reminder channel
         try {
             await channel.send({
-                content: `${await this.userService.getGuildMemberById(reminder.member.id)}`,
+                content: `${await this.userService.getGuildMemberById(reminder.member?.id)}`,
                 embeds: [message],
             });
             this.logger.info(

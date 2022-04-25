@@ -69,7 +69,7 @@ export class TimestampService extends FeatureService {
         // Construct message
         const display = await this.userService.getMemberDisplay(session.currentTurn.member);
         const content = `**Channel:**\t<#${session.channel.id}>\n**User:** ${display}\n**Character:**\t${session.currentTurn.name}\n\n`;
-        const footer = await this.hiatusService.getUserHiatusStatus(session.currentTurn.member.id);
+        const footer = await this.hiatusService.getUserHiatusStatus(session.currentTurn.member?.id);
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: TimestampStatus.JustStarted,
             content: content,

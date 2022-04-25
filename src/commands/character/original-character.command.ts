@@ -133,7 +133,8 @@ export class OriginalCharacter extends Command {
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,

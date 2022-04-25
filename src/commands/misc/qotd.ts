@@ -16,7 +16,7 @@ export class Qotd extends Command {
             content: interaction.options.getString('question'),
             dateAdded: moment().utc().toDate(),
             used: false,
-            submitterId: interaction.member.user.id,
+            submitterId: interaction.member?.user?.id,
         });
 
         try {

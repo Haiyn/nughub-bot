@@ -81,7 +81,7 @@ export class Hiatus extends Command {
      */
     public async create(interaction: CommandInteraction): Promise<void> {
         const activeHiatus = await HiatusModel.findOne({
-            userId: interaction.member.user.id,
+            userId: interaction.member?.user?.id,
         }).exec();
         if (activeHiatus) {
             throw new CommandValidationError(
@@ -104,7 +104,7 @@ export class Hiatus extends Command {
                 .toDate();
 
         const currentTurnsForUser: ISessionSchema[] = await SessionModel.find({
-            'currentTurn.userId': hiatus.member.user.id,
+            'currentTurn.userId': hiatus.member?.user?.id,
         });
 
         this.logger.debug(
@@ -131,7 +131,7 @@ export class Hiatus extends Command {
 
     public async edit(interaction: CommandInteraction): Promise<void> {
         const activeHiatus = await HiatusModel.findOne({
-            userId: interaction.member.user.id,
+            userId: interaction.member?.user?.id,
         }).exec();
         if (!activeHiatus) {
             throw new CommandValidationError(
@@ -172,7 +172,7 @@ export class Hiatus extends Command {
 
     public async end(interaction: CommandInteraction): Promise<void> {
         const activeHiatus = await HiatusModel.findOne({
-            userId: interaction.member.user.id,
+            userId: interaction.member?.user?.id,
         }).exec();
         if (!activeHiatus) {
             throw new CommandValidationError(
@@ -260,6 +260,12 @@ export class Hiatus extends Command {
      * @throws CommandError when saving failed
      */
     private async saveHiatusToDatabase(hiatus: HiatusData): Promise<void> {
+        if (!hiatus.member) {
+            throw new CommandError(
+                `Could not find guild member for hiatus with reason ${hiatus.reason}.`,
+                `I could not find a discord user in this guild!`
+            );
+        }
         const hiatusModel = new HiatusModel({
             userId: hiatus.member.user.id,
             reason: hiatus.reason,

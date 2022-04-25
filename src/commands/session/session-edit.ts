@@ -73,7 +73,7 @@ export class SessionEdit extends Command {
             const user = options.getUser('user');
             const name = options.getString('name');
             for (const character of session.turnOrder) {
-                if (character.userId === user.id && character.name === name) {
+                if (character.userId === user?.id && character.name === name) {
                     throw new CommandValidationError(
                         `User provided a character to add that already exists in the turn order.`,
                         await this.stringProvider.get(
@@ -96,7 +96,8 @@ export class SessionEdit extends Command {
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -204,7 +205,8 @@ export class SessionEdit extends Command {
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
         this.logger.debug(`Sending query for session edit: add`);
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -306,7 +308,8 @@ export class SessionEdit extends Command {
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -424,7 +427,7 @@ export class SessionEdit extends Command {
         let turnOrderString = `Current turn order for ${session.channel}:\n\n`;
         session.turnOrder.forEach((character, index) => {
             if (
-                character.member.id === session.currentTurn.member.id &&
+                character.member?.id === session.currentTurn.member?.id &&
                 character.name === session.currentTurn.name
             ) {
                 turnOrderString += `➡️ `;
@@ -471,7 +474,7 @@ export class SessionEdit extends Command {
 
         // If the character to remove is the current turn, advance the turn first
         if (
-            characterToRemove.member.id === session.currentTurn.member.id &&
+            characterToRemove.member?.id === session.currentTurn.member?.id &&
             characterToRemove.name === session.currentTurn.name
         ) {
             this.logger.debug(`User to remove is current turn user, advancing turn...`);
@@ -531,7 +534,7 @@ export class SessionEdit extends Command {
             // If user should not be notified, simply set the new turn in the database
             session.currentTurn = session.turnOrder[atPosition];
             this.logger.debug(
-                `Setting new turn for user ${session.currentTurn.member.user.username}`
+                `Setting new turn for user ${session.currentTurn.member?.user?.username}`
             );
 
             newSession = this.sessionMapper.mapSessionToSessionSchema(session);
@@ -549,7 +552,7 @@ export class SessionEdit extends Command {
 
             // We also need to edit the timestamp
             const footer = await this.hiatusService.getUserHiatusStatus(
-                session.currentTurn.member.id
+                session.currentTurn.member?.id
             );
             let content = `**Channel:**\t<#${
                 session.channel.id

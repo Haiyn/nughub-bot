@@ -24,6 +24,14 @@ export class ReminderController extends FeatureController {
                 `Restoring reminder entry for Channel ID ${reminderEntry.channelId}...`
             );
             const member = await this.userService.getGuildMemberById(reminderEntry.userId);
+
+            if (!member) {
+                this.logger.warn(
+                    `User with ID ${reminderEntry.userId} seems to have left the guild. I will not restore the reminder for them.`
+                );
+                continue;
+            }
+
             const channel = await this.channelService.getTextChannelByChannelId(
                 reminderEntry.channelId
             );
@@ -72,7 +80,7 @@ export class ReminderController extends FeatureController {
         //
         const reminderModel = new ReminderModel({
             name: reminder.name,
-            userId: reminder.member.id,
+            userId: reminder.member?.id ? reminder.member.id : '0',
             characterName: reminder.characterName,
             date: reminder.date,
             channelId: reminder.channel.id,
@@ -103,7 +111,7 @@ export class ReminderController extends FeatureController {
             }).exec();
         } catch (error) {
             this.logger.error(
-                `Failed to delete reminder from database for ${reminder.member.user.username} and channel ${reminder.channel.name}`
+                `Failed to delete reminder from database for ${reminder.member?.user?.username} and channel ${reminder.channel.name}`
             );
         }
     }
@@ -150,7 +158,7 @@ export class ReminderController extends FeatureController {
         const handleReminderTrigger = async (): Promise<void> => {
             await this.handleFirstReminderTrigger(reminder);
             this.logger.info(
-                `Finished first reminder trigger for ${reminder.member.user.username} and channel ${reminder.channel.name}.`
+                `Finished first reminder trigger for ${reminder.member?.user?.username} and channel ${reminder.channel.name}.`
             );
         };
 
@@ -158,7 +166,7 @@ export class ReminderController extends FeatureController {
         this.scheduleService.scheduleJob(reminder.name, reminder.date, handleReminderTrigger);
 
         this.logger.info(
-            `Scheduled first reminder for ${reminder.member.user.username} and channel ${reminder.channel.name}.`
+            `Scheduled first reminder for ${reminder.member?.user?.username} and channel ${reminder.channel.name}.`
         );
     }
 
@@ -167,7 +175,7 @@ export class ReminderController extends FeatureController {
         const handleReminderTrigger = async (): Promise<void> => {
             await this.handleSecondReminderTrigger(reminder);
             this.logger.info(
-                `Finished second reminder trigger for ${reminder.member.user.username} and channel ${reminder.channel.name}.`
+                `Finished second reminder trigger for ${reminder.member?.user?.username} and channel ${reminder.channel.name}.`
             );
         };
 
@@ -175,7 +183,7 @@ export class ReminderController extends FeatureController {
         this.scheduleService.scheduleJob(reminder.name, reminder.date, handleReminderTrigger);
 
         this.logger.info(
-            `Scheduled second reminder for ${reminder.member.user.username} and channel ${reminder.channel.name}.`
+            `Scheduled second reminder for ${reminder.member?.user?.username} and channel ${reminder.channel.name}.`
         );
     }
 
@@ -184,7 +192,7 @@ export class ReminderController extends FeatureController {
         await this.deleteReminderJob(reminder);
 
         // See if user is on hiatus
-        const hasActiveHiatus = await this.hiatusService.userHasActiveHiatus(reminder.member.id);
+        const hasActiveHiatus = await this.hiatusService.userHasActiveHiatus(reminder.member?.id);
 
         // Send the reminder message
         await this.reminderService.sendReminder(reminder, hasActiveHiatus);
@@ -229,7 +237,7 @@ export class ReminderController extends FeatureController {
         await this.deleteReminderJob(reminder);
 
         // See if user is on hiatus
-        const hasActiveHiatus = await this.hiatusService.userHasActiveHiatus(reminder.member.id);
+        const hasActiveHiatus = await this.hiatusService.userHasActiveHiatus(reminder.member?.id);
 
         // Send the reminder message
         await this.reminderService.sendReminder(reminder, hasActiveHiatus);
@@ -241,7 +249,7 @@ export class ReminderController extends FeatureController {
         );
 
         // notify mods
-        const hiatusAddition = await this.hiatusService.getUserHiatusStatus(reminder.member.id); // Gets the hiatus status as an addition in the warning message
+        const hiatusAddition = await this.hiatusService.getUserHiatusStatus(reminder.member?.id); // Gets the hiatus status as an addition in the warning message
         await this.reminderService.sendReminderWarning(reminder, hiatusAddition);
 
         // Delete the reminder from the database because it no longer needs to be restored

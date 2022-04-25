@@ -34,7 +34,7 @@ export class SessionNext extends Command {
         const userMessage: string = interaction.options.getString('message');
 
         this.logger.debug('Validating user turn...');
-        await this.validateUserTurn(session.currentTurn.userId, interaction.member.user.id);
+        await this.validateUserTurn(session.currentTurn.userId, interaction.member?.user?.id);
 
         this.logger.debug('Updating user turn in database...');
         const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
@@ -239,7 +239,7 @@ export class SessionNext extends Command {
             title: await this.stringProvider.get('COMMAND.SESSION-NEXT.NOTIFICATION-TITLE'),
             content: content,
             authorName: await this.userService.getEscapedDisplayName(member),
-            authorIcon: member.user.avatarURL(),
+            authorIcon: member ? member?.user?.avatarURL() : '',
             footer: reason,
         });
 

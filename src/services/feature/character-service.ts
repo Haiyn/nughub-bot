@@ -147,12 +147,13 @@ export class CharacterService extends FeatureService {
         switch (listType) {
             case CharacterListType.Canon:
                 character = data as CanonCharacter;
-                this.logger.debug(character);
-                this.logger.debug(character.claimer);
                 return `• **${character.name}**: \
                 ${
-                    character.claimer.id ? this.userService.getMemberDisplay(character.claimer) : ''
+                    character.claimer?.id
+                        ? this.userService.getMemberDisplay(character.claimer)
+                        : ''
                 } \
+                ${character.claimer === null ? '(invalid-user)' : ''} \
                 ${
                     character.availability === CanonCharacterAvailability.TemporaryClaim
                         ? '*(temporary claim)*'
@@ -227,7 +228,7 @@ export class CharacterService extends FeatureService {
         return messages.find(
             (m) =>
                 m.author.id === this.client.user.id &&
-                m.embeds[0]?.title.includes(DragonAgeGameMapper.mapEnumToStringName(game))
+                m.embeds[0]?.title?.includes(DragonAgeGameMapper.mapEnumToStringName(game))
         );
     }
 

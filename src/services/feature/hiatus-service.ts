@@ -33,7 +33,7 @@ export class HiatusService extends FeatureService {
 
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
             authorName: await this.userService.getEscapedDisplayName(hiatus.member),
-            authorIcon: hiatus.member.user.avatarURL(),
+            authorIcon: hiatus.member?.user?.avatarURL(),
             content: content,
         });
 
@@ -64,7 +64,7 @@ export class HiatusService extends FeatureService {
 
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Guild, {
             authorName: await this.userService.getEscapedDisplayName(hiatus.member),
-            authorIcon: hiatus.member.user.avatarURL(),
+            authorIcon: hiatus.member?.user?.avatarURL(),
             content: content,
             footer: footer,
         });
@@ -136,7 +136,7 @@ export class HiatusService extends FeatureService {
         }
 
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
-            authorIcon: hiatus.member.user.avatarURL(),
+            authorIcon: hiatus.member?.user?.avatarURL(),
             authorName: await this.userService.getEscapedDisplayName(hiatus.member),
             title: title,
             content: content,
@@ -152,7 +152,7 @@ export class HiatusService extends FeatureService {
         );
 
         this.logger.debug(
-            `Sending welcome back message for user ${hiatus.member.user.username}...`
+            `Sending welcome back message for user ${hiatus.member?.user?.username}...`
         );
         try {
             await reminderChannel.send({
