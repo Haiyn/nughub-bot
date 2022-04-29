@@ -27,7 +27,6 @@ export const TYPES = {
     EmojiProvider: Symbol('EmojiProvider'),
     ConfigurationProvider: Symbol('ConfigurationProvider'),
     EmbedProvider: Symbol('EmbedProvider'),
-    PermissionProvider: Symbol('PermissionProvider'),
 
     // Services
     HelperService: Symbol('HelperService'),

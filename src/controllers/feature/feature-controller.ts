@@ -4,12 +4,7 @@ import { TimestampService } from '@services/feature/timestamp-service';
 import { MessageService } from '@services/message-service';
 import { ScheduleService } from '@services/schedule-service';
 import { Controller } from '@src/controllers';
-import {
-    ConfigurationProvider,
-    EmbedProvider,
-    PermissionProvider,
-    StringProvider,
-} from '@src/providers';
+import { ConfigurationProvider, EmbedProvider, StringProvider } from '@src/providers';
 import { ChannelService, UserService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client } from 'discord.js';
@@ -41,7 +36,6 @@ export class FeatureController extends Controller {
         @inject(TYPES.Token) token: string,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider,
         @inject(TYPES.StringProvider) stringProvider: StringProvider,
         @inject(TYPES.TimestampService) timestampService: TimestampService,
         @inject(TYPES.HiatusService) hiatusService: HiatusService,
@@ -49,7 +43,7 @@ export class FeatureController extends Controller {
         @inject(TYPES.ReminderService) reminderService: ReminderService,
         @inject(TYPES.CharacterService) characterService: CharacterService
     ) {
-        super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
+        super(logger, guildId, token, client, configuration, embedProvider);
         this.channelService = channelService;
         this.userService = userService;
         this.scheduleService = scheduleService;

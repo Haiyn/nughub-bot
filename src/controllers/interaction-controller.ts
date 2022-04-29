@@ -10,7 +10,7 @@ import { ConfigurationError } from '@models/config/configuration-error';
 import { EmbedLevel } from '@models/ui/embed-level';
 import { EmbedType } from '@models/ui/embed-type';
 import container from '@src/inversify.config';
-import { ConfigurationProvider, EmbedProvider, PermissionProvider } from '@src/providers';
+import { ConfigurationProvider, EmbedProvider } from '@src/providers';
 import { InteractionService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Routes } from 'discord-api-types/v9';
@@ -32,10 +32,9 @@ export class InteractionController extends Controller {
         @inject(TYPES.Token) token: string,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider,
         @inject(TYPES.TimestampController) timestampController: TimestampController
     ) {
-        super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
+        super(logger, guildId, token, client, configuration, embedProvider);
         this.interactionService = interactionService;
         this.timestampController = timestampController;
     }
@@ -95,45 +94,6 @@ export class InteractionController extends Controller {
             );
             return Promise.reject();
         }
-    }
-
-    /**
-     * Registers the permission for the application commands
-     *
-     * @returns Resolves when done, rejects when failed
-     */
-    public async registerApplicationCommandPermissions(): Promise<void> {
-        const rest = new REST({ version: '9' }).setToken(this.token);
-        const guild = await this.client.guilds.cache.get(this.guildId);
-
-        await rest.get(Routes.applicationGuildCommands(this.client.user.id, this.guildId)).then(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            async (data: any) => {
-                for (const command of data) {
-                    try {
-                        const registeredCommand = await guild?.commands.fetch(command.id);
-                        const applicationCommand = this.getCommandFromCommandName(
-                            registeredCommand.name
-                        );
-                        const permissions =
-                            await this.permissionProvider.mapCommandToCommandPermissions(
-                                applicationCommand,
-                                guild
-                            );
-
-                        await registeredCommand.permissions.add({ permissions });
-                    } catch (error) {
-                        this.logger.fatal(
-                            `Failed to construct and add permissions: `,
-                            this.logger.prettyError(error)
-                        );
-                        return Promise.reject();
-                    }
-                }
-            }
-        );
-
-        return Promise.resolve();
     }
 
     /**

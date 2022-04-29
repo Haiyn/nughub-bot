@@ -37,7 +37,7 @@ services:
     image: haiyn/xenon-bot:${RELEASE_VERSION}
     env_file:
       - .env
-    restart: on-failure
+    restart: on-failure:3
     ports:
       -  8089:8089
     networks:
