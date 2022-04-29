@@ -128,16 +128,6 @@ export class Server {
                 .catch(() => {
                     process.exit(1);
                 });
-
-            this.logger.info('Registering application command permissions...');
-            await this.interactionController
-                .registerApplicationCommandPermissions()
-                .then(() => {
-                    this.logger.info(`Registered application command permissions.`);
-                })
-                .catch(() => {
-                    process.exit(1);
-                });
         } else {
             this.logger.info(`Skipping command registration because Environment is 'local'.`);
         }

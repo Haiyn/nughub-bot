@@ -9,7 +9,6 @@ import {
     StringProvider,
     EmbedProvider,
     ConfigurationProvider,
-    PermissionProvider,
 } from '@src/providers';
 import { Server } from '@src/server';
 import { TYPES } from '@src/types';
@@ -133,10 +132,6 @@ container
     .to(ConfigurationProvider)
     .inSingletonScope();
 container.bind<EmbedProvider>(TYPES.EmbedProvider).to(EmbedProvider).inSingletonScope();
-container
-    .bind<PermissionProvider>(TYPES.PermissionProvider)
-    .to(PermissionProvider)
-    .inSingletonScope();
 
 // Services
 container
