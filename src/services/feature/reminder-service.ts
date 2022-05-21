@@ -1,7 +1,7 @@
 import { Reminder } from '@models/jobs/reminder';
 import { ReminderModel } from '@models/jobs/reminder-schema';
 import { FeatureService } from '@services/feature/feature-service';
-import { EmbedLevel, EmbedType, ISessionSchema } from '@src/models';
+import { EmbedLevel, EmbedType, ISessionSchema, SessionModel } from '@src/models';
 import { injectable } from 'inversify';
 import moment = require('moment');
 
@@ -18,6 +18,13 @@ export class ReminderService extends FeatureService {
     public async sendReminder(reminder: Reminder, hasActiveHiatus: boolean): Promise<void> {
         this.logger.info(`Sending reminder ${reminder.name}...`);
 
+        // Check if skip warning should be shown. Will not be shown if not on last reminder or if its a 2 person rp
+        let showSkipWarning = false;
+        if (reminder.iteration === 1) {
+            const session = await SessionModel.findOne({ channelId: reminder.channel.id }).exec();
+            if (session.turnOrder.length > 2) showSkipWarning = true;
+        }
+
         // Construct message
         let footer = '';
         let content = `*${reminder.characterName}* in <#${reminder.channel.id}>`;
@@ -29,11 +36,13 @@ export class ReminderService extends FeatureService {
             }
         } else if (reminder.iteration === 1) {
             footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.SECOND');
-            content += await this.stringProvider.get('JOB.REMINDER.DESCRIPTION.SECOND');
-            if (!hasActiveHiatus) {
-                content += await this.stringProvider.get(
-                    'JOB.REMINDER.DESCRIPTION.SECOND.HIATUS-HINT'
-                );
+            if (showSkipWarning) {
+                content += await this.stringProvider.get('JOB.REMINDER.DESCRIPTION.SECOND');
+                if (!hasActiveHiatus) {
+                    content += await this.stringProvider.get(
+                        'JOB.REMINDER.DESCRIPTION.SECOND.HIATUS-HINT'
+                    );
+                }
             }
         }
         const message = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {

@@ -140,14 +140,43 @@ export class Hiatus extends Command {
             );
         }
 
-        this.logger.debug(`Editing hiatus with new date...`);
-        const newDate = moment
-            .utc(interaction.options.getString('until'))
-            .set('hours', 12)
-            .set('minutes', 0)
-            .set('seconds', 0)
-            .toDate();
-        activeHiatus.expires = newDate;
+        const newUntil = interaction.options.getString('until');
+        const newReason = interaction.options.getString('reason');
+
+        if (!newUntil && !newReason) {
+            throw new CommandValidationError(
+                `User tried to run edit command supplying any of the parameters.`,
+                await this.stringProvider.get(
+                    `Please supply at least one of the two optional parameters ('until' and/or 'reason')!`
+                )
+            );
+        }
+
+        if (newUntil) {
+            this.logger.debug(`Editing hiatus with new date...`);
+            const newDate = moment
+                .utc(interaction.options.getString('until'))
+                .set('hours', 12)
+                .set('minutes', 0)
+                .set('seconds', 0)
+                .toDate();
+            activeHiatus.expires = newDate;
+
+            // (Re)schedule hiatus with new date
+            const jobName = `hiatus:${activeHiatus.userId}`;
+            if (this.scheduleService.jobExists(jobName)) {
+                this.scheduleService.rescheduleJob(jobName, newDate);
+            } else {
+                await this.hiatusController.scheduleHiatusFinish(
+                    await this.hiatusMapper.mapHiatusSchemaToHiatus(activeHiatus)
+                );
+            }
+        }
+
+        if (newReason) {
+            this.logger.debug(`Editing hiatus with new reason...`);
+            activeHiatus.reason = newReason;
+        }
 
         // Save to database
         await activeHiatus.save();
@@ -155,14 +184,6 @@ export class Hiatus extends Command {
         // Edit the hiatus post
         const hiatusData = await this.hiatusMapper.mapHiatusSchemaToHiatus(activeHiatus);
         await this.hiatusService.editHiatus(hiatusData);
-
-        // (Re)schedule hiatus with new date
-        const jobName = `hiatus:${activeHiatus.userId}`;
-        if (this.scheduleService.jobExists(jobName)) {
-            this.scheduleService.rescheduleJob(jobName, newDate);
-        } else {
-            await this.hiatusController.scheduleHiatusFinish(hiatusData);
-        }
 
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.HIATUS.EDIT.SUCCESS'),
