@@ -214,6 +214,9 @@ export class ReminderController extends FeatureController {
             newDate = newDate
                 .add(await this.configuration.getNumber(`Schedule_Hiatus_Hours`), 'hours')
                 .add(await this.configuration.getNumber(`Schedule_Hiatus_Minutes`), 'minutes');
+            this.logger.debug(
+                `User ${reminder.member.nickname} is on hiatus. Scheduling to ${newDate}.`
+            );
         }
 
         // Update in the database

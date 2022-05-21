@@ -117,6 +117,11 @@ export class HiatusController extends FeatureController {
             }
         }
 
+        // Delete hiatus job if there is one
+        if (this.scheduleService.jobExists(`hiatus:${hiatus.member.id}`)) {
+            this.scheduleService.cancelJob(`hiatus:${hiatus.member.id}`);
+        }
+
         // Send welcome back message
         await this.hiatusService.sendWelcomeBackMessage(
             hiatus,
