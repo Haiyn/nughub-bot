@@ -2,7 +2,7 @@ import { ConfigurationProvider } from '@providers/configuration-provider';
 import { HelperService } from '@services/index';
 import { Service } from '@services/service';
 import { TYPES } from '@src/types';
-import { Client, TextChannel } from 'discord.js';
+import { Client, Collection, Message, TextChannel } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { Logger } from 'tslog';
 
@@ -51,5 +51,26 @@ export class ChannelService extends Service {
      */
     public async isRpChannel(channelId: string): Promise<boolean> {
         return await this.configuration.isInSet('Channels_RpChannelIds', channelId);
+    }
+
+    /**
+     * Clears the given channel of all messages the bot client sent
+     *
+     * @param channel the channel to clear
+     */
+    public async clearChannelOfBotMessages(channel: TextChannel): Promise<void> {
+        const messages: Collection<string, Message> = await channel.messages.fetch();
+
+        for (const message of messages.values()) {
+            if (message.author.id === this.client.user.id) {
+                try {
+                    await message.delete();
+                } catch (error) {
+                    this.logger.warn(
+                        `Could not delete bot message ${message.id} in canon character list channel!`
+                    );
+                }
+            }
+        }
     }
 }

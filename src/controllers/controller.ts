@@ -1,4 +1,4 @@
-import { ConfigurationProvider, EmbedProvider, PermissionProvider } from '@src/providers';
+import { ConfigurationProvider, EmbedProvider } from '@src/providers';
 import { TYPES } from '@src/types';
 import { Client } from 'discord.js';
 import { inject, injectable } from 'inversify';
@@ -25,17 +25,13 @@ export class Controller {
     /** The embed provider for replying */
     embedProvider: EmbedProvider;
 
-    /** The permission provider to handle command permissions */
-    permissionProvider: PermissionProvider;
-
     constructor(
         @inject(TYPES.BaseLogger) logger: Logger,
         @inject(TYPES.GuildId) guildId: string,
         @inject(TYPES.Token) token: string,
         @inject(TYPES.Client) client: Client,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
-        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider
+        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider
     ) {
         this.logger = logger;
         this.guildId = guildId;
@@ -43,6 +39,5 @@ export class Controller {
         this.client = client;
         this.configuration = configuration;
         this.embedProvider = embedProvider;
-        this.permissionProvider = permissionProvider;
     }
 }

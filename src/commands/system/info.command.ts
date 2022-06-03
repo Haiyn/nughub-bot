@@ -14,7 +14,7 @@ export class Info extends Command {
 
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         const ownerId = container.get<string>(TYPES.BotOwnerId);
-        const owner = await this.userService.getUserById(ownerId);
+        const owner = await this.userService.getGuildMemberById(ownerId);
         const botVersion = container.get<string>(TYPES.BotVersion);
 
         const embedReply = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {

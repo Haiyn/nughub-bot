@@ -31,12 +31,18 @@ export function commandDefinition(): SlashCommandBuilder {
         .addSubcommand((subcommand) =>
             subcommand
                 .setName('edit')
-                .setDescription('Edit your hiatus end date.')
+                .setDescription('Edit your hiatus end date or reason.')
                 .addStringOption((option) =>
                     option
                         .setName('until')
                         .setDescription('A day when you will return. Format example: 26 Mar 2022')
-                        .setRequired(true)
+                        .setRequired(false)
+                )
+                .addStringOption((option) =>
+                    option
+                        .setName('reason')
+                        .setDescription('The reason why you will be away.')
+                        .setRequired(false)
                 )
         )
         .addSubcommand((subcommand) =>

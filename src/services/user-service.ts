@@ -1,9 +1,8 @@
-import { HiatusModel } from '@models/jobs/hiatus-schema';
-import { HiatusStatus } from '@models/ui/hiatus-status';
 import { Service } from '@services/service';
-import { User } from 'discord.js';
+import container from '@src/inversify.config';
+import { TYPES } from '@src/types';
+import { GuildMember, User } from 'discord.js';
 import { injectable } from 'inversify';
-import moment = require('moment');
 
 /** A service that handles Discord users */
 @injectable()
@@ -14,7 +13,7 @@ export class UserService extends Service {
      * @param id the id
      * @returns the discord user
      */
-    public async getUserById(id: string): Promise<User> {
+    public async getUserById(id: string): Promise<User> | null {
         this.logger.trace(`Fetching user for ID ${id}`);
         const fetchedUser = await this.client.users.fetch(id);
         if (!fetchedUser) this.logger.warn(`Could not find user for passed ID ${id}`);
@@ -22,30 +21,48 @@ export class UserService extends Service {
     }
 
     /**
-     * Gets a hiatus status string according to whether the user has a hiatus or not
+     * Gets a guild member
      *
-     * @param userId the userid of the user to check
-     * @param detailed whether or not the information returned should be detailed or not
-     * @returns a hiatus status string
+     * @param id the id of the guild member
+     * @returns the guild member
      */
-    public async getUserHiatusStatus(userId: string, detailed = false): Promise<string> {
-        const hiatus = await HiatusModel.findOne({ userId: userId }).exec();
-        if (!hiatus) return HiatusStatus.NoHiatus;
-        if (hiatus.expires) {
-            if (!detailed) return HiatusStatus.ActiveHiatus;
-            return HiatusStatus.ActiveHiatus + `(returns <t:${moment(hiatus.expires).unix()}:R>)`;
+    public async getGuildMemberById(id: string): Promise<GuildMember> | null {
+        this.logger.trace(`Fetching guild member for ID ${id}`);
+        let fetchedMember, guild, guildId;
+        try {
+            guildId = container.get<string>(TYPES.GuildId);
+            guild = await this.client.guilds.fetch(guildId);
+        } catch (error) {
+            this.logger.error(`Cannot find a guild for ID ${guildId}.`);
+            return null;
         }
-        return HiatusStatus.ActiveIndefiniteHiatus;
+
+        try {
+            fetchedMember = await guild.members.fetch(id);
+            if (!fetchedMember)
+                this.logger.warn(
+                    `Could not find guild member for passed ID ${id} in guild ${guild.name}`
+                );
+            return fetchedMember;
+        } catch (error) {
+            this.logger.warn(`Cannot find a member for ID ${id}.`);
+            return null;
+        }
     }
 
     /**
-     * Checks if user has an active hiatus
+     * Gets the standardized way to display a guild member in discord
      *
-     * @param userId the user id of the user to check
-     * @returns true if hiatus exists, false otherwise
+     * @param member the guild member
+     * @returns a string of the display
      */
-    public async userHasActiveHiatus(userId: string): Promise<boolean> {
-        const hiatus = await HiatusModel.findOne({ userId: userId }).exec();
-        return hiatus != null;
+    public getMemberDisplay(member: GuildMember): string {
+        if (!member) return `(invalid-user)`;
+        return `${member} ${member.displayName}`;
+    }
+
+    public getEscapedDisplayName(member: GuildMember): string {
+        if (!member) return `invalid-user`;
+        return member.displayName.replace('(', '').replace(')', '');
     }
 }

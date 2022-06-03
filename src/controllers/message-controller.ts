@@ -5,7 +5,7 @@ import { ConfigurationProvider } from '@providers/configuration-provider';
 import { SessionFinish } from '@src/commands';
 import container from '@src/inversify.config';
 import { CommandError, ConfigurationKeys } from '@src/models';
-import { EmbedProvider, PermissionProvider, StringProvider } from '@src/providers';
+import { EmbedProvider, StringProvider } from '@src/providers';
 import { ChannelService } from '@src/services';
 import { TYPES } from '@src/types';
 import { Client, Message } from 'discord.js';
@@ -26,10 +26,9 @@ export class MessageController extends Controller {
         @inject(TYPES.Token) token: string,
         @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
         @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.PermissionProvider) permissionProvider: PermissionProvider,
         @inject(TYPES.StringProvider) stringProvider: StringProvider
     ) {
-        super(logger, guildId, token, client, configuration, embedProvider, permissionProvider);
+        super(logger, guildId, token, client, configuration, embedProvider);
         this.channelService = channelService;
         this.stringProvider = stringProvider;
     }
@@ -96,12 +95,12 @@ export class MessageController extends Controller {
                 ),
                 this.channelService.getTextChannelByChannelId(
                     await this.configuration.getString(
-                        ConfigurationKeys.Channels_CanonCharacterChannelId
+                        ConfigurationKeys.Channels_CharacterListChannelId_0
                     )
                 ),
                 this.channelService.getTextChannelByChannelId(
                     await this.configuration.getString(
-                        ConfigurationKeys.Channels_OriginalCharacterChannelId
+                        ConfigurationKeys.Channels_CharacterListChannelId_1
                     )
                 ),
             ];

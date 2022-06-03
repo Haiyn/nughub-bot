@@ -73,7 +73,7 @@ export class SessionEdit extends Command {
             const user = options.getUser('user');
             const name = options.getString('name');
             for (const character of session.turnOrder) {
-                if (character.userId === user.id && character.name === name) {
+                if (character.userId === user?.id && character.name === name) {
                     throw new CommandValidationError(
                         `User provided a character to add that already exists in the turn order.`,
                         await this.stringProvider.get(
@@ -96,7 +96,8 @@ export class SessionEdit extends Command {
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -144,7 +145,9 @@ export class SessionEdit extends Command {
                     );
                 } else {
                     const characterToAdd: Character = {
-                        user: interaction.options.getUser('user'),
+                        member: await this.userService.getGuildMemberById(
+                            interaction.options.getUser('user').id
+                        ),
                         name: interaction.options.getString('name'),
                     };
                     await this.addToTurnOrder(sessionToEdit, characterToAdd, position - 1)
@@ -202,7 +205,8 @@ export class SessionEdit extends Command {
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
         this.logger.debug(`Sending query for session edit: add`);
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -304,7 +308,8 @@ export class SessionEdit extends Command {
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -422,14 +427,14 @@ export class SessionEdit extends Command {
         let turnOrderString = `Current turn order for ${session.channel}:\n\n`;
         session.turnOrder.forEach((character, index) => {
             if (
-                character.user.id === session.currentTurn.user.id &&
+                character.member?.id === session.currentTurn.member?.id &&
                 character.name === session.currentTurn.name
             ) {
                 turnOrderString += `➡️ `;
             }
-            turnOrderString += `${index + 1}. **${character.name}** (${character.user.username} ${
-                character.user
-            })\n`;
+            turnOrderString += `${index + 1}. **${
+                character.name
+            }** - ${this.userService.getMemberDisplay(character.member)}\n`;
         });
         turnOrderString += `\n${queryText}`;
         return await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
@@ -454,7 +459,7 @@ export class SessionEdit extends Command {
             { turnOrder: newSession.turnOrder }
         ).exec();
 
-        await this.messageService.updateSessionPost(newSession);
+        await this.sessionService.updateSessionPost(newSession);
     }
 
     /**
@@ -469,7 +474,7 @@ export class SessionEdit extends Command {
 
         // If the character to remove is the current turn, advance the turn first
         if (
-            characterToRemove.user.id === session.currentTurn.user.id &&
+            characterToRemove.member?.id === session.currentTurn.member?.id &&
             characterToRemove.name === session.currentTurn.name
         ) {
             this.logger.debug(`User to remove is current turn user, advancing turn...`);
@@ -485,7 +490,7 @@ export class SessionEdit extends Command {
             { turnOrder: newSession.turnOrder }
         ).exec();
 
-        await this.messageService.updateSessionPost(newSession);
+        await this.sessionService.updateSessionPost(newSession);
     }
 
     /**
@@ -508,10 +513,12 @@ export class SessionEdit extends Command {
             // For this, we set the current turn to the user before it, then next command them
             if (atPosition === 0) {
                 atPosition = session.turnOrder.length - 1;
+            } else {
+                atPosition = atPosition - 1;
             }
 
             this.logger.debug(
-                `Setting new turn for user ${session.turnOrder[atPosition]}. User for edit set at position ${atPosition} will be next-ed.`
+                `Setting new turn for user ${session.turnOrder[atPosition].member.displayName}. User for edit set at position ${atPosition} will be next-ed.`
             );
 
             session.currentTurn = session.turnOrder[atPosition];
@@ -526,7 +533,9 @@ export class SessionEdit extends Command {
         } else {
             // If user should not be notified, simply set the new turn in the database
             session.currentTurn = session.turnOrder[atPosition];
-            this.logger.debug(`Setting new turn for user ${session.currentTurn.user.username}`);
+            this.logger.debug(
+                `Setting new turn for user ${session.currentTurn.member?.user?.username}`
+            );
 
             newSession = this.sessionMapper.mapSessionToSessionSchema(session);
             await SessionModel.findOneAndUpdate(
@@ -542,16 +551,18 @@ export class SessionEdit extends Command {
             }
 
             // We also need to edit the timestamp
-            const footer = await this.userService.getUserHiatusStatus(session.currentTurn.user.id);
+            const footer = await this.hiatusService.getUserHiatusStatus(
+                session.currentTurn.member?.id
+            );
             let content = `**Channel:**\t<#${
                 session.channel.id
-            }>\n**User:**\t${await this.userService.getUserById(
-                session.currentTurn.user.id
+            }>\n**User:**\t${await this.userService.getMemberDisplay(
+                session.currentTurn.member
             )}\n**Character:**\t${session.currentTurn.name}\n\n`;
             content += `**Last Turn Advance:** <t:${moment.utc().unix()}:F> (<t:${moment
                 .utc()
                 .unix()}:R>)\n`;
-            await this.messageService.editTimestamp(
+            await this.timestampService.editTimestamp(
                 session.channel.id,
                 TimestampStatus.ManuallySetTurn,
                 content,
@@ -559,7 +570,7 @@ export class SessionEdit extends Command {
             );
 
             // and the turn order post
-            await this.messageService.updateSessionPost(newSession);
+            await this.sessionService.updateSessionPost(newSession);
         }
     }
 }

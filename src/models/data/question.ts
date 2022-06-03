@@ -1,8 +1,8 @@
-import { User } from 'discord.js';
+import { GuildMember } from 'discord.js';
 
 export interface Question {
     content: string;
     dateAdded: Date;
     used: boolean;
-    submitter: User;
+    submitter: GuildMember;
 }

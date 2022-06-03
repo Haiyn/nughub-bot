@@ -1,9 +1,9 @@
-import { TextChannel, User } from 'discord.js';
+import { GuildMember, TextChannel } from 'discord.js';
 
 /** The interface of a reminder job object */
 export interface IReminder {
     name: string;
-    user: User;
+    member: GuildMember;
     characterName: string;
     date: Date;
     channel: TextChannel;
@@ -16,7 +16,7 @@ export class Reminder implements IReminder {
     public readonly name: string;
 
     /** The Discord user that receives the reminder */
-    public readonly user: User;
+    public readonly member: GuildMember;
 
     /** The character that needs to reply */
     public readonly characterName: string;
@@ -32,14 +32,14 @@ export class Reminder implements IReminder {
 
     constructor(
         name: string,
-        user: User,
+        member: GuildMember,
         characterName: string,
         date: Date,
         channel: TextChannel,
         iteration: number
     ) {
         this.name = name;
-        this.user = user;
+        this.member = member;
         this.characterName = characterName;
         this.date = date;
         this.channel = channel;

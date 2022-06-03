@@ -81,7 +81,8 @@ export class QotdAdmin extends Command {
         await this.interactionService.reply(interaction, { embeds: embeds });
 
         // Wait for response and handle it
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -141,6 +142,7 @@ export class QotdAdmin extends Command {
                             { content: interaction.options.getString('content') }
                         );
                     }
+                    const member = await this.userService.getGuildMemberById(qotd.submitterId);
                     queryReply = await this.embedProvider.get(
                         EmbedType.Minimal,
                         EmbedLevel.Success,
@@ -149,9 +151,7 @@ export class QotdAdmin extends Command {
                                 isRemove ? 'removed' : 'edited'
                             } the QOT:\n\n${position}. ${
                                 qotd.content
-                            } (submitted by ${await this.userService.getUserById(
-                                qotd.submitterId
-                            )})`,
+                            } (submitted by ${await this.userService.getMemberDisplay(member)})`,
                         }
                     );
                 }

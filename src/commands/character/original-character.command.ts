@@ -1,14 +1,10 @@
-import { CharacterChannelController } from '@controllers/character-channel-controller';
 import {
     OriginalCharacterModel,
     OriginalCharacterSchema,
 } from '@models/data/original-character-schema';
+import { CharacterListType } from '@models/misc/character-list-type.enum';
 import { DragonAgeGame } from '@models/misc/dragon-age-game.enum';
-import { MessageService } from '@services/message-service';
-import { ScheduleService } from '@services/schedule-service';
 import { Command } from '@src/commands';
-import { JobRuntimeController } from '@src/controllers';
-import { SessionMapper } from '@src/mappers';
 import {
     CommandError,
     CommandResult,
@@ -18,65 +14,17 @@ import {
     PermissionLevel,
 } from '@src/models';
 import {
-    ConfigurationProvider,
-    EmbedProvider,
-    EmojiProvider,
-    StringProvider,
-} from '@src/providers';
-import { ChannelService, HelperService, InteractionService, UserService } from '@src/services';
-import { TYPES } from '@src/types';
-import {
     AwaitMessagesOptions,
-    Client,
     CommandInteraction,
     CommandInteractionOptionResolver,
     Message,
     MessageEmbed,
 } from 'discord.js';
-import { inject, injectable } from 'inversify';
-import { Logger } from 'tslog';
+import { injectable } from 'inversify';
 
 @injectable()
 export class OriginalCharacter extends Command {
     public permissionLevel: PermissionLevel = PermissionLevel.Moderator;
-    private readonly characterChannelController: CharacterChannelController;
-
-    constructor(
-        @inject(TYPES.CommandLogger) logger: Logger,
-        @inject(TYPES.Client) client: Client,
-        @inject(TYPES.ConfigurationProvider) configuration: ConfigurationProvider,
-        @inject(TYPES.ChannelService) channelService: ChannelService,
-        @inject(TYPES.HelperService) helperService: HelperService,
-        @inject(TYPES.InteractionService) interactionService: InteractionService,
-        @inject(TYPES.UserService) userService: UserService,
-        @inject(TYPES.ScheduleService) scheduleService: ScheduleService,
-        @inject(TYPES.MessageService) messageService: MessageService,
-        @inject(TYPES.StringProvider) stringProvider: StringProvider,
-        @inject(TYPES.EmbedProvider) embedProvider: EmbedProvider,
-        @inject(TYPES.EmojiProvider) emojiProvider: EmojiProvider,
-        @inject(TYPES.JobRuntimeController) jobRuntime: JobRuntimeController,
-        @inject(TYPES.SessionMapper) sessionMapper: SessionMapper,
-        @inject(TYPES.CharacterChannelController)
-        characterChannelController: CharacterChannelController
-    ) {
-        super(
-            logger,
-            client,
-            configuration,
-            channelService,
-            helperService,
-            interactionService,
-            userService,
-            scheduleService,
-            messageService,
-            stringProvider,
-            embedProvider,
-            emojiProvider,
-            jobRuntime,
-            sessionMapper
-        );
-        this.characterChannelController = characterChannelController;
-    }
 
     public async run(interaction: CommandInteraction): Promise<CommandResult> {
         const subcommand = interaction.options.getSubcommand();
@@ -125,6 +73,7 @@ export class OriginalCharacter extends Command {
             game: Number.parseInt(interaction.options.getString('game')),
             race: interaction.options.getString('race'),
             age: interaction.options.getString('age'),
+            pronouns: interaction.options.getString('pronouns'),
         });
 
         // Save to db
@@ -140,15 +89,20 @@ export class OriginalCharacter extends Command {
         }
 
         // Update character list
-        await this.characterChannelController.updateOriginalCharacterList(
-            Number.parseInt(interaction.options.getString('game'))
+        await this.characterService.updateCharacterList(
+            Number.parseInt(interaction.options.getString('game')),
+            CharacterListType.Original
         );
 
         // Send reply
         let content = await this.stringProvider.get('COMMAND.ORIGINAL-CHARACTER.ADD.SUCCESS');
-        content += `\n\n**${originalCharacter.name}** (${originalCharacter.race}, ${
-            originalCharacter.age
-        }) ${await this.userService.getUserById(originalCharacter.userId)}`;
+        content += `\n\n`;
+        content += this.characterService.getCharacterListEntry(
+            CharacterListType.Original,
+            await this.characterMapper.mapOriginalCharacterSchemaToOriginalCharacter(
+                originalCharacter
+            )
+        );
 
         const embed = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: content,
@@ -179,7 +133,8 @@ export class OriginalCharacter extends Command {
         );
         await interaction.reply({ embeds: [embed], allowedMentions: { parse: [] } });
 
-        const authorFilter = (message: Message) => message.author.id === interaction.member.user.id;
+        const authorFilter = (message: Message) =>
+            message.author.id === interaction.member?.user?.id;
         const awaitMessageOptions: AwaitMessagesOptions = {
             filter: authorFilter,
             max: 1,
@@ -233,7 +188,10 @@ export class OriginalCharacter extends Command {
                     })
                         .exec()
                         .then(async () => {
-                            await this.characterChannelController.updateOriginalCharacterList(game);
+                            await this.characterService.updateCharacterList(
+                                game,
+                                CharacterListType.Original
+                            );
                             queryReply = await this.embedProvider.get(
                                 EmbedType.Minimal,
                                 EmbedLevel.Success,
@@ -285,10 +243,12 @@ export class OriginalCharacter extends Command {
         let content = `Current original characters:\n\n`;
         for (const character of characters) {
             const index = characters.indexOf(character);
-            const user = await this.userService.getUserById(character.userId);
-            content += `${index + 1}. **${character.name}** (${character.race}, ${
-                character.age
-            }) ${user}\n`;
+            content += `${index + 1}. `;
+            content += await this.characterService.getCharacterListEntry(
+                CharacterListType.Original,
+                await this.characterMapper.mapOriginalCharacterSchemaToOriginalCharacter(character)
+            );
+            content += '\n';
         }
         content += `\n${queryText}`;
         return await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {

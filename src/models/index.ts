@@ -9,6 +9,8 @@ export { ConfigurationKeys } from './config/configuration-keys.enum';
 export { CanonCharacter } from './data/canon-character';
 export { CanonCharacterModel, CanonCharacterSchema } from './data/canon-character-schema';
 export { Character, ICharacter } from './data/character';
+export { CharacterPairing } from './data/character-pairing';
+export { CharacterPairingModel, CharacterPairingSchema } from './data/character-pairing-schema';
 export { characterSchema, ICharacterSchema } from './data/character-schema';
 export { OriginalCharacter } from './data/original-character';
 export { OriginalCharacterModel, OriginalCharacterSchema } from './data/original-character-schema';

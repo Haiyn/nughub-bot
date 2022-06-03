@@ -62,6 +62,11 @@ STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.NOTHING-TO-UNASSIGN,There are no
 STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.QUERY.QUESTION,Which canon character would you like to unassign? Please input a number.
 STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.SUCCESS,I've successfully unassigned the canon character {0}.
 STRING,STRINGS.COMMAND.CANON-CHARACTER.UNASSIGN.FAILURE,I could not unassign the canon character {0}.
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.ADD.SUCCESS,I've successfully added the following character pairing to the canon character list:
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.REMOVE.NOTHING-TO-REMOVE,There are no character pairings that you can remove.
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.REMOVE.QUERY.QUESTION,Which character pairing would you like to remove? Please input a number.
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.REMOVE.SUCCESS,I've successfully removed the character pairing.
+STRING,STRINGS.COMMAND.CHARACTER-PAIRING.REMOVE.FAILURE,I could not remove the character pairing.
 STRING,STRINGS.SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-VALIDATION-ERROR,Internal Error: `Command validation failed unexpectedly.`
 STRING,STRINGS.SYSTEM.ERROR.INTERNAL.UNCAUGHT-COMMAND-ERROR,Internal Error: `Command execution failed unexpectedly.`
 STRING,STRINGS.SYSTEM.ERROR.INTERNAL.MONGOOSE-REJECT,Internal Error: `Database rejection`
@@ -77,7 +82,7 @@ STRING,STRINGS.JOB.WELCOME-BACK.TITLE,🎉 Welcome back!
 STRING,STRINGS.JOB.WELCOME-BACK.DESCRIPTION,Your hiatus has ended.
 STRING,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-NO-OPEN-REPLIES,You have no pending RP replies.
 STRING,STRINGS.JOB.WELCOME-BACK.DESCRIPTION.HAS-OPEN-REPLIES,You have following pending replies:
-STRING,STRINGS.JOB.WELCOME-BACK.FOOTER.OVERDUE,Pending replies marked with ⚠️ are RPs where your reply is overdue.
+STRING,STRINGS.JOB.WELCOME-BACK.FOOTER.OVERDUE,⚠ Some of your pending replies are quite old, please reply to those first!
 STRING,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.NOT-A-NUMBER,This is not a valid number.
 STRING,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.NUMBER-NOT-IN-RANGE,This number is not in the valid range.
 STRING,STRINGS.COMMAND.VALIDATION.REPLY-QUERY.TIMEOUT,You took too long to respond.

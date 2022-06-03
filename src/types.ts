@@ -16,16 +16,17 @@ export const TYPES = {
     // Controllers
     MessageController: Symbol('MessageController'),
     InteractionController: Symbol('InteractionController'),
-    JobRuntimeController: Symbol('JobRuntimeController'),
+    CharacterController: Symbol('CharacterController'),
+    HiatusController: Symbol('HiatusController'),
     QotdController: Symbol('QotdController'),
-    CharacterChannelController: Symbol('CharacterChannelController'),
+    ReminderController: Symbol('ReminderController'),
+    TimestampController: Symbol('TimestampController'),
 
     // Providers
     StringProvider: Symbol('StringProvider'),
     EmojiProvider: Symbol('EmojiProvider'),
     ConfigurationProvider: Symbol('ConfigurationProvider'),
     EmbedProvider: Symbol('EmbedProvider'),
-    PermissionProvider: Symbol('PermissionProvider'),
 
     // Services
     HelperService: Symbol('HelperService'),
@@ -34,9 +35,17 @@ export const TYPES = {
     InteractionService: Symbol('InteractionService'),
     ScheduleService: Symbol('ScheduleService'),
     MessageService: Symbol('MessageService'),
+    CharacterService: Symbol('CharacterService'),
+    HiatusService: Symbol('HiatusService'),
+    QotdService: Symbol('QotdService'),
+    ReminderService: Symbol('ReminderService'),
+    SessionService: Symbol('SessionService'),
+    TimestampService: Symbol('TimestampService'),
 
     // Mappers
     SessionMapper: Symbol('SessionMapper'),
+    HiatusMapper: Symbol('HiatusMapper'),
+    CharacterMapper: Symbol('CharacterMapper'),
 
     // Commands
     Ping: Symbol('Ping'),
@@ -52,6 +61,7 @@ export const TYPES = {
     QotdAdmin: Symbol('Qotdadmin'),
     CanonCharacter: Symbol('Cc'),
     OriginalCharacter: Symbol('Oc'),
+    CharacterPairing: Symbol('Cp'),
     Info: Symbol('Info'),
 
     // Logging

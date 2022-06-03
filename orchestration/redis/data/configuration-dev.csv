@@ -5,8 +5,9 @@ CONFIGURATION_Channels_NotificationChannelId;890287049368797244;STRING;The ID of
 CONFIGURATION_Channels_TimestampsChannelId;934227537767305216;STRING;The ID of the channel where timestamp are sent to
 CONFIGURATION_Channels_HiatusChannelId;934546940077690930;STRING;The ID of the channel where hiatuses are sent to
 CONFIGURATION_Channels_QotdChannelId;944380796427468800;STRING;The ID of the channel where qotds are sent to
-CONFIGURATION_Channels_CanonCharacterChannelId;944982515003830312;STRING;The ID of the channel where canon character lists are sent to
-CONFIGURATION_Channels_OriginalCharacterChannelId;944982535379759134;STRING;The ID of the channel where original character lists are sent to
+CONFIGURATION_Channels_CharacterListChannelId_0;944982515003830312;STRING;The ID of the channel where canon character lists are sent to
+CONFIGURATION_Channels_CharacterListChannelId_1;944982535379759134;STRING;The ID of the channel where original character lists are sent to
+CONFIGURATION_Channels_CharacterListChannelId_2;961076120135032862;STRING;The ID of the channel where character pairing lists are sent to
 CONFIGURATION_Channels_RpChannelIds;890287133376528446;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Channels_RpChannelIds;890287167421681665;SET;The ID of the channels where an RP can be started
 CONFIGURATION_Channels_RpChannelIds;914651641611968543;SET;The ID of the channels where an RP can be started
@@ -20,12 +21,6 @@ CONFIGURATION_Guild_Color_3;#c70d00;STRING;The Error color in HEX
 CONFIGURATION_Guild_Color_2;#ffa500;STRING;The Warning color in HEX
 CONFIGURATION_Guild_Color_1;#187bcd;STRING;The Info color in HEX
 CONFIGURATION_Guild_Color_0;#86dc3d;STRING;The Success color in HEX
-CONFIGURATION_Permission_Roles_0_Ids;914184090176065556;SET;The ID of the roles that should have Reader access
-CONFIGURATION_Permission_Roles_1_Ids;914664670546231376;SET;The ID of the roles that should have RPer access
-CONFIGURATION_Permission_Roles_1_Ids;889495119928102912;SET;The ID of the roles that should have RPer access
-CONFIGURATION_Permission_Roles_2_Ids;889495168598831184;SET;The ID of the roles that should have Moderator access
-CONFIGURATION_Permission_Roles_3_Ids;889495215533097021;SET;The ID of the roles that should have Administrator access
-CONFIGURATION_Permission_User_4_Id;356178941913858049;STRING;The User ID of the Owner
 CONFIGURATION_Schedule_Reminder_0_Hours;0;STRING;The number of hours that should pass before the first reminder is sent
 CONFIGURATION_Schedule_Reminder_0_Minutes;1;STRING;The number of minutes that should pass before the first reminder is sent
 CONFIGURATION_Schedule_Reminder_1_Hours;0;STRING;The number of hours that should pass before the second reminder is sent

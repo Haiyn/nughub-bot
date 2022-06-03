@@ -34,13 +34,13 @@ export class SessionNext extends Command {
         const userMessage: string = interaction.options.getString('message');
 
         this.logger.debug('Validating user turn...');
-        await this.validateUserTurn(session.currentTurn.userId, interaction.member.user.id);
+        await this.validateUserTurn(session.currentTurn.userId, interaction.member?.user?.id);
 
         this.logger.debug('Updating user turn in database...');
         const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
 
         this.logger.debug('Updating user turn in sessions channel...');
-        await this.messageService.updateSessionPost(newSession).catch(async () => {
+        await this.sessionService.updateSessionPost(newSession).catch(async () => {
             throw new CommandError(
                 'Failed to update session post with new current turn marker',
                 await this.stringProvider.get(
@@ -58,13 +58,13 @@ export class SessionNext extends Command {
         await this.notifyNextUser(session.currentTurn, newSession, userMessage);
 
         this.logger.debug('Parsing reminder...');
-        const reminder: Reminder = await this.parseReminder(newSession);
+        const reminder: Reminder = await this.sessionMapper.mapSessionSchemaToReminder(newSession);
 
         this.logger.debug('Scheduling reminder...');
-        await this.jobRuntime.scheduleReminder(reminder, true);
+        await this.reminderController.scheduleFirstReminder(reminder);
 
         this.logger.debug('Sending timestamp message...');
-        await this.messageService.updateTimestamp(newSession, TimestampStatus.InTime);
+        await this.timestampService.updateTimestamp(newSession, TimestampStatus.InTime);
 
         const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
             content: await this.stringProvider.get('COMMAND.SESSION-NEXT.SUCCESS'),
@@ -96,7 +96,7 @@ export class SessionNext extends Command {
         const newSession: ISessionSchema = await this.updateTurnOderInDatabase(session);
 
         this.logger.debug('Updating user turn in sessions channel...');
-        await this.messageService.updateSessionPost(newSession).catch(async () => {
+        await this.sessionService.updateSessionPost(newSession).catch(async () => {
             throw new CommandError(
                 'Failed to update session post with new current turn marker',
                 await this.stringProvider.get(
@@ -114,13 +114,13 @@ export class SessionNext extends Command {
         await this.notifyNextUser(session.currentTurn, newSession, undefined, reason);
 
         this.logger.debug('Parsing reminder...');
-        const reminder: Reminder = await this.parseReminder(newSession);
+        const reminder: Reminder = await this.sessionMapper.mapSessionSchemaToReminder(newSession);
 
         this.logger.debug('Scheduling reminder...');
-        await this.jobRuntime.scheduleReminder(reminder, true);
+        await this.reminderController.scheduleFirstReminder(reminder);
 
         this.logger.debug('Updating timestamp message...');
-        await this.messageService.updateTimestamp(newSession, TimestampStatus.InTime);
+        await this.timestampService.updateTimestamp(newSession, TimestampStatus.InTime);
 
         return true;
     }
@@ -230,18 +230,20 @@ export class SessionNext extends Command {
     ): Promise<void> {
         let content = `*${newSession.currentTurn.name}* in <#${newSession.channelId}>`;
         if (userMessage)
-            content += `\n\n${await this.userService.getUserById(
+            content += `\n\n${await this.userService.getGuildMemberById(
                 previousTurn.userId
             )} said: \\"${userMessage}\\"`;
-        const user = await this.client.users.fetch(newSession.currentTurn.userId);
+
+        const member = await this.userService.getGuildMemberById(newSession.currentTurn.userId);
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: await this.stringProvider.get('COMMAND.SESSION-NEXT.NOTIFICATION-TITLE'),
             content: content,
-            authorName: user.username,
-            authorIcon: user.avatarURL(),
+            authorName: await this.userService.getEscapedDisplayName(member),
+            authorIcon: member ? member?.user?.avatarURL() : '',
             footer: reason,
         });
-        const ping = `${await this.userService.getUserById(newSession.currentTurn.userId)}`;
+
+        const ping = `${await this.userService.getGuildMemberById(newSession.currentTurn.userId)}`;
         const notificationChannel: TextChannel =
             await this.channelService.getTextChannelByChannelId(
                 await this.configuration.getString('Channels_NotificationChannelId')
@@ -285,32 +287,5 @@ export class SessionNext extends Command {
             index++;
         });
         return nextTurn;
-    }
-
-    /**
-     * Parses a session into a reminder
-     *
-     * @param session the session to parse
-     * @returns the parsed reminder
-     */
-    public async parseReminder(session: ISessionSchema): Promise<Reminder> {
-        const name = `reminder:${session.channelId}`;
-        const user = await this.userService.getUserById(session.currentTurn.userId);
-        const channel = await this.channelService.getTextChannelByChannelId(session.channelId);
-
-        // Get the new reminder date
-        const currentDate = new Date(new Date().getTime());
-        const reminderHours = Number.parseInt(
-            await this.configuration.getString('Schedule_Reminder_0_Hours')
-        );
-        const reminderMinutes = Number.parseInt(
-            await this.configuration.getString('Schedule_Reminder_0_Minutes')
-        );
-        currentDate.setHours(
-            currentDate.getHours() + reminderHours,
-            currentDate.getMinutes() + reminderMinutes
-        );
-
-        return new Reminder(name, user, session.currentTurn.name, currentDate, channel, 0);
     }
 }
