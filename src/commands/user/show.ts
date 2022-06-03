@@ -10,6 +10,7 @@ import {
 } from '@src/models';
 import { CommandInteraction } from 'discord.js';
 import { injectable } from 'inversify';
+import moment = require('moment');
 
 @injectable()
 export class Show extends Command {
@@ -17,8 +18,10 @@ export class Show extends Command {
 
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         const pendingSessions = await SessionModel.find({
-            'currentTurn.userId': interaction.member.user.id,
-        }).exec();
+            'currentTurn.userId': interaction.member?.user?.id,
+        })
+            .sort({ lastTurnAdvance: 'asc' })
+            .exec();
 
         let content = '';
         let title;
@@ -43,8 +46,9 @@ export class Show extends Command {
                         content += `❗ `;
                     }
                 }
-
-                content += `**${session.currentTurn.name}** in <#${session.channelId}>\n\n`;
+                content += `**${session.currentTurn.name}** in <#${
+                    session.channelId
+                }> (since <t:${moment(session.lastTurnAdvance).unix()}:D>)\n\n`;
             }
         }
 
