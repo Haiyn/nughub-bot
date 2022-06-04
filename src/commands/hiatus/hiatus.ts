@@ -179,7 +179,16 @@ export class Hiatus extends Command {
         }
 
         // Save to database
-        await activeHiatus.save();
+        await HiatusModel.findOneAndUpdate(
+            {
+                _id: activeHiatus._id,
+            },
+            {
+                reason: activeHiatus.reason,
+                expires: activeHiatus.expires,
+            }
+        ).exec();
+        this.logger.debug(`Updated hiatus in database with new values.`);
 
         // Edit the hiatus post
         const hiatusData = await this.hiatusMapper.mapHiatusSchemaToHiatus(activeHiatus);
@@ -243,13 +252,27 @@ export class Hiatus extends Command {
             return false;
         }
         // add the the time to the date
-        const newDate = moment(date)
+        reminder.date = moment(date)
             .add(await this.configuration.getNumber('Schedule_Hiatus_Hours'), 'hours')
             .add(await this.configuration.getNumber('Schedule_Hiatus_Minutes'), 'minutes')
             .toDate();
-        this.logger.trace(`Found next invocation for ${channelId} on ${date}. Moved to ${newDate}`);
+        this.logger.trace(
+            `Found next invocation for ${channelId} on ${date}. Moved to ${reminder.date}`
+        );
 
-        this.scheduleService.rescheduleJob(reminder.name, newDate);
+        this.scheduleService.rescheduleJob(reminder.name, reminder.date);
+
+        // save new reminder to database
+
+        await ReminderModel.findOneAndUpdate(
+            {
+                _id: reminder._id,
+            },
+            {
+                date: reminder.date,
+            }
+        ).exec();
+        this.logger.debug(`Updated reminder in database with new date ${reminder.date}.`);
 
         return false;
     }
