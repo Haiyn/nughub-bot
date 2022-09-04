@@ -13,7 +13,8 @@ export class SayEmbed extends Command {
 
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         const title = interaction.options.getString('title');
-        const description = interaction.options.getString('description');
+        let description = interaction.options.getString('description');
+        description = description.replace('\\n', '\n');
         const footer = interaction.options.getString('footer');
         const image = interaction.options.getString('image');
         const channel = interaction.options.getChannel('channel');
