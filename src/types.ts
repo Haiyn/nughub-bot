@@ -63,6 +63,8 @@ export const TYPES = {
     OriginalCharacter: Symbol('Oc'),
     CharacterPairing: Symbol('Cp'),
     Info: Symbol('Info'),
+    Say: Symbol('Info'),
+    SayEmbed: Symbol('Sayembed'),
 
     // Logging
     BaseLogLevel: Symbol('BaseLogLevel'),

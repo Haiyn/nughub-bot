@@ -222,7 +222,7 @@ export class InteractionController extends Controller {
                 `Interaction ID ${interaction.id}: Application Command ${interaction.commandName} failed unexpectedly while executing: `,
                 this.logger.prettyError(error as Error)
             );
-            userMessage = `Internal Error: \`${(error as Error).message.substring(0, 3900)}`;
+            userMessage = `Internal Error: \`${(error as Error).message.substring(0, 3900)}\``;
         }
 
         // Reply to the user if it hasn't happened already
