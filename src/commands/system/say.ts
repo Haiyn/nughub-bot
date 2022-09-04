@@ -14,7 +14,7 @@ export class Say extends Command {
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         this.logger.info('Running say command...');
         let message = interaction.options.getString('message');
-        message = message.replace('\\n', '\n');
+        message = message.replaceAll('\\n', '\n');
         const channel = interaction.options.getChannel('channel');
 
         if (channel != null) {
