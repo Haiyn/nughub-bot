@@ -12,6 +12,8 @@ import { commandDefinition as originalCharacter } from './character/original-cha
 import { commandDefinition as hiatus } from './hiatus/hiatus';
 import { commandDefinition as qotd } from './misc/qotd';
 import { commandDefinition as info } from './system/info';
+import { commandDefinition as say } from './system/say';
+import { commandDefinition as sayEmbed } from './system/say-embed';
 import { commandDefinition as show } from './user/show';
 
 /** a default export as an array so all commands can be registered dynamically */
@@ -31,6 +33,8 @@ export default [
     originalCharacter(),
     info(),
     characterPairing(),
+    say(),
+    sayEmbed(),
 ];
 export {
     sessionStart,
@@ -48,4 +52,6 @@ export {
     originalCharacter,
     info,
     characterPairing,
+    say,
+    sayEmbed,
 };

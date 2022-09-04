@@ -41,6 +41,8 @@ import { TimestampService } from '@services/feature/timestamp-service';
 import { HiatusMapper } from '@src/mappers';
 import { CharacterMapper } from '@src/mappers/character.mapper';
 import { CharacterPairing } from '@commands/character/caracter-pairing.command';
+import { SayEmbed } from './commands/system/say-embed';
+import { Say } from './commands/system/say';
 
 const container = new Container();
 
@@ -171,5 +173,7 @@ container.bind<CanonCharacter>('Cc').to(CanonCharacter).inRequestScope();
 container.bind<OriginalCharacter>('Oc').to(OriginalCharacter).inRequestScope();
 container.bind<CharacterPairing>('Cp').to(CharacterPairing).inRequestScope();
 container.bind<Info>('Info').to(Info).inRequestScope();
+container.bind<Say>('Say').to(Say).inRequestScope();
+container.bind<SayEmbed>('Sayembed').to(SayEmbed).inRequestScope();
 
 export default container;
