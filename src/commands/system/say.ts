@@ -13,7 +13,8 @@ export class Say extends Command {
 
     async run(interaction: CommandInteraction): Promise<CommandResult> {
         this.logger.info('Running say command...');
-        const message = interaction.options.getString('message');
+        let message = interaction.options.getString('message');
+        message = message.replace('\\n', '\n');
         const channel = interaction.options.getChannel('channel');
 
         if (channel != null) {
