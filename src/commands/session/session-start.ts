@@ -74,15 +74,6 @@ export class SessionStart extends Command {
         const channel = this.channelService.getTextChannelByChannelId(
             options.getChannel('channel').id
         );
-        if (!(await this.configuration.isInSet('Channels_RpChannelIds', channel.id))) {
-            throw new CommandValidationError(
-                `User provided channel that isn't in permitted RP channels list.`,
-                await this.stringProvider.get(
-                    'COMMAND.SESSION-START.VALIDATION.INVALID-RP-CHANNEL',
-                    [channel.id]
-                )
-            );
-        }
 
         if (await SessionModel.findOne({ channelId: channel.id }).exec()) {
             throw new CommandValidationError(
@@ -150,7 +141,9 @@ export class SessionStart extends Command {
      * @returns The parsed session
      * @throws {CommandError} Throws if options could not be parsed
      */
-    private async parseSession(options: CommandInteractionOptionResolver): Promise<Session> {
+    private async parseSession(
+        options: Omit<CommandInteractionOptionResolver, 'getMessage' | 'getFocused'>
+    ): Promise<Session> {
         try {
             const channel = this.channelService.getTextChannelByChannelId(
                 options.getChannel('channel').id

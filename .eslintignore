@@ -3,3 +3,4 @@ dist
 orchestration
 docs
 *spec.ts
+*.yml
