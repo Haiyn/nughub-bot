@@ -63,12 +63,7 @@ export class EmbedProvider extends Provider {
         }
         const color: ColorResolvable = await this.mapEmbedLevelToColorResolvable(level);
 
-        const embedData: Partial<MessageEmbed> = await this.mapEmbedDataToPartialMessageEmbedByType(
-            type,
-            data
-        );
-
-        return new MessageEmbed({ ...embedData, color: color });
+        return await this.mapEmbedDataToMessageEmbedByType(type, data, color);
     }
 
     /**
@@ -101,22 +96,23 @@ export class EmbedProvider extends Provider {
      *
      * @param embedType The embed type to map the data by
      * @param data The data to map
+     * @param color The color resolvable for the embed
      * @returns A partial MessageEmbed
      * @throws {ConfigurationError} Throws when given an unknown or unimplemented EmbedType
      */
-    private mapEmbedDataToPartialMessageEmbedByType(
+    private mapEmbedDataToMessageEmbedByType(
         embedType: EmbedType,
-        data: EmbedData
-    ): Partial<MessageEmbed> {
-        let embedData: Partial<MessageEmbed>;
+        data: EmbedData,
+        color: ColorResolvable
+    ): MessageEmbed {
         switch (embedType) {
             case EmbedType.Minimal:
-                embedData = {
+                return new MessageEmbed({
                     description: data.content,
-                };
-                break;
+                    color: color,
+                });
             case EmbedType.Detailed:
-                embedData = {
+                return new MessageEmbed({
                     author: {
                         name: data.authorName,
                         iconURL: data.authorIcon,
@@ -129,10 +125,10 @@ export class EmbedProvider extends Provider {
                     image: {
                         url: data.image,
                     },
-                };
-                break;
+                    color: color,
+                });
             case EmbedType.Technical:
-                embedData = {
+                return new MessageEmbed({
                     title: data.title,
                     description: data.content,
                     footer: {
@@ -140,16 +136,15 @@ export class EmbedProvider extends Provider {
                         text: 'Internal Message',
                     },
                     timestamp: Date.now(),
-                };
-                break;
+                    color: color,
+                });
             case EmbedType.Separator:
-                embedData = {
+                return new MessageEmbed({
                     description: data.content,
-                };
-                break;
+                    color: color,
+                });
             default:
                 throw new ConfigurationError(`Enum Type ${embedType} is not implemented`);
         }
-        return embedData;
     }
 }

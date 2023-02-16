@@ -117,5 +117,7 @@ export abstract class Command {
      * @param options The command options
      * @returns Resolves if all options are valid
      */
-    abstract validateOptions(options: CommandInteractionOptionResolver): Promise<void>;
+    abstract validateOptions(
+        options: Omit<CommandInteractionOptionResolver, 'getMessage' | 'getFocused'>
+    ): Promise<void>;
 }
