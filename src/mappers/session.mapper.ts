@@ -39,6 +39,7 @@ export class SessionMapper extends Mapper {
             sessionPost: sessionPost,
             timestampPost: timestampPost !== undefined ? timestampPost : undefined,
             lastTurnAdvance: sessionSchema.lastTurnAdvance,
+            isMainQuest: sessionSchema.isMainQuest,
         };
     }
 
@@ -68,6 +69,7 @@ export class SessionMapper extends Mapper {
             timestampPostId:
                 session.timestampPost !== undefined ? session.timestampPost.id : undefined,
             lastTurnAdvance: session.lastTurnAdvance,
+            isMainQuest: session.isMainQuest,
         };
     }
 
