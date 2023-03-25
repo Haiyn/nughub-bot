@@ -16,6 +16,13 @@ export function commandDefinition(): SlashCommandBuilder {
                 .setRequired(true)
         );
 
+    command.addBooleanOption((option) =>
+        option
+            .setName('mainquest')
+            .setDescription('Set this to true if the RP is tied to a main quest.')
+            .setRequired(true)
+    );
+
     for (let i = 1; i <= 10; i++) {
         command.addUserOption((option) =>
             option

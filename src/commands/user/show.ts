@@ -17,11 +17,18 @@ export class Show extends Command {
     public permissionLevel: PermissionLevel = PermissionLevel.Member;
 
     async run(interaction: CommandInteraction): Promise<CommandResult> {
-        const pendingSessions = await SessionModel.find({
+        const unsortedSessions = await SessionModel.find({
             'currentTurn.userId': interaction.member?.user?.id,
         })
             .sort({ lastTurnAdvance: 'asc' })
             .exec();
+
+        let pendingSessions = [];
+        unsortedSessions.forEach((session) => {
+            if (session.isMainQuest) pendingSessions.push(session);
+        });
+        const nonMainQuestSessions = unsortedSessions.filter((session) => !session.isMainQuest);
+        pendingSessions = pendingSessions.concat(nonMainQuestSessions);
 
         let content = '';
         let title;
@@ -39,6 +46,7 @@ export class Show extends Command {
                             ConfigurationKeys.Channels_TimestampsChannelId
                         )
                     );
+                    if (session.isMainQuest) content += '⭐';
                     if (
                         timestampPost.embeds[0].title === TimestampStatus.SecondReminder ||
                         timestampPost.embeds[0].title === TimestampStatus.OverdueReminder
@@ -52,12 +60,17 @@ export class Show extends Command {
             }
         }
 
+        let footer = '';
+        if (content.includes('⭐'))
+            footer +=
+                'Pending replies marked with ⭐ are main quests. They take priority over the rest.\n';
+        if (content.includes('❗'))
+            footer += 'Pending replies marked with ❗ are overdue. You should get to these first.';
+
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: title,
             content: content,
-            footer: content.includes('❗')
-                ? 'Pending replies marked with ❗ are overdue. You should get to these first.'
-                : '',
+            footer: footer,
         });
 
         await this.interactionService.reply(interaction, { embeds: [embed] });

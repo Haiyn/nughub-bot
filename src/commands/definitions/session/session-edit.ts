@@ -44,6 +44,19 @@ export function commandDefinition(): SlashCommandBuilder {
             option
                 .setName('set')
                 .setDescription('Manually set the current turn for an RP.')
+                .addBooleanOption((option) =>
+                    option
+                        .setName('notify')
+                        .setDescription(
+                            "Whether the user should be notified that it's their turn now or not"
+                        )
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand((option) =>
+            option
+                .setName('prioritize')
+                .setDescription('Change whether or not the RP is tried to a main quest.')
                 .addChannelOption((option) =>
                     option
                         .setName('channel')
@@ -52,10 +65,8 @@ export function commandDefinition(): SlashCommandBuilder {
                 )
                 .addBooleanOption((option) =>
                     option
-                        .setName('notify')
-                        .setDescription(
-                            "Whether the user should be notified that it's their turn now or not"
-                        )
+                        .setName('mainquest')
+                        .setDescription('Set this to true if the RP is tied to a main quest.')
                         .setRequired(true)
                 )
         );
