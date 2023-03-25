@@ -158,12 +158,14 @@ export class SessionStart extends Command {
                     name: options.getString(`character${i}`),
                 });
             }
+            const isMainQuest = options.getBoolean('mainquest');
 
             return Promise.resolve({
                 channel: channel,
                 turnOrder: turnOrder,
                 currentTurn: turnOrder[0],
                 sessionPost: null,
+                isMainQuest: isMainQuest,
             });
         } catch (error) {
             throw new CommandError(
@@ -213,7 +215,9 @@ export class SessionStart extends Command {
             title += ' ';
             title += channelNameWords.join(' ');
 
-            let content = `${session.channel}\n\n\n`;
+            let content = `${session.channel}`;
+            if (session.isMainQuest) content += `\n⭐ **This RP is tied to a main quest.**`;
+            content += `\n\n\n`;
             for (const character of session.turnOrder) {
                 if (
                     character.member?.id === session.currentTurn.member?.id &&
@@ -338,6 +342,7 @@ export class SessionStart extends Command {
             turnOrder: turnOrder,
             currentTurn: turnOrder[0], // first array element
             sessionPostId: data.sessionPost.id,
+            isMainQuest: data.isMainQuest,
         });
 
         this.logger.trace(`Saved following session to database: ${session}`);

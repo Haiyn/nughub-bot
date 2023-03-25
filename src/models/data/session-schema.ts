@@ -20,6 +20,9 @@ export interface ISessionSchema {
 
     /** The date of the last turn advance. Only set after first next command for session */
     lastTurnAdvance: Date;
+
+    /* Indicator whether or not this session is a main quest and has priority */
+    isMainQuest?: boolean;
 }
 
 /** The mongoose schema of the session database object */
@@ -31,6 +34,7 @@ const sessionSchema = new Schema<ISessionSchema>(
         sessionPostId: { type: String, required: true },
         timestampPostId: { type: String, required: false },
         lastTurnAdvance: { type: Date, required: false },
+        isMainQuest: { type: Boolean, required: false },
     },
     { collection: 'Sessions' }
 );

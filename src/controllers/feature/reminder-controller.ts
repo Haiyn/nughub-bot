@@ -1,7 +1,7 @@
 import { FeatureController } from '@controllers/feature/feature-controller';
 import { Reminder } from '@models/jobs/reminder';
 import { IReminderSchema, ReminderModel } from '@models/jobs/reminder-schema';
-import { TimestampStatus } from '@src/models';
+import { SessionModel, TimestampStatus } from '@src/models';
 import { injectable } from 'inversify';
 import moment = require('moment');
 
@@ -193,9 +193,10 @@ export class ReminderController extends FeatureController {
 
         // See if user is on hiatus
         const hasActiveHiatus = await this.hiatusService.userHasActiveHiatus(reminder.member?.id);
+        const session = await SessionModel.findOne({ channelId: reminder.channel.id }).exec();
 
         // Send the reminder message
-        await this.reminderService.sendReminder(reminder, hasActiveHiatus);
+        await this.reminderService.sendReminder(reminder, session, hasActiveHiatus);
 
         // Update the timestamp that the first reminder was sent
         await this.timestampService.editTimestamp(
@@ -211,12 +212,19 @@ export class ReminderController extends FeatureController {
 
         // Check if user is on hiatus
         if (hasActiveHiatus) {
-            newDate = newDate
-                .add(await this.configuration.getNumber(`Schedule_Hiatus_Hours`), 'hours')
-                .add(await this.configuration.getNumber(`Schedule_Hiatus_Minutes`), 'minutes');
-            this.logger.debug(
-                `User ${reminder.member.nickname} is on hiatus. Scheduling to ${newDate}.`
-            );
+            // Only allow the extension if its not a main quest
+            if (session.isMainQuest) {
+                this.logger.debug(
+                    `User ${reminder.member.nickname} is on hiatus but session is a main quest.`
+                );
+            } else {
+                newDate = newDate
+                    .add(await this.configuration.getNumber(`Schedule_Hiatus_Hours`), 'hours')
+                    .add(await this.configuration.getNumber(`Schedule_Hiatus_Minutes`), 'minutes');
+                this.logger.debug(
+                    `User ${reminder.member.nickname} is on hiatus. Scheduling to ${newDate}.`
+                );
+            }
         }
 
         // Update in the database
@@ -241,9 +249,10 @@ export class ReminderController extends FeatureController {
 
         // See if user is on hiatus
         const hasActiveHiatus = await this.hiatusService.userHasActiveHiatus(reminder.member?.id);
+        const session = await SessionModel.findOne({ channelId: reminder.channel.id }).exec();
 
         // Send the reminder message
-        await this.reminderService.sendReminder(reminder, hasActiveHiatus);
+        await this.reminderService.sendReminder(reminder, session, hasActiveHiatus);
 
         // Update the timestamp that the first reminder was sent
         await this.timestampService.editTimestamp(
@@ -253,7 +262,11 @@ export class ReminderController extends FeatureController {
 
         // notify mods
         const hiatusAddition = await this.hiatusService.getUserHiatusStatus(reminder.member?.id); // Gets the hiatus status as an addition in the warning message
-        await this.reminderService.sendReminderWarning(reminder, hiatusAddition);
+        await this.reminderService.sendReminderWarning(
+            reminder,
+            hiatusAddition,
+            session.isMainQuest
+        );
 
         // Delete the reminder from the database because it no longer needs to be restored
         await this.deleteReminderFromDatabase(reminder);

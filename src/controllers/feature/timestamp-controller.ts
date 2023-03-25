@@ -69,7 +69,10 @@ export class TimestampController extends FeatureController {
             return;
         }
 
-        const content = `*${session.currentTurn.name}* in <#${session.channelId}>`;
+        let content = `*${session.currentTurn.name}* in <#${session.channelId}>`;
+        if (session.isMainQuest)
+            content += `\n\n ⭐ **This is a main quest. Make sure to reply timely to keep the quest going!**`;
+
         const user = await this.client.users.fetch(session.currentTurn.userId);
         const embed = await this.embedProvider.get(EmbedType.Detailed, EmbedLevel.Info, {
             title: await this.stringProvider.get('COMMAND.SESSION-NEXT.NOTIFICATION-TITLE'),

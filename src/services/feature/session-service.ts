@@ -1,5 +1,5 @@
 import { FeatureService } from '@services/feature/feature-service';
-import { ConfigurationKeys, HiatusModel, ISessionSchema } from '@src/models';
+import { ConfigurationKeys, HiatusModel, ISessionSchema, SessionModel } from '@src/models';
 import { Message } from 'discord.js';
 import { injectable } from 'inversify';
 
@@ -21,7 +21,9 @@ export class SessionService extends FeatureService {
                 .getTextChannelByChannelId(currentSessionsChannelId)
                 .messages.cache.get(session.sessionPostId);
 
-            let content = `<#${session.channelId}>\n\n\n`;
+            let content = `<#${session.channelId}>`;
+            if (session.isMainQuest) content += `\n⭐ **This RP is tied to a main quest.**`;
+            content += `\n\n\n`;
             for (const character of session.turnOrder) {
                 const user = await this.userService.getGuildMemberById(character.userId);
                 if (
@@ -50,5 +52,10 @@ export class SessionService extends FeatureService {
             this.logger.error(`Could not edit session post.`, this.logger.prettyError(error));
             return Promise.reject();
         }
+    }
+
+    public async sessionIsMainQuest(channelId: string): Promise<boolean> {
+        const session = await SessionModel.findOne({ channelId: channelId }).exec();
+        return session.isMainQuest ?? false;
     }
 }

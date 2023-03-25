@@ -19,13 +19,16 @@ export class Session {
 
     lastTurnAdvance?: Date;
 
+    isMainQuest?: boolean;
+
     constructor(
         channel: TextChannel,
         turnOrder: Character[],
         currentTurn: Character,
         sessionPost: Message,
         timestampPost?: Message,
-        lastTurnAdvance?: Date
+        lastTurnAdvance?: Date,
+        isMainQuest?: boolean
     ) {
         this.channel = channel;
         this.turnOrder = turnOrder;
@@ -34,5 +37,6 @@ export class Session {
         this.timestampPost = timestampPost;
         this.timestampPost = timestampPost;
         this.lastTurnAdvance = lastTurnAdvance;
+        this.isMainQuest = isMainQuest;
     }
 }

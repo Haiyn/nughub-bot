@@ -1,7 +1,7 @@
 import { Reminder } from '@models/jobs/reminder';
 import { ReminderModel } from '@models/jobs/reminder-schema';
 import { FeatureService } from '@services/feature/feature-service';
-import { EmbedLevel, EmbedType, ISessionSchema, SessionModel } from '@src/models';
+import { EmbedLevel, EmbedType, ISessionSchema } from '@src/models';
 import { injectable } from 'inversify';
 import moment = require('moment');
 
@@ -12,16 +12,20 @@ export class ReminderService extends FeatureService {
      * Sends a reminder message to the reminder channel
      *
      * @param reminder The reminder to send
+     * @param session The session the reminder is for
      * @param hasActiveHiatus Whether or not the user has an active hiatus
      * @returns when done
      */
-    public async sendReminder(reminder: Reminder, hasActiveHiatus: boolean): Promise<void> {
+    public async sendReminder(
+        reminder: Reminder,
+        session: ISessionSchema,
+        hasActiveHiatus: boolean
+    ): Promise<void> {
         this.logger.info(`Sending reminder ${reminder.name}...`);
 
         // Check if skip warning should be shown. Will not be shown if not on last reminder or if its a 2 person rp
         let showSkipWarning = false;
         if (reminder.iteration === 1) {
-            const session = await SessionModel.findOne({ channelId: reminder.channel.id }).exec();
             if (session.turnOrder.length > 2) showSkipWarning = true;
         }
 
@@ -30,15 +34,19 @@ export class ReminderService extends FeatureService {
         let content = `*${reminder.characterName}* in <#${reminder.channel.id}>`;
         if (reminder.iteration === 0) {
             footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.FIRST');
-            if (hasActiveHiatus) {
+            if (session.isMainQuest)
+                content += `\n\n ⭐ **This is a main quest. Make sure to reply timely to keep the quest going!**`;
+            else if (hasActiveHiatus) {
                 content +=
                     `\n\n` + (await this.stringProvider.get('JOB.REMINDER.DESCRIPTION.HIATUS'));
             }
         } else if (reminder.iteration === 1) {
             footer = await this.stringProvider.get('JOB.REMINDER.FOOTER.SECOND');
+            if (session.isMainQuest)
+                content += `\n\n ⭐ **This is a main quest. Make sure to reply timely to keep the quest going!**`;
             if (showSkipWarning) {
                 content += await this.stringProvider.get('JOB.REMINDER.DESCRIPTION.SECOND');
-                if (!hasActiveHiatus) {
+                if (!hasActiveHiatus && !session.isMainQuest) {
                     content += await this.stringProvider.get(
                         'JOB.REMINDER.DESCRIPTION.SECOND.HIATUS-HINT'
                     );
@@ -81,14 +89,21 @@ export class ReminderService extends FeatureService {
      *
      * @param reminder the last reminder that was sent
      * @param hiatusStatus an additional hiatus status of the user that received the reminder
+     * @param isMainQuest whether or not the session is a main quest
      */
-    public async sendReminderWarning(reminder: Reminder, hiatusStatus: string): Promise<void> {
+    public async sendReminderWarning(
+        reminder: Reminder,
+        hiatusStatus: string,
+        isMainQuest: boolean
+    ): Promise<void> {
         const embed = await this.embedProvider.get(EmbedType.Technical, EmbedLevel.Warning, {
             title: await this.stringProvider.get('JOB.REMINDER.WARNING.TITLE'),
             content:
                 `**User:** ${await this.userService.getMemberDisplay(
                     reminder.member
-                )}\n**Channel:** <#${reminder.channel.id}>\n\n` + `${hiatusStatus}`,
+                )}\n**Channel:** <#${reminder.channel.id}>${
+                    isMainQuest ? '\n\n⭐ **Session is a main quest.**' : ''
+                }\n\n` + `${hiatusStatus}`,
         });
 
         await this.messageService.sendInternalMessage({ embeds: [embed] });

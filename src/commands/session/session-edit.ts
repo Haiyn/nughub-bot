@@ -41,6 +41,9 @@ export class SessionEdit extends Command {
             case 'set':
                 await this.set(interaction);
                 break;
+            case 'prioritize':
+                await this.prioritize(interaction);
+                break;
             default:
                 throw new CommandError(
                     `No subcommand mapping for strings subcommand ${subcommand}`
@@ -402,6 +405,24 @@ export class SessionEdit extends Command {
             });
     }
 
+    private async prioritize(interaction: CommandInteraction): Promise<void> {
+        const sessionToEdit = await this.getSession(interaction.options.getChannel('channel').id);
+
+        sessionToEdit.isMainQuest = interaction.options.getBoolean('mainquest');
+        this.logger.info(
+            `Updating main quest priority to ${sessionToEdit.isMainQuest} for channel ${sessionToEdit.channel.name}.`
+        );
+
+        await this.updatePriority(sessionToEdit);
+
+        const embedReply = await this.embedProvider.get(EmbedType.Minimal, EmbedLevel.Success, {
+            content: `Successfully updated the priority for <#${sessionToEdit.channel.id}>.`,
+        });
+        await this.interactionService.reply(interaction, {
+            embeds: [embedReply],
+        });
+    }
+
     /**
      * Gets a session from the mongodb
      *
@@ -554,11 +575,11 @@ export class SessionEdit extends Command {
             const footer = await this.hiatusService.getUserHiatusStatus(
                 session.currentTurn.member?.id
             );
-            let content = `**Channel:**\t<#${
+            let content = `**Channel:** ${session.isMainQuest ? '⭐ ' : ''} <#${
                 session.channel.id
-            }>\n**User:**\t${await this.userService.getMemberDisplay(
+            }>\n**User:** ${await this.userService.getMemberDisplay(
                 session.currentTurn.member
-            )}\n**Character:**\t${session.currentTurn.name}\n\n`;
+            )}\n**Character:** ${session.currentTurn.name}\n\n`;
             content += `**Last Turn Advance:** <t:${moment.utc().unix()}:F> (<t:${moment
                 .utc()
                 .unix()}:R>)\n`;
@@ -572,5 +593,18 @@ export class SessionEdit extends Command {
             // and the turn order post
             await this.sessionService.updateSessionPost(newSession);
         }
+    }
+
+    private async updatePriority(session: Session) {
+        const updatedSession = this.sessionMapper.mapSessionToSessionSchema(session);
+
+        await SessionModel.findOneAndUpdate(
+            { channelId: session.channel.id },
+            { isMainQuest: session.isMainQuest }
+        ).exec();
+
+        await this.sessionService.updateSessionPost(updatedSession);
+
+        await this.timestampService.updateTimestamp(updatedSession);
     }
 }

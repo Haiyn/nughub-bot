@@ -229,6 +229,8 @@ export class SessionNext extends Command {
         reason: NextReason = null
     ): Promise<void> {
         let content = `*${newSession.currentTurn.name}* in <#${newSession.channelId}>`;
+        if (newSession.isMainQuest)
+            content += `\n\n ⭐ **This is a main quest. Make sure to reply timely to keep the quest going!**`;
         if (userMessage)
             content += `\n\n${await this.userService.getGuildMemberById(
                 previousTurn.userId
