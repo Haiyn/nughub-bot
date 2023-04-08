@@ -44,6 +44,12 @@ export function commandDefinition(): SlashCommandBuilder {
             option
                 .setName('set')
                 .setDescription('Manually set the current turn for an RP.')
+                .addChannelOption((option) =>
+                    option
+                        .setName('channel')
+                        .setDescription('The channel with the ongoing RP that you want to edit')
+                        .setRequired(true)
+                )
                 .addBooleanOption((option) =>
                     option
                         .setName('notify')
